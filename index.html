@@ -157,9 +157,9 @@
 <p><strong>system函数的地址泄露：</strong></p>
 <p>涉及了一个新的知识点：main_arena。main_arena存在于libc的BSS段中，用于存放各种bin的头结点信息，如fastbin，smallbin和unsortedbin等。本题中，当最开始add了一个note，并设置content大小为一个大于64字节的数（例如100），再delete这个note时，这一块内存会首先放入unsortedbin当中，并将FD和BK设置为main_arena中unsortedbin的头结点地址。</p>
 <p>可以通过调试查看，在100字节的content没有被释放时，main_arena的结构是这样的：</p>
-<p><img src="/2018/02/07/HITCTF-PWN/babynote_9.png" alt=""></p>
+<p><img src="/2018/02/07/HITCTF-PWN/babynote_9.jpg" alt=""></p>
 <p>释放这个note之后，main_arena如下：</p>
-<p><img src="/2018/02/07/HITCTF-PWN/babynote_8.png" alt=""></p>
+<p><img src="/2018/02/07/HITCTF-PWN/babynote_8.jpg" alt=""></p>
 <p>其中bins里存放的就是各类型的bin头结点的地址，发现0x5824b010就是unsortedbin头结点的地址，查看0x5824b010，就能看见刚刚释放的content 地址。</p>
 <p><img src="/2018/02/07/HITCTF-PWN/babynote_10.png" alt=""></p>
 <p>因此，system函数的地址泄露可以通过读取已释放的content的前四字节（FD指针）泄露libc的地址，进而泄露system的地址。</p>
@@ -173,7 +173,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/02/07/HITCTF-PWN/" data-id="cjdeogts100006ou62es69q2g" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2018/02/07/HITCTF-PWN/" data-id="cjdeoq9mx0000q0u6pr672ku8" class="article-share-link">Teilen</a>
       
       
     </footer>
@@ -218,7 +218,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/02/07/hello-world/" data-id="cjdeogttl00016ou6a6vj3vbx" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2018/02/07/hello-world/" data-id="cjdeoq9o70001q0u66ewyqlzv" class="article-share-link">Teilen</a>
       
       
     </footer>

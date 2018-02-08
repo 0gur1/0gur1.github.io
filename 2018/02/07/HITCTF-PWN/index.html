@@ -39,10 +39,10 @@
 <meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/babynote_5.png">
 <meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/babynote_6.png">
 <meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/babynote_7.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/babynote_9.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/babynote_8.png">
+<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/babynote_9.jpg">
+<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/babynote_8.jpg">
 <meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/babynote_10.png">
-<meta property="og:updated_time" content="2018-02-08T15:47:21.385Z">
+<meta property="og:updated_time" content="2018-02-08T15:55:20.406Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="HITCTF PWN">
 <meta name="twitter:description" content="1. STACK OVERFLOW1) 基本逻辑main函数调用vuln函数，vuln函数中输入name字符串：  2) 漏洞vuln函数中buf的地址是ebp-28h，即buf大小为0x28，但在读入字符串时，read参数是0x40，即栈溢出漏洞。 3) 漏洞利用保护机制： NX堆栈不可执行  在IDA的函数一栏发现有一个flag的函数，利用该函数执行shell ：  通过栈溢出构造ROP：将v">
@@ -189,9 +189,9 @@
 <p><strong>system函数的地址泄露：</strong></p>
 <p>涉及了一个新的知识点：main_arena。main_arena存在于libc的BSS段中，用于存放各种bin的头结点信息，如fastbin，smallbin和unsortedbin等。本题中，当最开始add了一个note，并设置content大小为一个大于64字节的数（例如100），再delete这个note时，这一块内存会首先放入unsortedbin当中，并将FD和BK设置为main_arena中unsortedbin的头结点地址。</p>
 <p>可以通过调试查看，在100字节的content没有被释放时，main_arena的结构是这样的：</p>
-<p><img src="/2018/02/07/HITCTF-PWN/babynote_9.png" alt=""></p>
+<p><img src="/2018/02/07/HITCTF-PWN/babynote_9.jpg" alt=""></p>
 <p>释放这个note之后，main_arena如下：</p>
-<p><img src="/2018/02/07/HITCTF-PWN/babynote_8.png" alt=""></p>
+<p><img src="/2018/02/07/HITCTF-PWN/babynote_8.jpg" alt=""></p>
 <p>其中bins里存放的就是各类型的bin头结点的地址，发现0x5824b010就是unsortedbin头结点的地址，查看0x5824b010，就能看见刚刚释放的content 地址。</p>
 <p><img src="/2018/02/07/HITCTF-PWN/babynote_10.png" alt=""></p>
 <p>因此，system函数的地址泄露可以通过读取已释放的content的前四字节（FD指针）泄露libc的地址，进而泄露system的地址。</p>
@@ -205,7 +205,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/02/07/HITCTF-PWN/" data-id="cjdeogts100006ou62es69q2g" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2018/02/07/HITCTF-PWN/" data-id="cjdeoq9mx0000q0u6pr672ku8" class="article-share-link">Teilen</a>
       
       
     </footer>
