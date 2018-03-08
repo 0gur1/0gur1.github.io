@@ -61,6 +61,42 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-pwnable-tw-silver-bullet" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/03/08/pwnable-tw-silver-bullet/" class="article-date">
+  <time datetime="2018-03-08T08:09:21.000Z" itemprop="datePublished">2018-03-08</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/03/08/pwnable-tw-silver-bullet/">pwnable.tw-silver_bullet</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2018/03/08/pwnable-tw-silver-bullet/" data-id="cjei8h4br0002q0u63enw412v" class="article-share-link">Teilen</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-pwnable-tw-hacknote" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2018/03/08/pwnable-tw-hacknote/" class="article-date">
@@ -90,7 +126,7 @@
 <p><img src="/2018/03/08/pwnable-tw-hacknote/puts.png" alt="函数内容"></p>
 <p>另外四个字节存放一个新分配的content块的地址，大小size由用户进行输入。对于一个初始状态的地址空间，add_note后的结构如下：</p>
 <hr>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">      ____________________________________</span><br><span class="line">                  |            puts函数地址             |</span><br><span class="line">	———————————————————————————————————</span><br><span class="line">       ————————|            content地址             |</span><br><span class="line">       |   	————————————————————————————————————</span><br><span class="line">|		 </span><br><span class="line">|		 </span><br><span class="line">          |        ——————————————————————————————————————</span><br><span class="line">          |       |          content block              |</span><br><span class="line">          | ——————|       header（8）+ 内容（） 		|</span><br><span class="line">		   ——————————————————————————————————————</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">      ____________________________________</span><br><span class="line">                  |            <span class="built_in">puts</span>函数地址             |</span><br><span class="line">	———————————————————————————————————</span><br><span class="line">       ————————|            content地址             |</span><br><span class="line">       |   	————————————————————————————————————</span><br><span class="line">|		 </span><br><span class="line">|		 </span><br><span class="line">          |        ——————————————————————————————————————</span><br><span class="line">          |       |          content block              |</span><br><span class="line">          | ——————|       header（<span class="number">8</span>）+ 内容（） 		|</span><br><span class="line">		   ——————————————————————————————————————</span><br></pre></td></tr></table></figure>
 <hr>
 <p>delete_note就是先释放content地址这块空间，再释放malloc（8）这块空间。</p>
 <p>print_note就是调用note块的第一个字段即puts函数</p>
@@ -105,7 +141,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/03/08/pwnable-tw-hacknote/" data-id="cjei894d800021ou6811gp8s0" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2018/03/08/pwnable-tw-hacknote/" data-id="cjei8h4bh0001q0u61n0aae7s" class="article-share-link">Teilen</a>
       
       
     </footer>
@@ -227,52 +263,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/02/07/HITCTF-PWN/" data-id="cjei894bn00011ou6809b39tj" class="article-share-link">Teilen</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2018/02/07/hello-world/" class="article-date">
-  <time datetime="2018-02-07T04:08:47.234Z" itemprop="datePublished">2018-02-07</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/02/07/hello-world/">Hello World</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/02/07/hello-world/" data-id="cjei894b300001ou6bz7ypwth" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2018/02/07/HITCTF-PWN/" data-id="cjei8h4aw0000q0u6ibcadkn5" class="article-share-link">Teilen</a>
       
       
     </footer>
@@ -313,15 +304,15 @@
       <ul>
         
           <li>
+            <a href="/2018/03/08/pwnable-tw-silver-bullet/">pwnable.tw-silver_bullet</a>
+          </li>
+        
+          <li>
             <a href="/2018/03/08/pwnable-tw-hacknote/">pwnable.tw--hacknote</a>
           </li>
         
           <li>
             <a href="/2018/02/07/HITCTF-PWN/">HITCTF PWN</a>
-          </li>
-        
-          <li>
-            <a href="/2018/02/07/hello-world/">Hello World</a>
           </li>
         
       </ul>
