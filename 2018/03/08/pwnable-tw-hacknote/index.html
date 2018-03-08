@@ -15,8 +15,9 @@
 <meta property="og:description" content="hacknote1)基本逻辑这又是一道malloc相关的内存题目，但是不是老套路。三个函数：add_note，delete_note和print_note。 使用add_note分配的地址用一个堆表（自己起的名字）存放，（其实就是一个存放地址的数组）。通过add_note可以看出分配的每个块是什么结构：  首先在ptr[i]中存放一个8字节大小的block（实际malloc分配了16字节）地址；然">
 <meta property="og:image" content="http://yoursite.com/2018/03/08/pwnable-tw-hacknote/addnote.png">
 <meta property="og:image" content="http://yoursite.com/2018/03/08/pwnable-tw-hacknote/puts.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/08/pwnable-tw-hacknote/note结构.png">
 <meta property="og:image" content="http://yoursite.com/2018/03/08/pwnable-tw-hacknote/printnote.png">
-<meta property="og:updated_time" content="2018-03-08T08:11:08.189Z">
+<meta property="og:updated_time" content="2018-03-08T08:14:41.604Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="pwnable.tw--hacknote">
 <meta name="twitter:description" content="hacknote1)基本逻辑这又是一道malloc相关的内存题目，但是不是老套路。三个函数：add_note，delete_note和print_note。 使用add_note分配的地址用一个堆表（自己起的名字）存放，（其实就是一个存放地址的数组）。通过add_note可以看出分配的每个块是什么结构：  首先在ptr[i]中存放一个8字节大小的block（实际malloc分配了16字节）地址；然">
@@ -96,7 +97,7 @@
 <p><img src="/2018/03/08/pwnable-tw-hacknote/puts.png" alt="函数内容"></p>
 <p>另外四个字节存放一个新分配的content块的地址，大小size由用户进行输入。对于一个初始状态的地址空间，add_note后的结构如下：</p>
 <hr>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">      ____________________________________</span><br><span class="line">                  |            <span class="built_in">puts</span>函数地址             |</span><br><span class="line">	———————————————————————————————————</span><br><span class="line">       ————————|            content地址             |</span><br><span class="line">       |   	————————————————————————————————————</span><br><span class="line">|		 </span><br><span class="line">|		 </span><br><span class="line">          |        ——————————————————————————————————————</span><br><span class="line">          |       |          content block              |</span><br><span class="line">          | ——————|       header（<span class="number">8</span>）+ 内容（） 		|</span><br><span class="line">		   ——————————————————————————————————————</span><br></pre></td></tr></table></figure>
+<p><img src="/2018/03/08/pwnable-tw-hacknote/note结构.png" alt="note结构，content结构"></p>
 <hr>
 <p>delete_note就是先释放content地址这块空间，再释放malloc（8）这块空间。</p>
 <p>print_note就是调用note块的第一个字段即puts函数</p>
@@ -111,7 +112,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/03/08/pwnable-tw-hacknote/" data-id="cjei8h4bh0001q0u61n0aae7s" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2018/03/08/pwnable-tw-hacknote/" data-id="cjei8p6eb0002a8u6yzirpecu" class="article-share-link">Teilen</a>
       
       
     </footer>
