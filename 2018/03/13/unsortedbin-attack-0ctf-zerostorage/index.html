@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>unsortedbin_attack--0ctf zerostorage | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="unsortedbin attack代码中存在UAF漏洞时，可以通过操纵unsorted bin 的BK指针时，使其修改某一变量的值。举一个简单的例子: 一个unsorted bin，称为victim，victim具有UAF漏洞，则在释放后操作victim时，可以修改victim-&amp;gt;bk为需要修改的变量var的地址-0x10，即&amp;amp;var-0x10，victim-&amp;gt;fd为要写入的">
+<meta name="keywords" content="pwn how2heap">
+<meta property="og:type" content="article">
+<meta property="og:title" content="unsortedbin_attack--0ctf zerostorage">
+<meta property="og:url" content="http://yoursite.com/2018/03/13/unsortedbin-attack-0ctf-zerostorage/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="unsortedbin attack代码中存在UAF漏洞时，可以通过操纵unsorted bin 的BK指针时，使其修改某一变量的值。举一个简单的例子: 一个unsorted bin，称为victim，victim具有UAF漏洞，则在释放后操作victim时，可以修改victim-&amp;gt;bk为需要修改的变量var的地址-0x10，即&amp;amp;var-0x10，victim-&amp;gt;fd为要写入的">
+<meta property="og:image" content="http://yoursite.com/2018/03/13/unsortedbin-attack-0ctf-zerostorage/main.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/13/unsortedbin-attack-0ctf-zerostorage/insert.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/13/unsortedbin-attack-0ctf-zerostorage/random.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/13/unsortedbin-attack-0ctf-zerostorage/entry.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/13/unsortedbin-attack-0ctf-zerostorage/update.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/13/unsortedbin-attack-0ctf-zerostorage/merge.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/13/unsortedbin-attack-0ctf-zerostorage/delete.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/13/unsortedbin-attack-0ctf-zerostorage/view.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/13/unsortedbin-attack-0ctf-zerostorage/checksec.png">
+<meta property="og:updated_time" content="2018-03-13T14:11:15.205Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="unsortedbin_attack--0ctf zerostorage">
+<meta name="twitter:description" content="unsortedbin attack代码中存在UAF漏洞时，可以通过操纵unsorted bin 的BK指针时，使其修改某一变量的值。举一个简单的例子: 一个unsorted bin，称为victim，victim具有UAF漏洞，则在释放后操作victim时，可以修改victim-&amp;gt;bk为需要修改的变量var的地址-0x10，即&amp;amp;var-0x10，victim-&amp;gt;fd为要写入的">
+<meta name="twitter:image" content="http://yoursite.com/2018/03/13/unsortedbin-attack-0ctf-zerostorage/main.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Buscar"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-unsortedbin-attack-0ctf-zerostorage" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/03/13/unsortedbin-attack-0ctf-zerostorage/" class="article-date">
+  <time datetime="2018-03-13T12:09:32.000Z" itemprop="datePublished">2018-03-13</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      unsortedbin_attack--0ctf zerostorage
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="unsortedbin-attack"><a href="#unsortedbin-attack" class="headerlink" title="unsortedbin attack"></a>unsortedbin attack</h1><p>代码中存在UAF漏洞时，可以通过操纵unsorted bin 的BK指针时，使其修改某一变量的值。举一个简单的例子:</p>
+<p>一个unsorted bin，称为victim，victim具有UAF漏洞，则在释放后操作victim时，可以修改victim-&gt;bk为需要修改的变量var的地址-0x10，即&amp;var-0x10，victim-&gt;fd为要写入的值，这样在再次将victim分配时，会进行unlink操作：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">FD = victim-&gt;fd = value</span><br><span class="line">BK = victim-&gt;bk = &amp;var<span class="number">-0x10</span></span><br><span class="line">FD-&gt;bk = BK <span class="comment">//(无影响)</span></span><br><span class="line">BK-&gt;fd = FD  =&gt;  *(&amp;var<span class="number">-0x10</span>+<span class="number">0x10</span>) = value =&gt; var = value</span><br></pre></td></tr></table></figure>
+<p>典型的应用是修改global_max_fast，这个全局变量代表着fastbin 中能够放入的最大chunk的大小，通过修改这个值可以让所有的chunk释放之后都挂在fastbin上，由于fastbin的结构简单，是单链结构，进而进行fastbin攻击。</p>
+<h1 id="实例：0ctf-zerostorage"><a href="#实例：0ctf-zerostorage" class="headerlink" title="实例：0ctf zerostorage"></a>实例：0ctf zerostorage</h1><h2 id="1-基本逻辑"><a href="#1-基本逻辑" class="headerlink" title="1.基本逻辑"></a>1.基本逻辑</h2><p>典型的对堆进行操作的题：</p>
+<p><img src="/2018/03/13/unsortedbin-attack-0ctf-zerostorage/main.png" alt="功能menu"></p>
+<p>insert函数中可以看出，有一个全局数组entries，应该是一个结构体数组，每一个结构体占24个字节，前四个字节记录是否使用中，接着四个字节的padding，然后是8字节的长度和8字节的内容地址信息，这里地址信息不是直接记录的，而是通过与/dev/urandom中的数字异或后存放的。 content内容地址的分配内存是分三种情况：x&lt; 128 直接分配大小为128；128&lt;=x&lt;=4096 分配大小为x；x&gt;4096只分配4096大小。</p>
+<p><img src="/2018/03/13/unsortedbin-attack-0ctf-zerostorage/insert.png" alt="insert关键代码"></p>
+<p><img src="/2018/03/13/unsortedbin-attack-0ctf-zerostorage/random.png" alt="异或的值来自/dev/urandom"></p>
+<p><img src="/2018/03/13/unsortedbin-attack-0ctf-zerostorage/entry.png" alt="结构体结构"></p>
+<p>update函数用于重新编辑content，必要时重新分配内存，修改length和content addr。</p>
+<p><img src="/2018/03/13/unsortedbin-attack-0ctf-zerostorage/update.png" alt="update函数关键代码"></p>
+<p>merge函数合并两个entry对应的content，释放第一个entry的content，将第一个entry各项置零，并重新找到一个entry，把合并后的content地址赋给新的entry 的 content addr。</p>
+<p><img src="/2018/03/13/unsortedbin-attack-0ctf-zerostorage/merge.png" alt="merge函数关键代码"></p>
+<p>delete函数释放entry的content addr 所指的内存，并将指针置零，entry中的各项也置零，很安全，是free的正确使用方法。</p>
+<p><img src="/2018/03/13/unsortedbin-attack-0ctf-zerostorage/delete.png" alt="delete函数关键代码"></p>
+<p>view函数查看内容</p>
+<p><img src="/2018/03/13/unsortedbin-attack-0ctf-zerostorage/view.png" alt="view函数"></p>
+<h2 id="2-漏洞"><a href="#2-漏洞" class="headerlink" title="2.漏洞"></a>2.漏洞</h2><p>虽然本题的delete函数非常安全，但是在merge函数中，如果输入的两个编号一样，将会先free 然后又把指针给另一个entry，即UAF。</p>
+<h2 id="3-漏洞利用"><a href="#3-漏洞利用" class="headerlink" title="3.漏洞利用"></a>3.漏洞利用</h2><p>本题开了所有保护，关键是PIE</p>
+<p><img src="/2018/03/13/unsortedbin-attack-0ctf-zerostorage/checksec.png" alt="checksec"></p>
+<p>本题还提到一条，之后会用到：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Notice: Latest Ubuntu 14.04.4 LTS, with 3.13.0-79-generic kernel.</span><br></pre></td></tr></table></figure>
+<p><strong>libc地址泄露：</strong> 第一个释放的chunk（不是fastbin），其FD和BK指针都指向main_arena中bins结构中的unsorted bin头，main_arena中的各个值存放于libc中的bss段，因此，可以在merge 之后读取这一块的前八个字节，正好是libc中的地址，通过偏移可以计算出libc的基址。</p>
+<p>由于本题开了PIE，因此不能直接获取程序中指令的地址，但是在 Notice中提到的【Ubuntu 14.04.4 LTS, with 3.13.0-79-generic kernel】的操作系统存在着</p>
+<p>的漏洞，也就是说可以从libc的基址推断出程序的基址。</p>
+<p><strong>unsorted bin attack修改global_max_fast的值：</strong> update上一步提到的块，将BK修改为&amp;global_max_fast -0x10，FD修改为一个较大的值。再insert一个新的entry时，会将这个块从unsorted bin上unlink后分给新 entry的content，由此完成了对global_max_fast值的改写，接下来的所有块都将属于fastbin的范围。</p>
+<p><strong>fastbin劫持用于读取random的值：</strong> 再merge另外两个相同的块，此时释放的块将挂在fastbin上，设某一已经分配的entry的index为idx1，利用UAF修改该fastbin的FD指针为entries[idx1]，且保证entries[idx1]和merge的块在fastbin中的大小相同，如均为144，因为fastbin在分配时候会首先检查chunk的size字段是否为当前链中应该的大小。 之后再insert两次，第一次将merge的块从fastbin中摘除，此时fastbin的头就指向了entries[idx1]，第二次insert就把entries[idx1]分给了新的entry 称为 entries[idx3]，即entries[idx3]的content addr指向entries[idx1]。由于entries[idx3] + 0x16中记载的是entries[idx1]^random，通过update idx3将这个值读出后异或entries[idx1]，由此得到random的值</p>
+<p>这次的shell的执行没有用system，学到了一个新的知识：</p>
+<p>再次update idx3，修改idx1下一个entry idx2的content addr处为 free_hook^ random，这样再update idx2时，相当于修改free_hook的值，将其写为one_gadget的地址。</p>
+<h2 id="4-exp"><a href="#4-exp" class="headerlink" title="4.exp"></a>4.exp</h2><p>由于目前手中没有Ubuntu 14.xx的系统，在此只记录思路，之后再做具体复现，exp可以参考</p>
+<p>思路：</p>
+<p>用#0，#1，…代表entries[0]，entries[1]；&amp;0，&amp;1，….代表堆上分配的各个content编号</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">insert #0 -&gt; &amp;0</span><br><span class="line">insert #1 -&gt; &amp;1</span><br><span class="line">insert #2 -&gt; &amp;2</span><br><span class="line"></span><br><span class="line">merge #1,#1 =&gt; #3-&gt;&amp;1(已free)</span><br><span class="line">view #3 =&gt;读FD 泄露libc地址，进而获取one_gadget地址、entries地址和free_hook地址</span><br><span class="line"></span><br><span class="line">update #3 =&gt;覆写global_max_fast的值，之后所有chunk都属于fastbin</span><br><span class="line"></span><br><span class="line">insert #1 -&gt; &amp;1</span><br><span class="line">insert #4 -&gt; &amp;3</span><br><span class="line">insert #5 -&gt; &amp;4</span><br><span class="line"></span><br><span class="line">merge #4,#4 =&gt; #6-&gt;&amp;3(已free)</span><br><span class="line">update #6 =&gt;FD的值写成#5（entries[5]）的地址</span><br><span class="line"></span><br><span class="line">insert #7-&gt;&amp;3</span><br><span class="line">insert #8-&gt;#5 </span><br><span class="line"></span><br><span class="line">view #8 =&gt;获取random的值</span><br><span class="line">update #8 =&gt;覆写#6的各个字段，重点是将content_addr写为random^free_hook</span><br><span class="line">update #6 =&gt;在free_hook中写入one_gadget地址</span><br><span class="line"></span><br><span class="line">delete #0 =&gt;调用free_hook即one_gadget</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2018/03/13/unsortedbin-attack-0ctf-zerostorage/" data-id="cjepqjm2n0002f8u61vgvkk0m" class="article-share-link">Compartir</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/pwn-how2heap/">pwn how2heap</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2018/03/08/pwnable-tw-silver-bullet/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Viejo</strong>
+      <div class="article-nav-title">pwnable.tw-silver_bullet</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/pwn-how2heap/">pwn how2heap</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Nube de Tags</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/pwn-how2heap/" style="font-size: 10px;">pwn how2heap</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archivos</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Posts recientes</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2018/03/13/unsortedbin-attack-0ctf-zerostorage/">unsortedbin_attack--0ctf zerostorage</a>
+          </li>
+        
+          <li>
+            <a href="/2018/03/08/pwnable-tw-silver-bullet/">pwnable.tw-silver_bullet</a>
+          </li>
+        
+          <li>
+            <a href="/2018/03/08/pwnable-tw-hacknote/">pwnable.tw--hacknote</a>
+          </li>
+        
+          <li>
+            <a href="/2018/02/07/HITCTF-PWN/">HITCTF PWN</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 John Doe<br>
+      Construido por <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>
