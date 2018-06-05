@@ -48,9 +48,9 @@
       </nav>
       <nav id="sub-nav">
         
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS"></a>
         
-        <a id="nav-search-btn" class="nav-icon" title="Suche"></a>
+        <a id="nav-search-btn" class="nav-icon" title="Buscar"></a>
       </nav>
       <div id="search-form-wrap">
         <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
@@ -85,8 +85,8 @@
       
         <h1 id="unsortedbin-attack"><a href="#unsortedbin-attack" class="headerlink" title="unsortedbin attack"></a>unsortedbin attack</h1><p>代码中存在UAF漏洞时，可以通过操纵unsorted bin 的BK指针时，使其修改某一变量的值。举一个简单的例子:</p>
 <p><a href="https://github.com/shellphish/how2heap/blob/master/unsorted_bin_attack.c" target="_blank" rel="noopener">shellphish/how2heap/unsorted_bin_attack</a></p>
-<p>一个unsorted bin，称为victim，victim具有UAF漏洞，则在释放后操作victim时，可以修改victim-&gt;bk为需要修改的变量var的地址-0x10，即&amp;var-0x10，victim-&gt;fd为要写入的值，这样在再次将victim分配时，会进行unlink操作：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">FD = victim-&gt;fd = value</span><br><span class="line">BK = victim-&gt;bk = &amp;var<span class="number">-0x10</span></span><br><span class="line">FD-&gt;bk = BK <span class="comment">//(无影响)</span></span><br><span class="line">BK-&gt;fd = FD  =&gt;  *(&amp;var<span class="number">-0x10</span>+<span class="number">0x10</span>) = value =&gt; var = value</span><br></pre></td></tr></table></figure>
+<p>一个unsorted bin，称为victim，victim具有UAF漏洞，则在释放后操作victim时，可以修改victim-&gt;bk为需要修改的变量var的地址-0x10，即&amp;var-0x10，这样在再次将victim分配时，会进行unlink操作，将var的值修改为unsorted bin头的地址：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bck = victim-&gt;bk;    <span class="comment">//bck = &amp;var-0x10</span></span><br><span class="line">unsorted_chunk(av)-&gt;bk = bck; </span><br><span class="line">bck-&gt;fd = unsorted_chunk(av) <span class="comment">//*(&amp;var-0x10+0x10) = unsorted_chunk(av) =&gt; var = unsorted_chunk(av)</span></span><br></pre></td></tr></table></figure>
 <p>典型的应用是修改global_max_fast，这个全局变量代表着fastbin 中能够放入的最大chunk的大小，通过修改这个值可以让所有的chunk释放之后都挂在fastbin上，由于fastbin的结构简单，是单链结构，进而进行fastbin攻击。</p>
 <h1 id="实例：0ctf-zerostorage"><a href="#实例：0ctf-zerostorage" class="headerlink" title="实例：0ctf zerostorage"></a>实例：0ctf zerostorage</h1><h2 id="1-基本逻辑"><a href="#1-基本逻辑" class="headerlink" title="1.基本逻辑"></a>1.基本逻辑</h2><p>典型的对堆进行操作的题：</p>
 <p><img src="/2018/03/13/unsortedbin-attack-0ctf-zerostorage/main.png" alt="功能menu"></p>
@@ -123,7 +123,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/03/13/unsortedbin-attack-0ctf-zerostorage/" data-id="cjepqwac20003n8u6gal8zyx0" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2018/03/13/unsortedbin-attack-0ctf-zerostorage/" data-id="cji1rx6k30002n4u650sxyxfz" class="article-share-link">Compartir</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/pwn-how2heap/">pwn how2heap</a></li></ul>
@@ -182,7 +182,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/03/08/pwnable-tw-silver-bullet/" data-id="cjepqwabz0002n8u67wkxgsjz" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2018/03/08/pwnable-tw-silver-bullet/" data-id="cji1rx6k30003n4u6nsblyeaj" class="article-share-link">Compartir</a>
       
       
     </footer>
@@ -236,7 +236,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/03/08/pwnable-tw-hacknote/" data-id="cjepqwabv0001n8u6xdsgmoto" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2018/03/08/pwnable-tw-hacknote/" data-id="cji1rx6j80001n4u6s78pd0xl" class="article-share-link">Compartir</a>
       
       
     </footer>
@@ -358,7 +358,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/02/07/HITCTF-PWN/" data-id="cjepqwabn0000n8u6twwn059a" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2018/02/07/HITCTF-PWN/" data-id="cji1rx6j80000n4u6br2ij25v" class="article-share-link">Compartir</a>
       
       
     </footer>
@@ -389,7 +389,7 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
+    <h3 class="widget-title">Nube de Tags</h3>
     <div class="widget tagcloud">
       <a href="/tags/pwn-how2heap/" style="font-size: 10px;">pwn how2heap</a>
     </div>
@@ -398,7 +398,7 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Archiv</h3>
+    <h3 class="widget-title">Archivos</h3>
     <div class="widget">
       <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a></li></ul>
     </div>
@@ -408,7 +408,7 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">letzter Beitrag</h3>
+    <h3 class="widget-title">Posts recientes</h3>
     <div class="widget">
       <ul>
         
@@ -441,7 +441,7 @@
   <div class="outer">
     <div id="footer-info" class="inner">
       &copy; 2018 John Doe<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      Construido por <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
 </footer>
