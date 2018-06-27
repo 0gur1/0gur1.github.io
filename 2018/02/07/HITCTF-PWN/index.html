@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next muse use-motion" lang="">
+<html class="theme-next muse use-motion" lang="zh-CN">
 <head>
   <meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -86,6 +86,7 @@
 <meta property="og:url" content="http://yoursite.com/2018/02/07/HITCTF-PWN/index.html">
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="STACK OVERFLOW基本逻辑main函数调用vuln函数，vuln函数中输入name字符串：  漏洞vuln函数中buf的地址是ebp-28h，即buf大小为0x28，但在读入字符串时，read参数是0x40，即栈溢出漏洞。 漏洞利用保护机制： NX堆栈不可执行  在IDA的函数一栏发现有一个flag的函数，利用该函数执行shell ：  通过栈溢出构造ROP：将vuln函数返回地址覆盖为">
+<meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/stackoverflow_1.png">
 <meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/stackoverflow_2.png">
 <meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/stackoverflow_3.png">
@@ -167,7 +168,7 @@
 
 </head>
 
-<body itemscope itemtype="http://schema.org/WebPage" lang="">
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
 
   
   
