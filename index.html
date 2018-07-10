@@ -229,6 +229,162 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/10/sysmalloc源码分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="0gur1">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/07/10/sysmalloc源码分析/" itemprop="url">sysmalloc源码分析</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-10T11:16:22+08:00">
+                2018-07-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>之前在做SUCTF的note时接触到了house of orange的原理，即将top的大小修改为一个比较小的值，再分配一个比size大的值时，原来的top就会free并放入到unsorted bin里，重新产生一个新的top。而note这道题由于可以自己创造出unsorted bin，就没有修改top的大小。今天简单看了一下sysmalloc的源码，重新认识了house of orange。ps：在网上找了一些大佬讲原理的blog，发现各位大佬都分析的是非主分配区部分的源码，而实际上多数用到的是main arena的源码，虽然原理类似，但是金牛座就愿意钻牛角尖=。=</p>
+<h1 id="一个用来调试的栗子"><a href="#一个用来调试的栗子" class="headerlink" title="一个用来调试的栗子"></a>一个用来调试的栗子</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> fake_size 0x1fe1</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">void</span> *ptr;</span><br><span class="line"></span><br><span class="line">    ptr=<span class="built_in">malloc</span>(<span class="number">0x10</span>);</span><br><span class="line">    ptr=(<span class="keyword">void</span> *)((<span class="keyword">int</span>)ptr+<span class="number">24</span>);</span><br><span class="line"></span><br><span class="line">    *((<span class="keyword">long</span> <span class="keyword">long</span>*)ptr)=fake_size;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">malloc</span>(<span class="number">0x2000</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">malloc</span>(<span class="number">0x60</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>栗子参考了<a href="https://ctf-wiki.github.io/ctf-wiki/pwn/heap/house_of_orange/" target="_blank" rel="noopener">ctf-wiki</a>，将top的大小改为了0x1fe1，然后再分配0x2000大小的chunk，由于_int_malloc的其他环节都不能处理了，由此调用sysmalloc</p>
+<h1 id="sysmalloc的源码"><a href="#sysmalloc的源码" class="headerlink" title="sysmalloc的源码"></a>sysmalloc的源码</h1><p>根据上面的栗子，在第二个<code>malloc</code>处对<code>sysmalloc</code>的源码逐步分析的</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">void</span> *</span><br><span class="line">sysmalloc (INTERNAL_SIZE_T nb, mstate av)</span><br><span class="line">&#123;</span><br><span class="line">  mchunkptr old_top;              <span class="comment">/* incoming value of av-&gt;top */</span></span><br><span class="line">  INTERNAL_SIZE_T old_size;       <span class="comment">/* its size */</span></span><br><span class="line">  <span class="keyword">char</span> *old_end;                  <span class="comment">/* its end address */</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">long</span> size;                      <span class="comment">/* arg to first MORECORE or mmap call */</span></span><br><span class="line">  <span class="keyword">char</span> *brk;                      <span class="comment">/* return value from MORECORE */</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">long</span> correction;                <span class="comment">/* arg to 2nd MORECORE call */</span></span><br><span class="line">  <span class="keyword">char</span> *snd_brk;                  <span class="comment">/* 2nd return val */</span></span><br><span class="line"></span><br><span class="line">  INTERNAL_SIZE_T front_misalign; <span class="comment">/* unusable bytes at front of new space */</span></span><br><span class="line">  INTERNAL_SIZE_T end_misalign;   <span class="comment">/* partial page left at end of new space */</span></span><br><span class="line">  <span class="keyword">char</span> *aligned_brk;              <span class="comment">/* aligned offset into brk */</span></span><br><span class="line"></span><br><span class="line">  mchunkptr p;                    <span class="comment">/* the allocated/returned chunk */</span></span><br><span class="line">  mchunkptr remainder;            <span class="comment">/* remainder from allocation */</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">long</span> remainder_size;   <span class="comment">/* its size */</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="keyword">size_t</span> pagesize = GLRO (dl_pagesize);</span><br><span class="line">  <span class="keyword">bool</span> tried_mmap = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="comment">/*</span></span><br><span class="line"><span class="comment">     If have mmap, and the request size meets the mmap threshold, and</span></span><br><span class="line"><span class="comment">     the system supports mmap, and there are few enough currently</span></span><br><span class="line"><span class="comment">     allocated mmapped regions, try to directly map this request</span></span><br><span class="line"><span class="comment">     rather than expanding top.</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">    </span><br><span class="line">  <span class="keyword">if</span> (av == <span class="literal">NULL</span></span><br><span class="line">      || ((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (nb) &gt;= (<span class="keyword">unsigned</span> <span class="keyword">long</span>) (mp_.mmap_threshold)</span><br><span class="line">	  &amp;&amp; (mp_.n_mmaps &lt; mp_.n_mmaps_max)))</span><br><span class="line">  &#123;</span><br><span class="line">      ……</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p> av是当前的分配区，<code>mmap_threshold</code>是能够使用mmap分配的阈值，<code>n_mmaps_max</code>是mmap分配的内存块设定的最大值，调试查看这两个值：</p>
+<p><img src="/2018/07/10/sysmalloc源码分析/mp_.png" alt="mp_结构体"></p>
+<p>显然当前我们输入的0x2000不满足这个条件，执行下一个分支。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">old_top = av-&gt;top;</span><br><span class="line">old_size = chunksize (old_top);</span><br><span class="line">old_end = (<span class="keyword">char</span> *) (chunk_at_offset (old_top, old_size));</span><br><span class="line"></span><br><span class="line">brk = snd_brk = (<span class="keyword">char</span> *) (MORECORE_FAILURE);</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">   If not the first time through, we require old_size to be</span></span><br><span class="line"><span class="comment">   at least MINSIZE and to have prev_inuse set.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line">assert ((old_top == initial_top (av) &amp;&amp; old_size == <span class="number">0</span>) ||</span><br><span class="line">        ((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (old_size) &gt;= MINSIZE &amp;&amp;</span><br><span class="line">         prev_inuse (old_top) &amp;&amp;</span><br><span class="line">         ((<span class="keyword">unsigned</span> <span class="keyword">long</span>) old_end &amp; (pagesize - <span class="number">1</span>)) == <span class="number">0</span>));</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Precondition: not enough current space to satisfy nb request */</span></span><br><span class="line">assert ((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (old_size) &lt; (<span class="keyword">unsigned</span> <span class="keyword">long</span>) (nb + MINSIZE));</span><br></pre></td></tr></table></figure>
+<p>接下来获取原来的top信息：起始地址、大小、终止地址。并且要求满足两个assert的条件：</p>
+<ol>
+<li>第一次调用<code>sysmalloc</code>函数，top还没有初始化；或者已经初始化，top的大小大于MINSIZE（0x10），表示前一个chunk处于inuse状态，以及top chunk的结束地址是页对齐的。</li>
+<li>原top的大小小于当前要分配chunk的大小。</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (av != &amp;main_arena)</span><br><span class="line">  &#123;</span><br><span class="line">    ……</span><br><span class="line">  &#125;</span><br><span class="line"><span class="keyword">else</span>     <span class="comment">/* av == main_arena */</span></span><br><span class="line">  &#123; <span class="comment">/* Request enough space for nb + pad + overhead */</span></span><br><span class="line">    size = nb + mp_.top_pad + MINSIZE;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">       If contiguous, we can subtract out existing space that we hope to</span></span><br><span class="line"><span class="comment">       combine with new space. We add it back later only if</span></span><br><span class="line"><span class="comment">       we don't actually get contiguous space.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (contiguous (av))</span><br><span class="line">      size -= old_size;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">       Round to a multiple of page size.</span></span><br><span class="line"><span class="comment">       If MORECORE is not contiguous, this ensures that we only call it</span></span><br><span class="line"><span class="comment">       with whole-page arguments.  And if MORECORE is contiguous and</span></span><br><span class="line"><span class="comment">       this is not first time through, this preserves page-alignment of</span></span><br><span class="line"><span class="comment">       previous calls. Otherwise, we correct to page-align below.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"></span><br><span class="line">    size = ALIGN_UP (size, pagesize);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">       Don't try to call MORECORE if argument is so big as to appear</span></span><br><span class="line"><span class="comment">       negative. Note that since mmap takes size_t arg, it may succeed</span></span><br><span class="line"><span class="comment">       below even if we cannot call MORECORE.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (size &gt; <span class="number">0</span>)</span><br><span class="line">      &#123;</span><br><span class="line">        brk = (<span class="keyword">char</span> *) (MORECORE (size));</span><br><span class="line">        LIBC_PROBE (memory_sbrk_more, <span class="number">2</span>, brk, size);</span><br><span class="line">      &#125;</span><br></pre></td></tr></table></figure>
+<p>之后是判断av是主分配区还是配主分配区，大部分大佬分析的都是非主分配区这部分，我这里就主要看主分配区了。先是重新计算需要分配的size。然后判断当前分配区是否连续，并将size按照页对齐。当size&gt;0时，通过<code>MORECORE</code>（<code>sbrk</code>）分配连续的内存。</p>
+<p>contiguous函数定义为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> NONCONTIGUOUS_BIT     (2U)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> contiguous(M)          (((M)-&gt;flags &amp; NONCONTIGUOUS_BIT) == 0)</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (brk != (<span class="keyword">char</span> *) (MORECORE_FAILURE))</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="comment">/* Call the `morecore' hook if necessary.  */</span></span><br><span class="line">          <span class="keyword">void</span> (*hook) (<span class="keyword">void</span>) = atomic_forced_read (__after_morecore_hook);</span><br><span class="line">          <span class="keyword">if</span> (__builtin_expect (hook != <span class="literal">NULL</span>, <span class="number">0</span>))</span><br><span class="line">            (*hook)();</span><br><span class="line">        &#125;</span><br><span class="line">      <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">         ……</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<p>如果<code>sbrk</code>分配成功，并且<code>MORECORE</code>的hook函数存在，调用hook函数。（还不清楚hook用来干嘛）</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (brk != (<span class="keyword">char</span> *) (MORECORE_FAILURE))</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="keyword">if</span> (mp_.sbrk_base == <span class="number">0</span>)</span><br><span class="line">          mp_.sbrk_base = brk;</span><br><span class="line">        av-&gt;system_mem += size;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">           If MORECORE extends previous space, we can likewise extend top size.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (brk == old_end &amp;&amp; snd_brk == (<span class="keyword">char</span> *) (MORECORE_FAILURE))</span><br><span class="line">          set_head (old_top, (size + old_size) | PREV_INUSE);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (contiguous (av) &amp;&amp; old_size &amp;&amp; brk &lt; old_end)</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="comment">/* Oops!  Someone else killed our space..  Can't touch anything.  */</span></span><br><span class="line">            malloc_printerr (<span class="number">3</span>, <span class="string">"break adjusted to free malloc space"</span>, brk,</span><br><span class="line">	       av);</span><br><span class="line">          &#125;</span><br></pre></td></tr></table></figure>
+<p>如果<code>sbrk_base</code>还没有初始化，就根据brk修改<code>sbrk_base</code>的值。更新当前分配区的内存分配总量。</p>
+<p>如果新的brk和旧的top结尾是同一地址，也就是说新分配的内存与原top是挨着的，就直接更新原top头中的大小和PREV_INUSE位，相当于直接扩大了top。</p>
+<p>如果brk小于原top结尾，则出错。</p>
+<p>而对于house of orange，由于我们修改了top大小，top_end也提前了，此时分配的brk和top_end不是同一地址，而是从未修改前的top结尾开始分配的内存，即以上两个条件都不满足，从而进入到下面的这个分支。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">      <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">          front_misalign = <span class="number">0</span>;</span><br><span class="line">          end_misalign = <span class="number">0</span>;</span><br><span class="line">          correction = <span class="number">0</span>;</span><br><span class="line">          aligned_brk = brk;</span><br><span class="line"></span><br><span class="line">          <span class="comment">/* handle contiguous cases */</span></span><br><span class="line">          ……</span><br><span class="line">          <span class="comment">/* Adjust top based on results of second sbrk */</span></span><br><span class="line">          <span class="keyword">if</span> (snd_brk != (<span class="keyword">char</span> *) (MORECORE_FAILURE))</span><br><span class="line">            &#123;</span><br><span class="line">              av-&gt;top = (mchunkptr) aligned_brk;</span><br><span class="line">              set_head (av-&gt;top, (snd_brk - aligned_brk + correction) | PREV_INUSE);</span><br><span class="line">              av-&gt;system_mem += correction;</span><br><span class="line"></span><br><span class="line">              <span class="comment">/*</span></span><br><span class="line"><span class="comment">                 If not the first time through, we either have a</span></span><br><span class="line"><span class="comment">                 gap due to foreign sbrk or a non-contiguous region.  Insert a</span></span><br><span class="line"><span class="comment">                 double fencepost at old_top to prevent consolidation with space</span></span><br><span class="line"><span class="comment">                 we don't own. These fenceposts are artificial chunks that are</span></span><br><span class="line"><span class="comment">                 marked as inuse and are in any case too small to use.  We need</span></span><br><span class="line"><span class="comment">                 two to make sizes and alignments work out.</span></span><br><span class="line"><span class="comment">               */</span></span><br><span class="line"></span><br><span class="line">              <span class="keyword">if</span> (old_size != <span class="number">0</span>)</span><br><span class="line">                &#123;</span><br><span class="line">                  <span class="comment">/*</span></span><br><span class="line"><span class="comment">                     Shrink old_top to insert fenceposts, keeping size a</span></span><br><span class="line"><span class="comment">                     multiple of MALLOC_ALIGNMENT. We know there is at least</span></span><br><span class="line"><span class="comment">                     enough space in old_top to do this.</span></span><br><span class="line"><span class="comment">                   */</span></span><br><span class="line">                  old_size = (old_size - <span class="number">4</span> * SIZE_SZ) &amp; ~MALLOC_ALIGN_MASK;</span><br><span class="line">                  set_head (old_top, old_size | PREV_INUSE);</span><br><span class="line"></span><br><span class="line">                  <span class="comment">/*</span></span><br><span class="line"><span class="comment">                     Note that the following assignments completely overwrite</span></span><br><span class="line"><span class="comment">                     old_top when old_size was previously MINSIZE.  This is</span></span><br><span class="line"><span class="comment">                     intentional. We need the fencepost, even if old_top otherwise gets</span></span><br><span class="line"><span class="comment">                     lost.</span></span><br><span class="line"><span class="comment">                   */</span></span><br><span class="line">                  chunk_at_offset (old_top, old_size)-&gt;size =</span><br><span class="line">                    (<span class="number">2</span> * SIZE_SZ) | PREV_INUSE;</span><br><span class="line"></span><br><span class="line">                  chunk_at_offset (old_top, old_size + <span class="number">2</span> * SIZE_SZ)-&gt;size =</span><br><span class="line">                    (<span class="number">2</span> * SIZE_SZ) | PREV_INUSE;</span><br><span class="line"></span><br><span class="line">                  <span class="comment">/* If possible, release the rest. */</span></span><br><span class="line">                  <span class="keyword">if</span> (old_size &gt;= MINSIZE)</span><br><span class="line">                    &#123;</span><br><span class="line">                      _int_free (av, old_top, <span class="number">1</span>);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125; <span class="comment">/* if (av !=  &amp;main_arena) */</span></span><br></pre></td></tr></table></figure>
+<p>先有一些对齐操作，这里省略掉了，其中<code>aligned_brk</code>就是处理好之后的内存地址。</p>
+<p>重新设置<code>av-&gt;top</code>的地址，为重新分配的<code>aligned_brk</code>，然后通过<code>set_head</code>设置top的大小和标志位，更新分配区的总分配内存量。</p>
+<p>接着将top chunk切分为<code>fenceposts</code>和空闲块两部分，设置切分出空闲chunk大小为old_size。最终通过int_free释放掉old_top。</p>
+<p>执行前后heap的大小比对：</p>
+<p><img src="/2018/07/10/sysmalloc源码分析/h1.png" alt="原heap"></p>
+<p><img src="/2018/07/10/sysmalloc源码分析/h2.png" alt="执行后的heap"></p>
+<p>以及top地址的变化：</p>
+<p><img src="/2018/07/10/sysmalloc源码分析/t1.png" alt="原top"></p>
+<p><img src="/2018/07/10/sysmalloc源码分析/t2.png" alt="执行后的新top地址"></p>
+<p>第二个malloc执行结束后，unsortedbin中存放的即为原来的top地址</p>
+<p><img src="/2018/07/10/sysmalloc源码分析/ub.png" alt="unsorted bin"></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/09/suctf2018-noend/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1652,7 +1808,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
