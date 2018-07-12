@@ -83,44 +83,44 @@
 <meta name="keywords" content="pwn">
 <meta property="og:type" content="article">
 <meta property="og:title" content="HITCTF PWN">
-<meta property="og:url" content="http://yoursite.com/2018/02/07/HITCTF-PWN/index.html">
+<meta property="og:url" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/index.html">
 <meta property="og:site_name" content="0gur1">
 <meta property="og:description" content="STACK OVERFLOW基本逻辑main函数调用vuln函数，vuln函数中输入name字符串：  漏洞vuln函数中buf的地址是ebp-28h，即buf大小为0x28，但在读入字符串时，read参数是0x40，即栈溢出漏洞。 漏洞利用保护机制： NX堆栈不可执行  在IDA的函数一栏发现有一个flag的函数，利用该函数执行shell ：  通过栈溢出构造ROP：将vuln函数返回地址覆盖为">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/stackoverflow_1.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/stackoverflow_2.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/stackoverflow_3.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/login_1.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/login_2.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/login_3.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/dragonball_1.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/dragonball_2.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/dragonball_3.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/dragonball_4.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/dragonball_5.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/dragonball_6.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/nodes_1.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/nodes_2.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/nodes_3.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/nodes_4.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/nodes_5.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/nodes_6.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/nodes_7.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/babynote_1.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/babynote_2.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/babynote_3.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/babynote_4.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/babynote_5.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/babynote_6.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/babynote_7.png">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/babynote_9.jpg">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/babynote_8.jpg">
-<meta property="og:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/babynote_10.png">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/stackoverflow_1.png">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/stackoverflow_2.png">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/stackoverflow_3.png">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/login_1.png">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/login_2.png">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/login_3.png">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/dragonball_1.png">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/dragonball_2.png">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/dragonball_3.png">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/dragonball_4.png">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/dragonball_5.png">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/dragonball_6.png">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/nodes_1.png">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/nodes_2.png">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/nodes_3.png">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/nodes_4.png">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/nodes_5.png">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/nodes_6.png">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/nodes_7.png">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/babynote_1.png">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/babynote_2.png">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/babynote_3.png">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/babynote_4.png">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/babynote_5.png">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/babynote_6.png">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/babynote_7.png">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/babynote_9.jpg">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/babynote_8.jpg">
+<meta property="og:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/babynote_10.png">
 <meta property="og:updated_time" content="2018-06-27T14:03:10.672Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="HITCTF PWN">
 <meta name="twitter:description" content="STACK OVERFLOW基本逻辑main函数调用vuln函数，vuln函数中输入name字符串：  漏洞vuln函数中buf的地址是ebp-28h，即buf大小为0x28，但在读入字符串时，read参数是0x40，即栈溢出漏洞。 漏洞利用保护机制： NX堆栈不可执行  在IDA的函数一栏发现有一个flag的函数，利用该函数执行shell ：  通过栈溢出构造ROP：将vuln函数返回地址覆盖为">
-<meta name="twitter:image" content="http://yoursite.com/2018/02/07/HITCTF-PWN/stackoverflow_1.png">
+<meta name="twitter:image" content="http://0gur1.cc/2018/02/07/HITCTF-PWN/stackoverflow_1.png">
 
 
 
@@ -150,7 +150,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/02/07/HITCTF-PWN/"/>
+  <link rel="canonical" href="http://0gur1.cc/2018/02/07/HITCTF-PWN/"/>
 
 
 
@@ -263,7 +263,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/07/HITCTF-PWN/">
+    <link itemprop="mainEntityOfPage" href="http://0gur1.cc/2018/02/07/HITCTF-PWN/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="0gur1">
@@ -597,7 +597,8 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
@@ -619,7 +620,11 @@
 
 
 
-
+<div class="powered-by">
+<i class="fa fa-user-md"></i><span id="busuanzi_container_site_uv">
+  本站访客量:<span id="busuanzi_value_site_uv"></span>
+</span>
+</div>
         
 
 

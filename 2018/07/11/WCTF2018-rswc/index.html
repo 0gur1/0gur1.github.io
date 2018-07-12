@@ -83,33 +83,33 @@
 <meta name="keywords" content="pwn">
 <meta property="og:type" content="article">
 <meta property="og:title" content="WCTF2018-rswc">
-<meta property="og:url" content="http://yoursite.com/2018/07/11/WCTF2018-rswc/index.html">
+<meta property="og:url" content="http://0gur1.cc/2018/07/11/WCTF2018-rswc/index.html">
 <meta property="og:site_name" content="0gur1">
 <meta property="og:description" content="基本逻辑这一题也是典型的菜单类题目，共有5个功能： 123450. alloc1. edit2. show3. delete9. exit  prepare函数模拟了堆初始化的过程。  其中mmap函数的原型如下： 1void* mmap(void* start,size_t length,int prot,int flags,int fd,off_t offset); 第三个参数prot表示保护">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/2018/07/11/WCTF2018-rswc/main.png">
-<meta property="og:image" content="http://yoursite.com/2018/07/11/WCTF2018-rswc/prepare.png">
-<meta property="og:image" content="http://yoursite.com/2018/07/11/WCTF2018-rswc/init.png">
-<meta property="og:image" content="http://yoursite.com/2018/07/11/WCTF2018-rswc/arena.png">
-<meta property="og:image" content="http://yoursite.com/2018/07/11/WCTF2018-rswc/alloc.png">
-<meta property="og:image" content="http://yoursite.com/2018/07/11/WCTF2018-rswc/malloc.png">
-<meta property="og:image" content="http://yoursite.com/2018/07/11/WCTF2018-rswc/arena1.png">
-<meta property="og:image" content="http://yoursite.com/2018/07/11/WCTF2018-rswc/chunk.png">
-<meta property="og:image" content="http://yoursite.com/2018/07/11/WCTF2018-rswc/edit.png">
-<meta property="og:image" content="http://yoursite.com/2018/07/11/WCTF2018-rswc/show.png">
-<meta property="og:image" content="http://yoursite.com/2018/07/11/WCTF2018-rswc/dele.png">
-<meta property="og:image" content="http://yoursite.com/2018/07/11/WCTF2018-rswc/before.png">
-<meta property="og:image" content="http://yoursite.com/2018/07/11/WCTF2018-rswc/address-before.png">
-<meta property="og:image" content="http://yoursite.com/2018/07/11/WCTF2018-rswc/value.png">
-<meta property="og:image" content="http://yoursite.com/2018/07/11/WCTF2018-rswc/address-after.png">
-<meta property="og:image" content="http://yoursite.com/2018/07/11/WCTF2018-rswc/vmmap-after.png">
-<meta property="og:image" content="http://yoursite.com/2018/07/11/WCTF2018-rswc/seccomp.png">
-<meta property="og:image" content="http://yoursite.com/2018/07/11/WCTF2018-rswc/hack.png">
+<meta property="og:image" content="http://0gur1.cc/2018/07/11/WCTF2018-rswc/main.png">
+<meta property="og:image" content="http://0gur1.cc/2018/07/11/WCTF2018-rswc/prepare.png">
+<meta property="og:image" content="http://0gur1.cc/2018/07/11/WCTF2018-rswc/init.png">
+<meta property="og:image" content="http://0gur1.cc/2018/07/11/WCTF2018-rswc/arena.png">
+<meta property="og:image" content="http://0gur1.cc/2018/07/11/WCTF2018-rswc/alloc.png">
+<meta property="og:image" content="http://0gur1.cc/2018/07/11/WCTF2018-rswc/malloc.png">
+<meta property="og:image" content="http://0gur1.cc/2018/07/11/WCTF2018-rswc/arena1.png">
+<meta property="og:image" content="http://0gur1.cc/2018/07/11/WCTF2018-rswc/chunk.png">
+<meta property="og:image" content="http://0gur1.cc/2018/07/11/WCTF2018-rswc/edit.png">
+<meta property="og:image" content="http://0gur1.cc/2018/07/11/WCTF2018-rswc/show.png">
+<meta property="og:image" content="http://0gur1.cc/2018/07/11/WCTF2018-rswc/dele.png">
+<meta property="og:image" content="http://0gur1.cc/2018/07/11/WCTF2018-rswc/before.png">
+<meta property="og:image" content="http://0gur1.cc/2018/07/11/WCTF2018-rswc/address-before.png">
+<meta property="og:image" content="http://0gur1.cc/2018/07/11/WCTF2018-rswc/value.png">
+<meta property="og:image" content="http://0gur1.cc/2018/07/11/WCTF2018-rswc/address-after.png">
+<meta property="og:image" content="http://0gur1.cc/2018/07/11/WCTF2018-rswc/vmmap-after.png">
+<meta property="og:image" content="http://0gur1.cc/2018/07/11/WCTF2018-rswc/seccomp.png">
+<meta property="og:image" content="http://0gur1.cc/2018/07/11/WCTF2018-rswc/hack.png">
 <meta property="og:updated_time" content="2018-07-12T03:57:08.971Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="WCTF2018-rswc">
 <meta name="twitter:description" content="基本逻辑这一题也是典型的菜单类题目，共有5个功能： 123450. alloc1. edit2. show3. delete9. exit  prepare函数模拟了堆初始化的过程。  其中mmap函数的原型如下： 1void* mmap(void* start,size_t length,int prot,int flags,int fd,off_t offset); 第三个参数prot表示保护">
-<meta name="twitter:image" content="http://yoursite.com/2018/07/11/WCTF2018-rswc/main.png">
+<meta name="twitter:image" content="http://0gur1.cc/2018/07/11/WCTF2018-rswc/main.png">
 
 
 
@@ -139,7 +139,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/07/11/WCTF2018-rswc/"/>
+  <link rel="canonical" href="http://0gur1.cc/2018/07/11/WCTF2018-rswc/"/>
 
 
 
@@ -252,7 +252,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/11/WCTF2018-rswc/">
+    <link itemprop="mainEntityOfPage" href="http://0gur1.cc/2018/07/11/WCTF2018-rswc/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="0gur1">
@@ -553,7 +553,8 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
@@ -575,7 +576,11 @@
 
 
 
-
+<div class="powered-by">
+<i class="fa fa-user-md"></i><span id="busuanzi_container_site_uv">
+  本站访客量:<span id="busuanzi_value_site_uv"></span>
+</span>
+</div>
         
 
 

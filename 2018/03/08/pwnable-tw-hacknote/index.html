@@ -83,19 +83,19 @@
 <meta name="keywords" content="pwn,pwnable.tw">
 <meta property="og:type" content="article">
 <meta property="og:title" content="pwnable.tw--hacknote">
-<meta property="og:url" content="http://yoursite.com/2018/03/08/pwnable-tw-hacknote/index.html">
+<meta property="og:url" content="http://0gur1.cc/2018/03/08/pwnable-tw-hacknote/index.html">
 <meta property="og:site_name" content="0gur1">
 <meta property="og:description" content="hacknote基本逻辑这又是一道malloc相关的内存题目，但是不是老套路。三个函数：add_note，delete_note和print_note。 使用add_note分配的地址用一个堆表（自己起的名字）存放，（其实就是一个存放地址的数组）。通过add_note可以看出分配的每个块是什么结构：  首先在ptr[i]中存放一个8字节大小的block（实际malloc分配了16字节）地址；然后这">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/2018/03/08/pwnable-tw-hacknote/addnote.png">
-<meta property="og:image" content="http://yoursite.com/2018/03/08/pwnable-tw-hacknote/puts.png">
-<meta property="og:image" content="http://yoursite.com/2018/03/08/pwnable-tw-hacknote/note结构.png">
-<meta property="og:image" content="http://yoursite.com/2018/03/08/pwnable-tw-hacknote/printnote.png">
+<meta property="og:image" content="http://0gur1.cc/2018/03/08/pwnable-tw-hacknote/addnote.png">
+<meta property="og:image" content="http://0gur1.cc/2018/03/08/pwnable-tw-hacknote/puts.png">
+<meta property="og:image" content="http://0gur1.cc/2018/03/08/pwnable-tw-hacknote/note结构.png">
+<meta property="og:image" content="http://0gur1.cc/2018/03/08/pwnable-tw-hacknote/printnote.png">
 <meta property="og:updated_time" content="2018-06-27T14:03:24.672Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="pwnable.tw--hacknote">
 <meta name="twitter:description" content="hacknote基本逻辑这又是一道malloc相关的内存题目，但是不是老套路。三个函数：add_note，delete_note和print_note。 使用add_note分配的地址用一个堆表（自己起的名字）存放，（其实就是一个存放地址的数组）。通过add_note可以看出分配的每个块是什么结构：  首先在ptr[i]中存放一个8字节大小的block（实际malloc分配了16字节）地址；然后这">
-<meta name="twitter:image" content="http://yoursite.com/2018/03/08/pwnable-tw-hacknote/addnote.png">
+<meta name="twitter:image" content="http://0gur1.cc/2018/03/08/pwnable-tw-hacknote/addnote.png">
 
 
 
@@ -125,7 +125,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/03/08/pwnable-tw-hacknote/"/>
+  <link rel="canonical" href="http://0gur1.cc/2018/03/08/pwnable-tw-hacknote/"/>
 
 
 
@@ -238,7 +238,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/08/pwnable-tw-hacknote/">
+    <link itemprop="mainEntityOfPage" href="http://0gur1.cc/2018/03/08/pwnable-tw-hacknote/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="0gur1">
@@ -510,7 +510,8 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
@@ -532,7 +533,11 @@
 
 
 
-
+<div class="powered-by">
+<i class="fa fa-user-md"></i><span id="busuanzi_container_site_uv">
+  本站访客量:<span id="busuanzi_value_site_uv"></span>
+</span>
+</div>
         
 
 
