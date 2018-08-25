@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next muse use-motion" lang="zh-Hans">
+<html class="theme-next mist use-motion" lang="zh-Hans">
 <head>
   <meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -95,7 +95,7 @@
 <meta property="og:image" content="http://0gur1.cc/2018/06/05/hitbctf2018-once/f43.png">
 <meta property="og:image" content="http://0gur1.cc/2018/06/05/hitbctf2018-once/1.png">
 <meta property="og:image" content="http://0gur1.cc/2018/06/05/hitbctf2018-once/2.png">
-<meta property="og:updated_time" content="2018-06-27T14:03:04.724Z">
+<meta property="og:updated_time" content="2018-08-25T11:57:51.226Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="hitbctf2018-once">
 <meta name="twitter:description" content="once基本逻辑once名字的来由大概是很多操作都只能做一次（误） 先执行二进制文件，根据输出的字符串定位各个函数。 f1：程序维护一个双向链表结构，每个结点有四项内容，[2]和[3]分别为上个结点和下个结点的地址，表头是data段的&amp;amp;unk_202020，其中unk_202020[3]为off_202038。新加入的结点插入到头部，用off_202038进行记录。这个逻辑我还是想了一会的">
@@ -107,9 +107,9 @@
   var NexT = window.NexT || {};
   var CONFIG = {
     root: '/',
-    scheme: 'Muse',
+    scheme: 'Mist',
     version: '5.1.4',
-    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    sidebar: {"position":"left","display":"always","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
     fancybox: true,
     tabs: true,
     motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
@@ -363,8 +363,8 @@
 <p><img src="/2018/06/05/hitbctf2018-once/f42.png" alt="f4-2"></p>
 <p>​    输入3时，释放ptr内存。</p>
 <p><img src="/2018/06/05/hitbctf2018-once/f43.png" alt="f4-3"></p>
-<h2 id="漏洞及利用"><a href="#漏洞及利用" class="headerlink" title="漏洞及利用"></a>漏洞及利用</h2><p>在f2里，用户可以输入0x20个字节，能够覆盖掉结点中的前后向指针。并且在f3的解链操作中，对前后向指针进行操作，能够将程序劫持到期待的位置。简称<code>offset_202038</code>为<code>first``,unk_202020</code>为<code>head</code>：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">   			<span class="comment">//f2向结点内写内容，覆盖node[3]的地址为addr</span></span><br><span class="line"><span class="comment">//first里记录的是node的地址</span></span><br><span class="line">first = *(first+<span class="number">3</span>)</span><br><span class="line"><span class="comment">//first = addr                        </span></span><br><span class="line">   			*(first+<span class="number">2</span>)=&amp;head</span><br><span class="line">   			<span class="comment">//*(addr+2)=&amp;head</span></span><br></pre></td></tr></table></figure>
+<h2 id="漏洞及利用"><a href="#漏洞及利用" class="headerlink" title="漏洞及利用"></a>漏洞及利用</h2><p>在f2里，用户可以输入0x20个字节，能够覆盖掉结点中的前后向指针。并且在f3的解链操作中，对前后向指针进行操作，能够将程序劫持到期待的位置。简称<code>offset_202038</code>为<code>first</code>,<code>unk_202020</code>为<code>head</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//f2向结点内写内容，覆盖node[3]的地址为addr</span></span><br><span class="line"><span class="comment">//first里记录的是node的地址</span></span><br><span class="line">first = *(first+<span class="number">3</span>)</span><br><span class="line"><span class="comment">//first = addr                        </span></span><br><span class="line">*(first+<span class="number">2</span>)=&amp;head</span><br><span class="line"><span class="comment">//*(addr+2)=&amp;head</span></span><br></pre></td></tr></table></figure>
 <p>可以看出，最终能够实现向<code>addr+16</code>的地址处写入head地址。由于f4后续可以操作ptr变量，就使得<code>addr+16=&amp;ptr</code>，经过上述过程后，ptr的内容为head地址，那么后面就可以向data段和bss段任意写。</p>
 <p>本题开启了PIE保护，也就是无法直接获取到GOT，BSS变量地址。实际上，二进制文件中的相对位置是不变的。由于.data段与.bss段相邻，且相差较少，可以通过修改最后一个个字节来修改node[3]的内容。<code>addr = &amp;ptr-16 = 0x202058</code>，发送最后一个字节0x58即可。</p>
 <p><img src="/2018/06/05/hitbctf2018-once/1.png" alt=""></p>
@@ -586,7 +586,7 @@
 
 
 
-  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
 
 
 
