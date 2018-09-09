@@ -79,17 +79,17 @@
 
 
 
-<meta name="description" content="libc-database下载&amp;amp;安装下载libc-database 1git clone https://github.com/niklasb/libc-database.git 下载各种版本的libc，存放在db目录下 12cd libc-database./get 使用1./find printf 260 puts f30 这里260是要查询的libc中printf地址的后三位（十六进">
+<meta name="description" content="libc-database下载&amp;amp;安装下载libc-database 1git clone https://github.com/niklasb/libc-database.git 下载各种版本的libc，存放在db目录下 12cd libc-database./get 使用12./find printf 670 puts ca0ubuntu-xenial-i386-libc6 (id li">
 <meta property="og:type" content="article">
 <meta property="og:title" content="工具安装及使用">
 <meta property="og:url" content="http://0gur1.cc/2018/08/30/工具安装及使用/index.html">
 <meta property="og:site_name" content="0gur1">
-<meta property="og:description" content="libc-database下载&amp;amp;安装下载libc-database 1git clone https://github.com/niklasb/libc-database.git 下载各种版本的libc，存放在db目录下 12cd libc-database./get 使用1./find printf 260 puts f30 这里260是要查询的libc中printf地址的后三位（十六进">
+<meta property="og:description" content="libc-database下载&amp;amp;安装下载libc-database 1git clone https://github.com/niklasb/libc-database.git 下载各种版本的libc，存放在db目录下 12cd libc-database./get 使用12./find printf 670 puts ca0ubuntu-xenial-i386-libc6 (id li">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-08-30T04:02:45.200Z">
+<meta property="og:updated_time" content="2018-09-06T13:36:02.838Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="工具安装及使用">
-<meta name="twitter:description" content="libc-database下载&amp;amp;安装下载libc-database 1git clone https://github.com/niklasb/libc-database.git 下载各种版本的libc，存放在db目录下 12cd libc-database./get 使用1./find printf 260 puts f30 这里260是要查询的libc中printf地址的后三位（十六进">
+<meta name="twitter:description" content="libc-database下载&amp;amp;安装下载libc-database 1git clone https://github.com/niklasb/libc-database.git 下载各种版本的libc，存放在db目录下 12cd libc-database./get 使用12./find printf 670 puts ca0ubuntu-xenial-i386-libc6 (id li">
 
 
 
@@ -348,7 +348,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  80字
+                  432字
                 </span>
               
 
@@ -377,8 +377,22 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/niklasb/libc-database.git</span><br></pre></td></tr></table></figure>
 <p>下载各种版本的libc，存放在db目录下</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd libc-database</span><br><span class="line">./get</span><br></pre></td></tr></table></figure>
-<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./find printf 260 puts f30</span><br></pre></td></tr></table></figure>
-<p>这里260是要查询的libc中printf地址的后三位（十六进制），同理f30是puts函数地址的后三位。</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">./find printf 670 puts ca0</span><br><span class="line">ubuntu-xenial-i386-libc6 (id libc6_2.23-0ubuntu10_i386)</span><br></pre></td></tr></table></figure>
+<p>这里670是要查询的libc中printf地址的后三位（十六进制），同理ca0是puts函数地址的后三位。</p>
+<h1 id="seccomp-tools"><a href="#seccomp-tools" class="headerlink" title="seccomp-tools"></a>seccomp-tools</h1><h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gem install seccomp-tools</span><br></pre></td></tr></table></figure>
+<h2 id="使用-1"><a href="#使用-1" class="headerlink" title="使用"></a>使用</h2><p>目前只用到dump，查看沙箱保护允许使用的操作：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">$ seccomp-tools dump ./rswc</span><br><span class="line"> line  CODE  JT   JF      K</span><br><span class="line">=================================</span><br><span class="line"> 0000: 0x20 0x00 0x00 0x00000004  A = arch</span><br><span class="line"> 0001: 0x15 0x01 0x00 0xc000003e  if (A == ARCH_X86_64) goto 0003</span><br><span class="line"> 0002: 0x06 0x00 0x00 0x00000000  return KILL</span><br><span class="line"> 0003: 0x20 0x00 0x00 0x00000000  A = sys_number</span><br><span class="line"> 0004: 0x15 0x00 0x01 0x00000002  if (A != open) goto 0006</span><br><span class="line"> 0005: 0x06 0x00 0x00 0x7fff0000  return ALLOW</span><br><span class="line"> 0006: 0x15 0x00 0x01 0x00000000  if (A != read) goto 0008</span><br><span class="line"> 0007: 0x06 0x00 0x00 0x7fff0000  return ALLOW</span><br><span class="line"> 0008: 0x15 0x00 0x01 0x00000001  if (A != write) goto 0010</span><br><span class="line"> 0009: 0x06 0x00 0x00 0x7fff0000  return ALLOW</span><br><span class="line"> 0010: 0x15 0x00 0x01 0x0000003c  if (A != exit) goto 0012</span><br><span class="line"> 0011: 0x06 0x00 0x00 0x7fff0000  return ALLOW</span><br><span class="line"> 0012: 0x15 0x00 0x01 0x000000e7  if (A != exit_group) goto 0014</span><br><span class="line"> 0013: 0x06 0x00 0x00 0x7fff0000  return ALLOW</span><br><span class="line"> 0014: 0x06 0x00 0x00 0x00000000  return KILL</span><br></pre></td></tr></table></figure>
+<p>其他具体使用方法参考撰写工具的大佬：<a href="https://github.com/david942j/seccomp-tools" target="_blank" rel="noopener">https://github.com/david942j/seccomp-tools</a></p>
+<h1 id="one-gadget"><a href="#one-gadget" class="headerlink" title="one_gadget"></a>one_gadget</h1><h2 id="安装-1"><a href="#安装-1" class="headerlink" title="安装"></a>安装</h2><ol>
+<li><p>安装ruby环境和管理工具</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install ruby</span><br><span class="line">sudo apt-get install gem</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>安装one_gadget</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo gem install one_gadget</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h2 id="使用-2"><a href="#使用-2" class="headerlink" title="使用"></a>使用</h2><p>直接使用”one_gadget 目标文件”在目标文件里查找system(“/bin/sh”)。找到之后对以下gadget偏移一一进行尝试。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">$ one_gadget /lib/x86_64-linux-gnu/libc.so.6</span><br><span class="line">0x45216	execve(&quot;/bin/sh&quot;, rsp+0x30, environ)</span><br><span class="line">constraints:</span><br><span class="line">  rax == NULL</span><br><span class="line"></span><br><span class="line">0x4526a	execve(&quot;/bin/sh&quot;, rsp+0x30, environ)</span><br><span class="line">constraints:</span><br><span class="line">  [rsp+0x30] == NULL</span><br><span class="line"></span><br><span class="line">0xf02a4	execve(&quot;/bin/sh&quot;, rsp+0x50, environ)</span><br><span class="line">constraints:</span><br><span class="line">  [rsp+0x50] == NULL</span><br><span class="line"></span><br><span class="line">0xf1147	execve(&quot;/bin/sh&quot;, rsp+0x70, environ)</span><br><span class="line">constraints:</span><br><span class="line">  [rsp+0x70] == NULL</span><br></pre></td></tr></table></figure>
 
       
     </div>
@@ -541,7 +555,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#libc-database"><span class="nav-number">1.</span> <span class="nav-text">libc-database</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#下载-amp-安装"><span class="nav-number">1.1.</span> <span class="nav-text">下载&amp;安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用"><span class="nav-number">1.2.</span> <span class="nav-text">使用</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#libc-database"><span class="nav-number">1.</span> <span class="nav-text">libc-database</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#下载-amp-安装"><span class="nav-number">1.1.</span> <span class="nav-text">下载&amp;安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用"><span class="nav-number">1.2.</span> <span class="nav-text">使用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#seccomp-tools"><span class="nav-number">2.</span> <span class="nav-text">seccomp-tools</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#安装"><span class="nav-number">2.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用-1"><span class="nav-number">2.2.</span> <span class="nav-text">使用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#one-gadget"><span class="nav-number">3.</span> <span class="nav-text">one_gadget</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#安装-1"><span class="nav-number">3.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用-2"><span class="nav-number">3.2.</span> <span class="nav-text">使用</span></a></li></ol></li></ol></div>
             
 
           </div>
