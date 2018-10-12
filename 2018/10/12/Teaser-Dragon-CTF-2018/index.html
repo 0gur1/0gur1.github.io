@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="Production这题据说是远程没有启用assert，导致文件没有close。但我当时没看出来，现在平台关闭了也试不了了TAT，就看了些大佬的wp，了解这个漏洞是怎么用的。 相关知识关于assert  DESCRIPTION If the macro NDEBUG was defined at the moment  was last included, the macro assert() g">
+<meta name="description" content="Production这题据说是远程没有启用assert，导致文件没有close。但我当时没看出来，现在平台关闭了也试不了了TAT，就看了些大佬（Ne0 和dcua ）的wp，了解这个漏洞是怎么用的。duca的wp更细一点，两者结合更容易理解。 相关知识关于assert  DESCRIPTION If the macro NDEBUG was defined at the moment  was l">
 <meta name="keywords" content="pwn">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Teaser Dragon CTF 2018">
 <meta property="og:url" content="http://0gur1.cc/2018/10/12/Teaser-Dragon-CTF-2018/index.html">
 <meta property="og:site_name" content="0gur1">
-<meta property="og:description" content="Production这题据说是远程没有启用assert，导致文件没有close。但我当时没看出来，现在平台关闭了也试不了了TAT，就看了些大佬的wp，了解这个漏洞是怎么用的。 相关知识关于assert  DESCRIPTION If the macro NDEBUG was defined at the moment  was last included, the macro assert() g">
+<meta property="og:description" content="Production这题据说是远程没有启用assert，导致文件没有close。但我当时没看出来，现在平台关闭了也试不了了TAT，就看了些大佬（Ne0 和dcua ）的wp，了解这个漏洞是怎么用的。duca的wp更细一点，两者结合更容易理解。 相关知识关于assert  DESCRIPTION If the macro NDEBUG was defined at the moment  was l">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-10-12T14:12:43.320Z">
+<meta property="og:updated_time" content="2018-10-12T14:17:55.710Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Teaser Dragon CTF 2018">
-<meta name="twitter:description" content="Production这题据说是远程没有启用assert，导致文件没有close。但我当时没看出来，现在平台关闭了也试不了了TAT，就看了些大佬的wp，了解这个漏洞是怎么用的。 相关知识关于assert  DESCRIPTION If the macro NDEBUG was defined at the moment  was last included, the macro assert() g">
+<meta name="twitter:description" content="Production这题据说是远程没有启用assert，导致文件没有close。但我当时没看出来，现在平台关闭了也试不了了TAT，就看了些大佬（Ne0 和dcua ）的wp，了解这个漏洞是怎么用的。duca的wp更细一点，两者结合更容易理解。 相关知识关于assert  DESCRIPTION If the macro NDEBUG was defined at the moment  was l">
 
 
 
@@ -350,7 +350,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  2,675字
+                  2,693字
                 </span>
               
 
@@ -375,7 +375,7 @@
       
 
       
-        <h1 id="Production"><a href="#Production" class="headerlink" title="Production"></a>Production</h1><p>这题据说是远程没有启用assert，导致文件没有close。但我当时没看出来，现在平台关闭了也试不了了TAT，就看了些大佬的wp，了解这个漏洞是怎么用的。</p>
+        <h1 id="Production"><a href="#Production" class="headerlink" title="Production"></a>Production</h1><p>这题据说是远程没有启用assert，导致文件没有close。但我当时没看出来，现在平台关闭了也试不了了TAT，就看了些大佬（<a href="https://changochen.github.io/2018/09/29/Teaser-Dragon-CTF-2018/" target="_blank" rel="noopener">Ne0</a> 和<a href="https://ctftime.org/writeup/11454" target="_blank" rel="noopener">dcua</a> ）的wp，了解这个漏洞是怎么用的。duca的wp更细一点，两者结合更容易理解。</p>
 <h2 id="相关知识"><a href="#相关知识" class="headerlink" title="相关知识"></a>相关知识</h2><p><strong>关于assert</strong></p>
 <blockquote>
 <p><strong>DESCRIPTION</strong> If the macro NDEBUG was defined at the moment <assert.h> was last included, the macro assert() generates no code, and hence does nothing at all. Otherwise, the macro assert() prints an error message to standard error and terminates the program by calling abort(3) if expression is false (i.e., compares equal to zero).</assert.h></p>
