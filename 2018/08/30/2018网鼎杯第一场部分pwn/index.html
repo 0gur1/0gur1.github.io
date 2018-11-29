@@ -125,7 +125,7 @@
 <meta property="og:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/user2_pwd.png">
 <meta property="og:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/whole.png">
 <meta property="og:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/another.png">
-<meta property="og:updated_time" content="2018-11-06T02:18:31.496Z">
+<meta property="og:updated_time" content="2018-11-24T00:50:29.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="2018网鼎杯第一场部分pwn">
 <meta name="twitter:description" content="好久没做题，手已经生了，这次比赛提醒自己不能懈怠= = Guess基本逻辑程序逻辑比较简单，每次比对flag时fork一个新的子进程进行比较。  再给自己讲一次fork函数：系统会先给新的子进程分配资源，然后从父进程中将各个数据复制到新的进程中。虽然在gdb中调试查看父进程和子进程的同一个变量是在同一个地址，但是实际上的物理地址是不同的，它们的资源是独立的，操作父进程中的变量不会影响子进程，如题目">
@@ -402,7 +402,7 @@
 <p><img src="/2018/08/30/2018网鼎杯第一场部分pwn/checksec.png" alt="checksec"></p>
 <p>在<a href="https://ctf-wiki.github.io/ctf-wiki/pwn/stackoverflow/others/#stack-smash" target="_blank" rel="noopener">ctf-wiki</a>中提到，当canary的值被修改后，程序就会执行__stack_chk_fail函数来打印argv[0]指针所指向的字符串，一般情况下都是程序名。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// debug/stack_chk_fail.c</span></span><br><span class="line"><span class="keyword">void</span></span><br><span class="line">__attribute__ ((noreturn))</span><br><span class="line">__stack_chk_fail (<span class="keyword">void</span>)</span><br><span class="line">&#123;</span><br><span class="line">  __fortify_fail (<span class="string">"stack smashing detected"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// debug/fortify_fail.c</span></span><br><span class="line"><span class="keyword">void</span></span><br><span class="line">__attribute__ ((noreturn)) internal_function</span><br><span class="line">__fortify_fail (<span class="keyword">const</span> <span class="keyword">char</span> *msg)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">/* The loop is added only to keep gcc happy.  */</span></span><br><span class="line">  <span class="keyword">while</span> (<span class="number">1</span>)</span><br><span class="line">    __libc_message (<span class="number">2</span>, <span class="string">"*** %s ***: %s terminated\n"</span>,</span><br><span class="line">		    msg, __libc_argv[<span class="number">0</span>] ?: <span class="string">"&lt;unknown&gt;"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>尝试输入超过0x40个字节，并在<code>__fortify_fai</code>l处设置断点，查看<code>__libc_message</code>的参数：</p>
+<p>尝试输入超过0x40个字节，并在<code>__fortify_fail</code>处设置断点，查看<code>__libc_message</code>的参数：</p>
 <p><img src="/2018/08/30/2018网鼎杯第一场部分pwn/canary.png" alt="__libc_message的参数"></p>
 <p>此时argv[0]中的字符串为程序名，继续执行，就会打印结果：</p>
 <p><img src="/2018/08/30/2018网鼎杯第一场部分pwn/result.png" alt="canary保护的输出"></p>
