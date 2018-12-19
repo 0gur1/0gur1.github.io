@@ -95,7 +95,7 @@
 <meta property="og:image" content="http://0gur1.cc/2018/06/05/hitbctf2018-once/f43.png">
 <meta property="og:image" content="http://0gur1.cc/2018/06/05/hitbctf2018-once/1.png">
 <meta property="og:image" content="http://0gur1.cc/2018/06/05/hitbctf2018-once/2.png">
-<meta property="og:updated_time" content="2018-08-25T11:57:51.226Z">
+<meta property="og:updated_time" content="2018-12-05T05:05:57.261Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="hitbctf2018-once">
 <meta name="twitter:description" content="once基本逻辑once名字的来由大概是很多操作都只能做一次（误） 先执行二进制文件，根据输出的字符串定位各个函数。 f1：程序维护一个双向链表结构，每个结点有四项内容，[2]和[3]分别为上个结点和下个结点的地址，表头是data段的&amp;amp;unk_202020，其中unk_202020[3]为off_202038。新加入的结点插入到头部，用off_202038进行记录。这个逻辑我还是想了一会的">
@@ -384,7 +384,7 @@
 <p>本题开启了PIE保护，也就是无法直接获取到GOT，BSS变量地址。实际上，二进制文件中的相对位置是不变的。由于.data段与.bss段相邻，且相差较少，可以通过修改最后一个个字节来修改node[3]的内容。<code>addr = &amp;ptr-16 = 0x202058</code>，发送最后一个字节0x58即可。</p>
 <p><img src="/2018/06/05/hitbctf2018-once/1.png" alt=""></p>
 <p><img src="/2018/06/05/hitbctf2018-once/2.png" alt="data段和bss段地址"></p>
-<p>之后f4向ptr写入内容就相当于向<code>unk_202020</code>起始的位置写入内容。由于f2能够向<code>off_202038</code>中的地址写入内容，不妨将offset_202038的值写为 <code>__free_hook</code>的地址，之后调用f2就可以向这里写入<code>system</code>地址。为了再次利用f2函数，应该覆写位于bss中的dword_202064变量。这样，覆写了 <code>__free_hook</code>之后，再次调用free就会执行<code>system</code>，f4中的3调用了<code>free</code>函数，对ptr中地址进行释放，因此可以将ptr中的值覆写为<code>/bin/sh</code>的地址。</p>
+<p>之后f4向ptr写入内容就相当于向<code>unk_202020</code>起始的位置写入内容。由于f2能够向<code>off_202038</code>中的地址写入内容，不妨将<code>offset_202038</code>的值写为 <code>__free_hook</code>的地址，之后调用f2就可以向这里写入<code>system</code>地址。为了再次利用f2函数，应该覆写位于bss中的<code>dword_202064</code>变量。这样，覆写了 <code>__free_hook</code>之后，再次调用free就会执行<code>system</code>，f4中的3调用了<code>free</code>函数，对ptr中地址进行释放，因此可以将ptr中的值覆写为<code>/bin/sh</code>的地址。</p>
 <p>一共要进行三次写操作：</p>
 <p>1.f2向<code>offset_202038</code>中写入24字节填充和1字节0x58覆盖后向指针</p>
 <p>2.f4-2向ptr中写入<code>__free_hook</code>地址、<code>/bin/sh</code>地址和对一些标识位置位。</p>
@@ -516,7 +516,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-count">21</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
