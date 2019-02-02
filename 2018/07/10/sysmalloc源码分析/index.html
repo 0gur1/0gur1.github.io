@@ -94,7 +94,7 @@
 <meta property="og:image" content="http://0gur1.cc/2018/07/10/sysmalloc源码分析/t2.png">
 <meta property="og:image" content="http://0gur1.cc/2018/07/10/sysmalloc源码分析/ub.png">
 <meta property="og:image" content="http://0gur1.cc/2018/07/10/sysmalloc源码分析/1.png">
-<meta property="og:updated_time" content="2019-02-01T11:32:54.772Z">
+<meta property="og:updated_time" content="2019-02-02T12:10:10.707Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="sysmalloc源码分析">
 <meta name="twitter:description" content="之前在做SUCTF的note时接触到了house of orange的原理，即将top的大小修改为一个比较小的值，再分配一个比size大的值时，原来的top就会free并放入到unsorted bin里，重新产生一个新的top。而note这道题由于可以自己创造出unsorted bin，就没有修改top的大小。今天简单看了一下sysmalloc的源码，重新认识了house of orange。ps">
