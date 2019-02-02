@@ -125,7 +125,7 @@
 <meta property="og:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/user2_pwd.png">
 <meta property="og:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/whole.png">
 <meta property="og:image" content="http://0gur1.cc/2018/08/30/2018网鼎杯第一场部分pwn/another.png">
-<meta property="og:updated_time" content="2019-01-31T07:45:40.963Z">
+<meta property="og:updated_time" content="2019-01-31T11:26:45.221Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="2018网鼎杯第一场部分pwn">
 <meta name="twitter:description" content="好久没做题，手已经生了，这次比赛提醒自己不能懈怠= = Guess基本逻辑程序逻辑比较简单，每次比对flag时fork一个新的子进程进行比较。  再给自己讲一次fork函数：系统会先给新的子进程分配资源，然后从父进程中将各个数据复制到新的进程中。虽然在gdb中调试查看父进程和子进程的同一个变量是在同一个地址，但是实际上的物理地址是不同的，它们的资源是独立的，操作父进程中的变量不会影响子进程，如题目">
@@ -369,7 +369,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  4,982字
+                  4,981字
                 </span>
               
 
@@ -461,7 +461,7 @@
 <h2 id="漏洞分析-2"><a href="#漏洞分析-2" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p>同样，babyheap中的release函数也没有对free掉的指针置零，存在UAF漏洞和double free漏洞。本题没有给system函数，先对libc进行泄露，再覆写free_hook为system。</p>
 <p>libc的泄露和free_hook的改写都要需要对ptr数组进行修改，然后通过show和change函数完成泄露和改写。如何能对ptr数组改写呢？由于本题的块大小已被修改为0x20，即chunk size处为0x30，已不能使用blind中的方法。为了能对ptr进行覆写，可以伪造一个chunk，构造FD和BK，通过free触发unlink实现。</p>
 <h2 id="漏洞利用-2"><a href="#漏洞利用-2" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><h3 id="unlink实现ptr数组的覆写"><a href="#unlink实现ptr数组的覆写" class="headerlink" title="unlink实现ptr数组的覆写"></a>unlink实现ptr数组的覆写</h3><p>当要free一个0x90的块时，如果它的前一块是一个空闲块时，会先对前一块进行unlink，然后再把这两块合并。因此，我们需要一个chunk size为0x90且inuse位已经置零的chunk，以及空闲的上一块。</p>
-<p>实际上，题目中是存在堆溢出漏洞的，可以利用这个漏洞修改某个块的chunk size字段。堆溢出漏洞如下：如果在已分配的content部分构造一个chunk size为0x30的fastbin，就能通过fastbin attack修改FD指针为这个chunk size，再次分配的块就指向了这个chunk+0x10处，在读入0x20个字节时，就会覆盖掉下一块的chunk size字段。</p>
+<p>实际上，题目中是存在堆溢出漏洞的，可以利用这个漏洞修改某个块的chunk size字段。堆溢出漏洞如下：如果在已分配的content部分构造一个chunk size为0x30的fastbin，就能通过fastbin attack修改FD指针为这个chunk，再次分配的块就指向了这个chunk+0x10处，在读入0x20个字节时，就会覆盖掉下一块的chunk size字段。</p>
 <p>另外由于存在UAF漏洞，在fastbin attack中也能顺便泄露堆地址。</p>
 <p><img src="/2018/08/30/2018网鼎杯第一场部分pwn/heap1.png" alt="堆溢出漏洞及fastbin attack结合修改堆上内容"></p>
 <p>接下来，把content0构造成空闲的上一块，写入FD和BK指针。这里就是unlink的套路了，FD和BK分别写入ptr[0]-0x18和ptr[0]-0x10，在unlink时先检查 FD-&gt;bk==BK-&gt;fd==P，其中P为要释放的地址，即：<code>*(ptr[0]-0x18+0x18) == *(ptr[0]-0x10+0x10) ==*(ptr[0])</code>，接着是unlink的FD-&gt;bk=BK，BK-&gt;fd=FD，即：</p>
@@ -644,7 +644,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-count">23</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -657,7 +657,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
